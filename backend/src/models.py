@@ -27,18 +27,6 @@ class CompanyOfficer(BaseModel):
     yearBorn: Optional[int] = None
 
 
-class CompanyOfficer(BaseModel):
-    age: Optional[int] = None
-    exercisedValue: int
-    fiscalYear: int
-    maxAge: int
-    name: str
-    title: str
-    totalPay: Optional[int] = None
-    unexercisedValue: int
-    yearBorn: Optional[int] = None
-
-
 class Info(BaseModel):
     field_52WeekChange: Optional[float] = Field(None, alias="52WeekChange")
     SandP52WeekChange: Optional[float] = None
@@ -57,7 +45,7 @@ class Info(BaseModel):
     boardRisk: Optional[int] = None
     bookValue: Optional[float] = None
     city: Optional[str] = None
-    companyOfficers: List[CompanyOfficer] = None
+    companyOfficers: Optional[List[CompanyOfficer]] = None
     compensationAsOfEpochDate: Optional[int] = None
     compensationRisk: Optional[int] = None
     corporateActions: Optional[List] = None
@@ -273,7 +261,7 @@ class RawQuote(BaseModel):
     industry: Optional[str] = None
     industryDisp: Optional[str] = None
     isYahooFinance: bool
-    longname: str
+    longname: Optional[str] = None
     quoteType: str
     score: int
     sector: Optional[str] = None
@@ -287,6 +275,8 @@ class Quote(BaseModel):
     raw: RawQuote
     info: Info
     icon_url: Optional[str] = None
+    # Change % for since open
+    today_change: Optional[float] = None
 
 
 class SearchResponse(BaseModel):
@@ -320,7 +310,5 @@ class TickerResponse(BaseModel):
 
 
 class NotFoundResponse(BaseModel):
-    code: int = Field(-1, description="Status Code")
-    message: str = Field(
-        "Resource not found!", description="Exception Information"
-    )
+    code: int = -1
+    message: str = "Resource not found!"

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import type { PageData } from './$types';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -15,8 +14,7 @@
 		SidebarItem,
 		SidebarWrapper,
 		Drawer,
-		CloseButton,
-		SidebarDropdownWrapper
+		CloseButton
 	} from 'flowbite-svelte';
 	import { CurrencyDollar } from 'svelte-heros-v2';
 	import { sineIn } from 'svelte/easing';
@@ -26,7 +24,6 @@
 		duration: 200,
 		easing: sineIn
 	};
-	export let data: PageData;
 
 	let breakPoint: number = 1024;
 	let width: number;

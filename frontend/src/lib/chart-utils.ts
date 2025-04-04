@@ -1,5 +1,4 @@
-import colorLib from "@kurkle/color";
-import { DateTime } from "luxon";
+import colorLib, { Color, type RGBA } from "@kurkle/color";
 import "chartjs-adapter-luxon";
 
 // Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
@@ -9,18 +8,25 @@ function valueOrDefault(value: any, def: any) {
   return value || def;
 }
 
-export function srand(seed) {
+export function srand(seed: number) {
   _seed = seed;
 }
 
-export function rand(min, max) {
-  min = valueOrDefault(min, 0);
-  max = valueOrDefault(max, 0);
+export function rand(min: number = 0, max: number = 0) {
   _seed = (_seed * 9301 + 49297) % 233280;
-  return min + (_seed / 233280) * (max - min);
+  return min! + (_seed / 233280) * (max! - min!);
 }
 
-export function numbers(config) {
+export function numbers(
+  config: {
+    min: number | undefined;
+    max: number | undefined;
+    from: number | undefined;
+    count: number | undefined;
+    decimals: number | undefined;
+    continuity: number | undefined;
+  },
+) {
   var cfg = config || {};
   var min = valueOrDefault(cfg.min, 0);
   var max = valueOrDefault(cfg.max, 100);
@@ -44,39 +50,7 @@ export function numbers(config) {
   return data;
 }
 
-export function points(config) {
-  const xs = numbers(config);
-  const ys = numbers(config);
-  return xs.map((x, i) => ({ x, y: ys[i] }));
-}
-
-export function bubbles(config) {
-  return points(config).map((pt) => {
-    pt.r = rand(config.rmin, config.rmax);
-    return pt;
-  });
-}
-
-export function labels(config) {
-  var cfg = config || {};
-  var min = cfg.min || 0;
-  var max = cfg.max || 100;
-  var count = cfg.count || 8;
-  var step = (max - min) / count;
-  var decimals = cfg.decimals || 8;
-  var dfactor = Math.pow(10, decimals) || 0;
-  var prefix = cfg.prefix || "";
-  var values = [];
-  var i;
-
-  for (i = min; i < max; i += step) {
-    values.push(prefix + Math.round(dfactor * i) / dfactor);
-  }
-
-  return values;
-}
-
-const MONTHS = [
+export const MONTHS = [
   "January",
   "February",
   "March",
@@ -91,38 +65,10 @@ const MONTHS = [
   "December",
 ];
 
-export function months(config) {
-  var cfg = config || {};
-  var count = cfg.count || 12;
-  var section = cfg.section;
-  var values = [];
-  var i, value;
-
-  for (i = 0; i < count; ++i) {
-    value = MONTHS[Math.ceil(i) % 12];
-    values.push(value.substring(0, section));
-  }
-
-  return values;
-}
-
-const COLORS = [
-  "#4dc9f6",
-  "#f67019",
-  "#f53794",
-  "#537bc4",
-  "#acc236",
-  "#166a8f",
-  "#00a950",
-  "#58595b",
-  "#8549ba",
-];
-
-export function color(index) {
-  return COLORS[index % COLORS.length];
-}
-
-export function transparentize(value, opacity) {
+export function transparentize(
+  value: string | number[] | Color | RGBA,
+  opacity: number | undefined,
+) {
   var alpha = opacity === undefined ? 0.5 : 1 - opacity;
   return colorLib(value).alpha(alpha).rgbString();
 }
@@ -147,18 +93,6 @@ const NAMED_COLORS = [
   CHART_COLORS.grey,
 ];
 
-export function namedColor(index) {
+export function namedColor(index: number) {
   return NAMED_COLORS[index % NAMED_COLORS.length];
-}
-
-export function newDate(days) {
-  return DateTime.now().plus({ days }).toJSDate();
-}
-
-export function newDateString(days) {
-  return DateTime.now().plus({ days }).toISO();
-}
-
-export function parseISODate(str) {
-  return DateTime.fromISO(str);
 }

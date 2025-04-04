@@ -10,15 +10,15 @@ using flask for the backend and svelte for the frontend.
   - [ ] fix PE and dividend Yield
   - [ ] fix buttons and URL reload
   - [ ] format numbers in Millions, Billions and $ / %
-  - [ ] add %PNL over period
+  - [x] add %PNL over period
   - [ ] add LIVE price (red:green) next to FULL NAME
   - [ ] graphs earning growth
   - [ ] outstanding shares
   - [ ] Market sentiment (reddit & Insider buy/Sell)
   - [ ] add average 2y return
 
-- [ ] Live search engine
-  - [ ] Quick view : Price and today's PNL
+- [x] Live search engine
+  - [~] Quick view : Price and today's PNL
 - [x]: display price overtime
   - [ ]: variable candle size
   - [x]: variable time frame (zoom)

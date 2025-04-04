@@ -3,6 +3,8 @@
 	import { Button, ButtonGroup, Card } from 'flowbite-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { formatPercent, ratioColor } from '$lib/format-utils';
+	import type { components } from '../../../generated/api.js';
 
 	let { data } = $props();
 
@@ -37,30 +39,13 @@
 		// MAIN:
 		// ratioPE: float
 		// freeCashflowYield: float
-	];
+	] satisfies { label: string; value: keyof components['schemas']['Info'] }[];
 	const changeRange = (newValue: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
 
 		query.set('period', newValue);
 
 		goto(`?${query.toString()}`, { replaceState: true });
-	};
-
-	function roundPrecision(value: number, precision: number) {
-		let factor = Math.pow(10, precision);
-		return Math.round(value * factor) / factor;
-	}
-	function formatPercent(ratio: number) {
-		return `${roundPrecision(ratio * 100, 2)}%`;
-	}
-	const ratioColor = () => {
-		if (data.history?.delta! > 0) {
-			return 'green';
-		} else if (data.history?.delta! < 0) {
-			return 'red';
-		} else {
-			return 'gray';
-		}
 	};
 </script>
 
@@ -71,7 +56,7 @@
 </div>
 <div>
 	<div class="flex justify-center">
-		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor()}`}>
+		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor(data.history?.delta)}`}>
 			{formatPercent(data.history?.delta!)}
 		</p>
 	</div>
@@ -80,7 +65,7 @@
 			title={`Price: ${data.history?.query.period}`}
 			dataset={data.history?.candles}
 			yValuesIndex="Close"
-			color={ratioColor()}
+			color={ratioColor(data.history?.delta)}
 		/>
 	</div>
 	<div class="flex justify-center">
@@ -95,11 +80,11 @@
 		<Card class="w-full max-w-screen-lg" shadow={true}>
 			<div class="grid grid-cols-3 gap-x-11 gap-y-3 text-xl">
 				{#each kpis as kpi}
-					{#if data.summary.info[kpi.value] !== null}
+					{#if data.summary?.info[kpi.value] !== null}
 						<div>
 							<strong>{kpi.label}</strong>
 							<br />
-							<span>{data.summary.info[kpi.value]}</span>
+							<span>{data.summary!.info[kpi.value]}</span>
 						</div>
 					{/if}
 				{/each}

@@ -4,6 +4,7 @@ import yfinance as yf
 from flask_openapi3 import Info, Tag
 from flask_openapi3 import OpenAPI
 from src import models
+from typing import List
 from src.models import (
     TickerResponse,
     TickerQuery,
@@ -81,13 +82,21 @@ def get_kpis(query: KPIQuery):
     responses={200: SearchResponse},
 )
 def search_ticker(query: SearchQuery):
-    quotes: List[RawQuote] = list(
+    raw_quotes: List[RawQuote] = list(
         map(RawQuote.model_validate, yf.Search(query.query).quotes)
     )
-    quotes_names = list(quote.symbol for quote in quotes)
+    quotes_names = list(quote.symbol for quote in raw_quotes)
     tickers = yf.Tickers(quotes_names).tickers
     infos: List[models.Info] = [
         models.Info.model_validate(t.info) for t in tickers.values()
+    ]
+    deltas = [
+        (
+            ((i.currentPrice - i.open) / i.currentPrice)
+            if i.currentPrice and i.open
+            else None
+        )
+        for i in infos
     ]
 
     quotes = [
@@ -99,7 +108,8 @@ def search_ticker(query: SearchQuery):
                 if info.website is None
                 else f"https://logo.clearbit.com/{info.website}"
             ),
+            today_change=today_change,
         )
-        for (raw, info) in zip(quotes, infos)
+        for (raw, info, today_change) in zip(raw_quotes, infos, deltas)
     ]
     return SearchResponse(quotes=quotes, query=query).dict(), 200

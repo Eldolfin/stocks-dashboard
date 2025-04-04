@@ -1052,6 +1052,8 @@ export interface components {
             icon_url: string | null;
             info: components["schemas"]["Info"];
             raw: components["schemas"]["RawQuote"];
+            /** Today Change */
+            today_change: number;
         };
         /** RawQuote */
         RawQuote: {
@@ -1078,8 +1080,11 @@ export interface components {
             industryDisp: string | null;
             /** Isyahoofinance */
             isYahooFinance: boolean;
-            /** Longname */
-            longname: string;
+            /**
+             * Longname
+             * @default null
+             */
+            longname: string | null;
             /** Quotetype */
             quoteType: string;
             /** Score */
