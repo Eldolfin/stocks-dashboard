@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
-	Avatar,
+		Avatar,
+		Button,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -8,13 +9,14 @@
 		TableHead,
 		TableHeadCell
 	} from 'flowbite-svelte';
-	import { Label, Input,  } from 'flowbite-svelte';
+	import { Label, Input } from 'flowbite-svelte';
 	import { SearchOutline } from 'flowbite-svelte-icons';
 	import type { components } from '../generated/api';
 	import { client } from '$lib/typed-fetch-client';
+	import { goto } from '$app/navigation';
 
-	let searchResult = $state<components["schemas"]["Quote"][] | undefined>(undefined);
-	let searchText = $state('');
+	let searchResult = $state<components['schemas']['Quote'][] | undefined>(undefined);
+	let searchText = $state('apple');
 	const onSearch = async () => {
 		const res = await client.GET('/api/search/', {
 			params: {
@@ -23,8 +25,9 @@
 				}
 			}
 		});
-		searchResult = res.data?.quotes
+		searchResult = res.data?.quotes;
 	};
+	onSearch();
 </script>
 
 <div class="p-8">
@@ -37,17 +40,23 @@
 	</form>
 
 	{#if searchResult !== undefined}
-		<Table>
+		<Table class="mt-10" hoverable={true}>
 			<TableHead>
 				<TableHeadCell>Stock name</TableHeadCell>
 				<TableHeadCell>Logo</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
 				{#each searchResult as quote}
-				<TableBodyRow>
-					<TableBodyCell>{quote.raw.longname}</TableBodyCell>
-					<TableBodyCell>  <Avatar src={quote.icon_url} /></TableBodyCell>
-				</TableBodyRow>
+					<TableBodyRow
+						on:click={() => {
+							goto(`/details/${quote.raw.symbol}`);
+						}}
+					>
+						<TableBodyCell>{quote.raw.longname}</TableBodyCell>
+						<TableBodyCell>
+							<Avatar src={quote.icon_url} rounded/>
+						</TableBodyCell>
+					</TableBodyRow>
 				{/each}
 			</TableBody>
 		</Table>

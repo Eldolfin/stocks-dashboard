@@ -81,9 +81,12 @@ def search_ticker(query: SearchQuery):
         Quote(
             raw=raw,
             info=info,
-            icon_url=f"https://logo.clearbit.com/{info.website}",
+            icon_url=(
+                None
+                if info.website is None
+                else f"https://logo.clearbit.com/{info.website}"
+            ),
         )
         for (raw, info) in zip(quotes, infos)
     ]
-
     return SearchResponse(quotes=quotes, query=query).dict(), 200

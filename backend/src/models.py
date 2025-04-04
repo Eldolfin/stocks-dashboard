@@ -280,7 +280,7 @@ class RawQuote(BaseModel):
 class Quote(BaseModel):
     raw: RawQuote
     info: Info
-    icon_url: str
+    icon_url: Optional[str] = None
 
 
 class SearchResponse(BaseModel):
@@ -299,7 +299,7 @@ class TickerQuery(BaseModel):
 class TickerCandle(BaseModel):
     Close: float
     Date: str
-    Dividends: int
+    Dividends: float
     High: float
     Low: float
     Open: float
