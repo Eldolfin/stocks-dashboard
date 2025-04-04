@@ -1,0 +1,9 @@
+name: 'finance-dashboard-dev'
+services:
+  backend:
+    build: ../backend
+    container_name: backend
+    ports:
+      - 5000:5000
+    volumes:
+      - ../backend:/app:ro
