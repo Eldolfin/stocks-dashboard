@@ -53,10 +53,13 @@ def get_kpis(query: KPIQuery):
     except Exception:
         return NotFoundResponse().dict(), 404
 
-    main = MainKPIs(
-        ratioPE=dat.info["marketCap"] / dat.info["ebitda"],
-        freeCashflowYield=dat.info["freeCashflow"] / dat.info["marketCap"],
-    )
+    if "marketCap" in dat.info:
+        main = MainKPIs(
+            ratioPE=dat.info["marketCap"] / dat.info["ebitda"],
+            freeCashflowYield=dat.info["freeCashflow"] / dat.info["marketCap"],
+        )
+    else:
+        main = None
     return (
         KPIResponse(
             query=query,

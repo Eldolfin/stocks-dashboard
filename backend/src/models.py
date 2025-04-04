@@ -8,11 +8,11 @@ from pydantic import BaseModel, Field
 
 
 class AnalystPriceTargets(BaseModel):
-    current: float
-    high: int
-    low: int
-    mean: float
-    median: int
+    current: Optional[float] = None
+    high: Optional[int] = None
+    low: Optional[int] = None
+    mean: Optional[float] = None
+    median: Optional[int] = None
 
 
 class CompanyOfficer(BaseModel):
@@ -230,10 +230,10 @@ class MainKPIs(BaseModel):
 
 
 class KPIResponse(BaseModel):
-    analyst_price_targets: AnalystPriceTargets
+    analyst_price_targets: Optional[AnalystPriceTargets] = None
     info: Info
     query: KPIQuery
-    main: MainKPIs
+    main: Optional[MainKPIs] = None
 
 
 ##################
