@@ -2,10 +2,18 @@ from flask import Flask
 import yfinance as yf
 from flask_openapi3 import Info, Tag
 from flask_openapi3 import OpenAPI
-from src.models import TickerResponse, TickerQuery, SearchResponse, SearchQuery
+from src.models import (
+    TickerResponse,
+    TickerQuery,
+    SearchResponse,
+    SearchQuery,
+    KPIResponse,
+    KPIQuery,
+    NotFoundResponse,
+)
 
 
-info = Info(title="book API", version="1.0.0")
+info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 
 
@@ -26,6 +34,27 @@ def get_ticker(query: TickerQuery):
     except Exception:
         return NotFoundResponse().dict(), 404
     return TickerResponse(candles=data, query=query).dict(), 200
+
+
+@app.get(
+    "/api/kpis/",
+    summary="get a ticker's kpis",
+    responses={200: KPIResponse, 404: NotFoundResponse},
+)
+def get_kpis(query: KPIQuery):
+    try:
+        dat = yf.Ticker(query.ticker_name)
+    except Exception:
+        return NotFoundResponse().dict(), 404
+
+    return (
+        KPIResponse(
+            query=query,
+            analyst_price_targets=dat.analyst_price_targets,
+            info=dat.info,
+        ).dict(),
+        200,
+    )
 
 
 @app.get(
