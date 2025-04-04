@@ -113,3 +113,7 @@ def search_ticker(query: SearchQuery):
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas)
     ]
     return SearchResponse(quotes=quotes, query=query).dict(), 200
+
+
+def create_app():
+    return app

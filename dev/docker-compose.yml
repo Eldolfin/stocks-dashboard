@@ -1,13 +1,17 @@
 name: 'finance-dashboard-dev'
 services:
   backend:
-    build: ../backend
+    image: gitea.eldolfin.top/eldolfin/finance-plots-backend:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.prod
     container_name: backend
     ports:
-      - 5000:5000
+      - 5000:5000 # local debugging
     volumes:
       - ../backend:/app:ro
   frontend:
+    image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
     build: ../frontend
     container_name: frontend
     extra_hosts:

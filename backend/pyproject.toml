@@ -1,0 +1,11 @@
+[project]
+name = "finance_dashboard_api"
+version = "1.0.0"
+description = "Api for a simple finance dashboard"
+dependencies = [
+"yfinance",
+"flask",
+"flask-openapi3[swagger,redoc,rapidoc]",
+"pydantic==2.11.2",
+"flask_cors",
+]
