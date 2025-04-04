@@ -10,7 +10,7 @@ available at [wsb.eldolfin.top](https://wsb.eldolfin.top/)
 
 ### Development
 
-dependencies: just, docker, npm
+dependencies: just, docker, docker-compose, npm
 
 ### Backend
 
