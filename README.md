@@ -40,4 +40,4 @@ using flask for the backend and svelte for the frontend.
 - [ ]: gamification
   - [ ]: fireworks when ATH/daily PNL > 5%
 
--deploy with domain name
+- [x]: deploy with domain name
