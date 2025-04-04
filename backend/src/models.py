@@ -9,8 +9,8 @@ from pydantic import BaseModel, Field
 
 class AnalystPriceTargets(BaseModel):
     current: Optional[float] = None
-    high: Optional[int] = None
-    low: Optional[int] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
     mean: Optional[float] = None
     median: Optional[int] = None
 
