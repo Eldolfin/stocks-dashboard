@@ -61,16 +61,31 @@ export interface components {
     schemas: {
         /** AnalystPriceTargets */
         AnalystPriceTargets: {
-            /** Current */
-            current: number;
-            /** High */
-            high: number;
-            /** Low */
-            low: number;
-            /** Mean */
-            mean: number;
-            /** Median */
-            median: number;
+            /**
+             * Current
+             * @default null
+             */
+            current: number | null;
+            /**
+             * High
+             * @default null
+             */
+            high: number | null;
+            /**
+             * Low
+             * @default null
+             */
+            low: number | null;
+            /**
+             * Mean
+             * @default null
+             */
+            mean: number | null;
+            /**
+             * Median
+             * @default null
+             */
+            median: number | null;
         };
         /** CompanyOfficer */
         CompanyOfficer: {
@@ -999,9 +1014,11 @@ export interface components {
         };
         /** KPIResponse */
         KPIResponse: {
-            analyst_price_targets: components["schemas"]["AnalystPriceTargets"];
+            /** @default null */
+            analyst_price_targets: components["schemas"]["AnalystPriceTargets"] | null;
             info: components["schemas"]["Info"];
-            main: components["schemas"]["MainKPIs"];
+            /** @default null */
+            main: components["schemas"]["MainKPIs"] | null;
             query: components["schemas"]["KPIQuery"];
         };
         /** MainKPIs */
@@ -1128,6 +1145,8 @@ export interface components {
         TickerResponse: {
             /** Candles */
             candles: components["schemas"]["TickerCandle"][];
+            /** Delta */
+            delta: number;
             query: components["schemas"]["TickerQuery"];
         };
         /** ValidationErrorModel */

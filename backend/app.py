@@ -36,10 +36,14 @@ def get_ticker(query: TickerQuery):
         # Convert the Date field to string
         history["Date"] = history["Date"].dt.strftime("%Y-%m-%d")
 
-        data = history.to_dict(orient="records")
     except Exception:
         return NotFoundResponse().dict(), 404
-    return TickerResponse(candles=data, query=query).dict(), 200
+
+    first_row = history.iloc[0]
+    last_row = history.iloc[-1]
+    data = history.to_dict(orient="records")
+    delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
+    return TickerResponse(candles=data, query=query, delta=delta).dict(), 200
 
 
 @app.get(

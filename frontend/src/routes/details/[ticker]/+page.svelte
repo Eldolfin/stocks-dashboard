@@ -45,6 +45,23 @@
 
 		goto(`?${query.toString()}`, { replaceState: true });
 	};
+
+	function roundPrecision(value: number, precision: number) {
+		let factor = Math.pow(10, precision);
+		return Math.round(value * factor) / factor;
+	}
+	function formatPercent(ratio: number) {
+		return `${roundPrecision(ratio * 100, 2)}%`;
+	}
+	const ratioColor = () => {
+		if (data.history?.delta! > 0) {
+			return 'green';
+		} else if (data.history?.delta! < 0) {
+			return 'red';
+		} else {
+			return 'gray';
+		}
+	};
 </script>
 
 <div class="flex justify-center">
@@ -54,10 +71,16 @@
 </div>
 <div>
 	<div class="flex justify-center">
+		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor()}`}>
+			{formatPercent(data.history?.delta!)}
+		</p>
+	</div>
+	<div class="flex justify-center">
 		<HistoryChart
 			title={`Price: ${data.history?.query.period}`}
 			dataset={data.history?.candles}
 			yValuesIndex="Close"
+			color={ratioColor()}
 		/>
 	</div>
 	<div class="flex justify-center">

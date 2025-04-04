@@ -2,15 +2,15 @@
 	import Chart, { type ChartConfiguration } from 'chart.js/auto';
 	import { CHART_COLORS, months, transparentize } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
-	const { title, dataset, yValuesIndex } = $props();
+	const { title, dataset, yValuesIndex, color } = $props();
 	const data = {
 		labels: [],
 		datasets: [
 			{
 				label: 'Price',
 				data: dataset,
-				borderColor: CHART_COLORS.red,
-				backgroundColor: transparentize(CHART_COLORS.red, 0.5),
+				borderColor: CHART_COLORS[color],
+				backgroundColor: transparentize(CHART_COLORS[color], 0.5),
 				yAxisID: 'y',
 				parsing: {
 					yAxisKey: yValuesIndex,
@@ -62,7 +62,6 @@
 	});
 
 	$effect(() => {
-		console.log('test');
 		createChart();
 	});
 
