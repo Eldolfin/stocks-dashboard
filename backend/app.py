@@ -21,7 +21,7 @@ from src.models import (
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=["http://localhost:3000", "http://localhost:5173"])
 
 
 @app.get(

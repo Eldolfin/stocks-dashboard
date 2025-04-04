@@ -1,0 +1,5 @@
+.dockerignore
+.prettierignore
+.svelte-kit
+node_modules
+Dockerfile

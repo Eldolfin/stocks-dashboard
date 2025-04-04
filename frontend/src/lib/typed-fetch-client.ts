@@ -1,6 +1,16 @@
 import createClient from "openapi-fetch";
 import type { paths } from "../generated/api";
+import { browser, dev } from "$app/environment";
+
+let baseUrl: string = "";
+if (dev) {
+  baseUrl = "http://localhost:5000";
+} else if (browser) {
+  baseUrl = "/api";
+} else {
+  baseUrl = browser ? "/" : "http://caddy/api";
+}
 
 export const client = createClient<paths>({
-  baseUrl: "http://localhost:5000",
+  baseUrl,
 });

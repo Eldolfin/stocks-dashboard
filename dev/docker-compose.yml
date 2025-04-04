@@ -7,3 +7,17 @@ services:
       - 5000:5000
     volumes:
       - ../backend:/app:ro
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  caddy:
+    image: caddy:2.9-alpine
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - 8085:80
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
