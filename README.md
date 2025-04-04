@@ -6,18 +6,37 @@ using flask for the backend and svelte for the frontend.
 
 - [ ] compare growth graph
 - [ ] KPIs
-  - [ ] PER/DCF/Estimated Next Year PE
+  - [x] PER/DCF/Estimated Next Year PE
+  - fix PE and dividend Yield
+  - fix buttons and URL reload
+  - format numbers in Millions, Billions and $ / %
+  - add %PNL over period
+  - add LIVE price (red:green) next to FULL NAME
   - [ ] graphs earning growth
   - [ ] outstanding shares
   - [ ] Market sentiment (reddit & Insider buy/Sell)
--
+-Live search engine
+  -Quick view : Price and today's PNL
 - [x]: display price overtime
   - [ ]: variable candle size
-  - [ ]: variable time frame (zoom)
+  - [x]: variable time frame (zoom)
 - [ ]: calendar
 - [ ]:
   [news](https://yfinance-python.org/reference/api/yfinance.Ticker.news.html)
 - [ ]:
   [advanced search](https://yfinance-python.org/reference/yfinance.screener.html)
+
+
+- [ ] portfolio
+  - [ ] import data from etoro csv
+  - [ ] store persistant in db
+  - [ ] user account with separate data
+  - [ ] net invested
+  - [ ] compare portfolio to tickers
+  - show fees
+  - compute sharpe ratio
+  - trade history for data analysis
 - [ ]: gamification
   - [ ]: fireworks when ATH/daily PNL > 5%
+
+-deploy with domain name
