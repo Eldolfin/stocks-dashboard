@@ -2,6 +2,234 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+###############
+#  KPI QUERY  #
+###############
+
+
+class AnalystPriceTargets(BaseModel):
+    current: float
+    high: int
+    low: int
+    mean: float
+    median: int
+
+
+class CompanyOfficer(BaseModel):
+    age: Optional[int] = None
+    exercisedValue: int
+    fiscalYear: int
+    maxAge: int
+    name: str
+    title: str
+    totalPay: Optional[int] = None
+    unexercisedValue: int
+    yearBorn: Optional[int] = None
+
+
+class CompanyOfficer(BaseModel):
+    age: Optional[int] = None
+    exercisedValue: int
+    fiscalYear: int
+    maxAge: int
+    name: str
+    title: str
+    totalPay: Optional[int] = None
+    unexercisedValue: int
+    yearBorn: Optional[int] = None
+
+
+class Info(BaseModel):
+    field_52WeekChange: Optional[float] = Field(None, alias="52WeekChange")
+    SandP52WeekChange: Optional[float] = None
+    address1: Optional[str] = None
+    ask: Optional[float] = None
+    askSize: Optional[int] = None
+    auditRisk: Optional[int] = None
+    averageAnalystRating: Optional[str] = None
+    averageDailyVolume10Day: Optional[int] = None
+    averageDailyVolume3Month: Optional[int] = None
+    averageVolume: Optional[int] = None
+    averageVolume10days: Optional[int] = None
+    beta: Optional[float] = None
+    bid: Optional[float] = None
+    bidSize: Optional[int] = None
+    boardRisk: Optional[int] = None
+    bookValue: Optional[float] = None
+    city: Optional[str] = None
+    companyOfficers: List[CompanyOfficer] = None
+    compensationAsOfEpochDate: Optional[int] = None
+    compensationRisk: Optional[int] = None
+    corporateActions: Optional[List] = None
+    country: Optional[str] = None
+    cryptoTradeable: Optional[bool] = None
+    currency: Optional[str] = None
+    currentPrice: Optional[float] = None
+    currentRatio: Optional[float] = None
+    customPriceAlertConfidence: Optional[str] = None
+    dateShortInterest: Optional[int] = None
+    dayHigh: Optional[float] = None
+    dayLow: Optional[float] = None
+    debtToEquity: Optional[float] = None
+    displayName: Optional[str] = None
+    dividendDate: Optional[int] = None
+    dividendRate: Optional[float] = None
+    dividendYield: Optional[float] = None
+    earningsCallTimestampEnd: Optional[int] = None
+    earningsCallTimestampStart: Optional[int] = None
+    earningsGrowth: Optional[float] = None
+    earningsQuarterlyGrowth: Optional[float] = None
+    earningsTimestamp: Optional[int] = None
+    earningsTimestampEnd: Optional[int] = None
+    earningsTimestampStart: Optional[int] = None
+    ebitda: Optional[int] = None
+    ebitdaMargins: Optional[float] = None
+    enterpriseToEbitda: Optional[float] = None
+    enterpriseToRevenue: Optional[float] = None
+    enterpriseValue: Optional[int] = None
+    epsCurrentYear: Optional[float] = None
+    epsForward: Optional[float] = None
+    epsTrailingTwelveMonths: Optional[float] = None
+    esgPopulated: Optional[bool] = None
+    exDividendDate: Optional[int] = None
+    exchange: Optional[str] = None
+    exchangeDataDelayedBy: Optional[int] = None
+    exchangeTimezoneName: Optional[str] = None
+    exchangeTimezoneShortName: Optional[str] = None
+    executiveTeam: Optional[List] = None
+    fiftyDayAverage: Optional[float] = None
+    fiftyDayAverageChange: Optional[float] = None
+    fiftyDayAverageChangePercent: Optional[float] = None
+    fiftyTwoWeekChangePercent: Optional[float] = None
+    fiftyTwoWeekHigh: Optional[float] = None
+    fiftyTwoWeekHighChange: Optional[float] = None
+    fiftyTwoWeekHighChangePercent: Optional[float] = None
+    fiftyTwoWeekLow: Optional[float] = None
+    fiftyTwoWeekLowChange: Optional[float] = None
+    fiftyTwoWeekLowChangePercent: Optional[float] = None
+    fiftyTwoWeekRange: Optional[str] = None
+    financialCurrency: Optional[str] = None
+    firstTradeDateMilliseconds: Optional[int] = None
+    fiveYearAvgDividendYield: Optional[float] = None
+    floatShares: Optional[int] = None
+    forwardEps: Optional[float] = None
+    forwardPE: Optional[float] = None
+    freeCashflow: Optional[int] = None
+    fullExchangeName: Optional[str] = None
+    fullTimeEmployees: Optional[int] = None
+    gmtOffSetMilliseconds: Optional[int] = None
+    governanceEpochDate: Optional[int] = None
+    grossMargins: Optional[float] = None
+    grossProfits: Optional[int] = None
+    hasPrePostMarketData: Optional[bool] = None
+    heldPercentInsiders: Optional[float] = None
+    heldPercentInstitutions: Optional[float] = None
+    impliedSharesOutstanding: Optional[int] = None
+    industry: Optional[str] = None
+    industryDisp: Optional[str] = None
+    industryKey: Optional[str] = None
+    irWebsite: Optional[str] = None
+    isEarningsDateEstimate: Optional[bool] = None
+    language: Optional[str] = None
+    lastDividendDate: Optional[int] = None
+    lastDividendValue: Optional[float] = None
+    lastFiscalYearEnd: Optional[int] = None
+    lastSplitDate: Optional[int] = None
+    lastSplitFactor: Optional[str] = None
+    longBusinessSummary: Optional[str] = None
+    longName: Optional[str] = None
+    market: Optional[str] = None
+    marketCap: Optional[int] = None
+    marketState: Optional[str] = None
+    maxAge: Optional[int] = None
+    messageBoardId: Optional[str] = None
+    mostRecentQuarter: Optional[int] = None
+    netIncomeToCommon: Optional[int] = None
+    nextFiscalYearEnd: Optional[int] = None
+    numberOfAnalystOpinions: Optional[int] = None
+    open: Optional[float] = None
+    operatingCashflow: Optional[int] = None
+    operatingMargins: Optional[float] = None
+    overallRisk: Optional[int] = None
+    payoutRatio: Optional[float] = None
+    phone: Optional[str] = None
+    previousClose: Optional[float] = None
+    priceEpsCurrentYear: Optional[float] = None
+    priceHint: Optional[int] = None
+    priceToBook: Optional[float] = None
+    priceToSalesTrailing12Months: Optional[float] = None
+    profitMargins: Optional[float] = None
+    quickRatio: Optional[float] = None
+    quoteSourceName: Optional[str] = None
+    quoteType: Optional[str] = None
+    recommendationKey: Optional[str] = None
+    recommendationMean: Optional[float] = None
+    region: Optional[str] = None
+    regularMarketChange: Optional[float] = None
+    regularMarketChangePercent: Optional[float] = None
+    regularMarketDayHigh: Optional[float] = None
+    regularMarketDayLow: Optional[float] = None
+    regularMarketDayRange: Optional[str] = None
+    regularMarketOpen: Optional[float] = None
+    regularMarketPreviousClose: Optional[float] = None
+    regularMarketPrice: Optional[float] = None
+    regularMarketTime: Optional[int] = None
+    regularMarketVolume: Optional[int] = None
+    returnOnAssets: Optional[float] = None
+    returnOnEquity: Optional[float] = None
+    revenueGrowth: Optional[float] = None
+    revenuePerShare: Optional[float] = None
+    sector: Optional[str] = None
+    sectorDisp: Optional[str] = None
+    sectorKey: Optional[str] = None
+    shareHolderRightsRisk: Optional[int] = None
+    sharesOutstanding: Optional[int] = None
+    sharesPercentSharesOut: Optional[float] = None
+    sharesShort: Optional[int] = None
+    sharesShortPreviousMonthDate: Optional[int] = None
+    sharesShortPriorMonth: Optional[int] = None
+    shortName: Optional[str] = None
+    shortPercentOfFloat: Optional[float] = None
+    shortRatio: Optional[float] = None
+    sourceInterval: Optional[int] = None
+    state: Optional[str] = None
+    symbol: Optional[str] = None
+    targetHighPrice: Optional[float] = None
+    targetLowPrice: Optional[float] = None
+    targetMeanPrice: Optional[float] = None
+    targetMedianPrice: Optional[float] = None
+    totalCash: Optional[int] = None
+    totalCashPerShare: Optional[float] = None
+    totalDebt: Optional[int] = None
+    totalRevenue: Optional[int] = None
+    tradeable: Optional[bool] = None
+    trailingAnnualDividendRate: Optional[float] = None
+    trailingAnnualDividendYield: Optional[float] = None
+    trailingEps: Optional[float] = None
+    trailingPE: Optional[float] = None
+    trailingPegRatio: Optional[float]
+    triggerable: Optional[bool] = None
+    twoHundredDayAverage: Optional[float] = None
+    twoHundredDayAverageChange: Optional[float] = None
+    twoHundredDayAverageChangePercent: Optional[float] = None
+    typeDisp: Optional[str] = None
+    volume: Optional[int] = None
+    website: Optional[str] = None
+    zip: Optional[str] = None
+    fax: Optional[str] = None
+    underlyingSymbol: Optional[str] = None
+
+
+class KPIQuery(BaseModel):
+    ticker_name: str
+
+
+class KPIResponse(BaseModel):
+    analyst_price_targets: AnalystPriceTargets
+    info: Info
+    query: KPIQuery
+
+
 ##################
 #  SEARCH QUERY  #
 ##################
@@ -31,7 +259,7 @@ class News(BaseModel):
     relatedTickers: Optional[List[str]] = None
 
 
-class Quote(BaseModel):
+class RawQuote(BaseModel):
     dispSecIndFlag: Optional[bool] = None
     exchDisp: str
     exchange: str
@@ -49,12 +277,15 @@ class Quote(BaseModel):
     typeDisp: str
 
 
+class Quote(BaseModel):
+    raw: RawQuote
+    info: Info
+    icon_url: str
+
+
 class SearchResponse(BaseModel):
-    lists: List
-    nav: List
-    news: List[News]
     quotes: List[Quote]
-    research: List
+    query: SearchQuery
 
 
 ##################
@@ -79,224 +310,6 @@ class TickerCandle(BaseModel):
 class TickerResponse(BaseModel):
     candles: List[TickerCandle]
     query: TickerQuery
-
-
-###############
-#  KPI QUERY  #
-###############
-
-
-class AnalystPriceTargets(BaseModel):
-    current: float
-    high: int
-    low: int
-    mean: float
-    median: int
-
-
-class CompanyOfficer(BaseModel):
-    age: Optional[int] = None
-    exercisedValue: int
-    fiscalYear: int
-    maxAge: int
-    name: str
-    title: str
-    totalPay: Optional[int] = None
-    unexercisedValue: int
-    yearBorn: Optional[int] = None
-
-
-class Info(BaseModel):
-    field_52WeekChange: float = Field(..., alias="52WeekChange")
-    SandP52WeekChange: float
-    address1: str
-    ask: int
-    askSize: int
-    auditRisk: int
-    averageAnalystRating: str
-    averageDailyVolume10Day: int
-    averageDailyVolume3Month: int
-    averageVolume: int
-    averageVolume10days: int
-    beta: float
-    bid: float
-    bidSize: int
-    boardRisk: int
-    bookValue: float
-    city: str
-    companyOfficers: List[CompanyOfficer]
-    compensationAsOfEpochDate: int
-    compensationRisk: int
-    corporateActions: List
-    country: str
-    cryptoTradeable: bool
-    currency: str
-    currentPrice: float
-    currentRatio: float
-    customPriceAlertConfidence: str
-    dateShortInterest: int
-    dayHigh: float
-    dayLow: float
-    debtToEquity: int
-    displayName: str
-    dividendDate: int
-    dividendRate: int
-    dividendYield: float
-    earningsCallTimestampEnd: int
-    earningsCallTimestampStart: int
-    earningsGrowth: float
-    earningsQuarterlyGrowth: float
-    earningsTimestamp: int
-    earningsTimestampEnd: int
-    earningsTimestampStart: int
-    ebitda: int
-    ebitdaMargins: float
-    enterpriseToEbitda: float
-    enterpriseToRevenue: float
-    enterpriseValue: int
-    epsCurrentYear: float
-    epsForward: float
-    epsTrailingTwelveMonths: float
-    esgPopulated: bool
-    exDividendDate: int
-    exchange: str
-    exchangeDataDelayedBy: int
-    exchangeTimezoneName: str
-    exchangeTimezoneShortName: str
-    executiveTeam: List
-    fiftyDayAverage: float
-    fiftyDayAverageChange: float
-    fiftyDayAverageChangePercent: float
-    fiftyTwoWeekChangePercent: float
-    fiftyTwoWeekHigh: float
-    fiftyTwoWeekHighChange: float
-    fiftyTwoWeekHighChangePercent: float
-    fiftyTwoWeekLow: float
-    fiftyTwoWeekLowChange: float
-    fiftyTwoWeekLowChangePercent: float
-    fiftyTwoWeekRange: str
-    financialCurrency: str
-    firstTradeDateMilliseconds: int
-    fiveYearAvgDividendYield: float
-    floatShares: int
-    forwardEps: float
-    forwardPE: float
-    freeCashflow: int
-    fullExchangeName: str
-    fullTimeEmployees: int
-    gmtOffSetMilliseconds: int
-    governanceEpochDate: int
-    grossMargins: float
-    grossProfits: int
-    hasPrePostMarketData: bool
-    heldPercentInsiders: float
-    heldPercentInstitutions: float
-    impliedSharesOutstanding: int
-    industry: str
-    industryDisp: str
-    industryKey: str
-    irWebsite: str
-    isEarningsDateEstimate: bool
-    language: str
-    lastDividendDate: int
-    lastDividendValue: float
-    lastFiscalYearEnd: int
-    lastSplitDate: int
-    lastSplitFactor: str
-    longBusinessSummary: str
-    longName: str
-    market: str
-    marketCap: int
-    marketState: str
-    maxAge: int
-    messageBoardId: str
-    mostRecentQuarter: int
-    netIncomeToCommon: int
-    nextFiscalYearEnd: int
-    numberOfAnalystOpinions: int
-    open: float
-    operatingCashflow: int
-    operatingMargins: float
-    overallRisk: int
-    payoutRatio: float
-    phone: str
-    preMarketChange: float
-    preMarketChangePercent: float
-    preMarketPrice: float
-    preMarketTime: int
-    previousClose: float
-    priceEpsCurrentYear: float
-    priceHint: int
-    priceToBook: float
-    priceToSalesTrailing12Months: float
-    profitMargins: float
-    quickRatio: float
-    quoteSourceName: str
-    quoteType: str
-    recommendationKey: str
-    recommendationMean: float
-    region: str
-    regularMarketChange: float
-    regularMarketChangePercent: float
-    regularMarketDayHigh: float
-    regularMarketDayLow: float
-    regularMarketDayRange: str
-    regularMarketOpen: float
-    regularMarketPreviousClose: float
-    regularMarketPrice: float
-    regularMarketTime: int
-    regularMarketVolume: int
-    returnOnAssets: float
-    returnOnEquity: float
-    revenueGrowth: float
-    revenuePerShare: float
-    sector: str
-    sectorDisp: str
-    sectorKey: str
-    shareHolderRightsRisk: int
-    sharesOutstanding: int
-    sharesPercentSharesOut: float
-    sharesShort: int
-    sharesShortPreviousMonthDate: int
-    sharesShortPriorMonth: int
-    shortName: str
-    shortPercentOfFloat: float
-    shortRatio: float
-    sourceInterval: int
-    state: str
-    symbol: str
-    targetHighPrice: int
-    targetLowPrice: int
-    targetMeanPrice: float
-    targetMedianPrice: int
-    totalCash: int
-    totalCashPerShare: float
-    totalDebt: int
-    totalRevenue: int
-    tradeable: bool
-    trailingAnnualDividendRate: float
-    trailingAnnualDividendYield: float
-    trailingEps: float
-    trailingPE: float
-    trailingPegRatio: float
-    triggerable: bool
-    twoHundredDayAverage: float
-    twoHundredDayAverageChange: float
-    twoHundredDayAverageChangePercent: float
-    typeDisp: str
-    volume: int
-    website: str
-    zip: str
-
-
-class KPIQuery(BaseModel):
-    ticker_name: str
-
-
-class KPIResponse(BaseModel):
-    analyst_price_targets: AnalystPriceTargets
-    info: Info
-    query: KPIQuery
 
 
 class NotFoundResponse(BaseModel):

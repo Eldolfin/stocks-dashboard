@@ -1,7 +1,9 @@
+from flask_cors import CORS
 from flask import Flask
 import yfinance as yf
 from flask_openapi3 import Info, Tag
 from flask_openapi3 import OpenAPI
+from src import models
 from src.models import (
     TickerResponse,
     TickerQuery,
@@ -9,12 +11,15 @@ from src.models import (
     SearchQuery,
     KPIResponse,
     KPIQuery,
+    Quote,
+    RawQuote,
     NotFoundResponse,
 )
 
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
+CORS(app, origins=["http://localhost:5173"])
 
 
 @app.get(
@@ -63,4 +68,22 @@ def get_kpis(query: KPIQuery):
     responses={200: SearchResponse},
 )
 def search_ticker(query: SearchQuery):
-    return yf.Search(query.query).all, 200
+    quotes: List[RawQuote] = list(
+        map(RawQuote.model_validate, yf.Search(query.query).quotes)
+    )
+    quotes_names = list(quote.symbol for quote in quotes)
+    tickers = yf.Tickers(quotes_names).tickers
+    infos: List[models.Info] = [
+        models.Info.model_validate(t.info) for t in tickers.values()
+    ]
+
+    quotes = [
+        Quote(
+            raw=raw,
+            info=info,
+            icon_url=f"https://logo.clearbit.com/{info.website}",
+        )
+        for (raw, info) in zip(quotes, infos)
+    ]
+
+    return SearchResponse(quotes=quotes, query=query).dict(), 200

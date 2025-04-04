@@ -18,3 +18,5 @@ using flask for the backend and svelte for the frontend.
   [news](https://yfinance-python.org/reference/api/yfinance.Ticker.news.html)
 - [ ]:
   [advanced search](https://yfinance-python.org/reference/yfinance.screener.html)
+- [ ]: gamification
+  - [ ]: fireworks when ATH/daily PNL > 5%
