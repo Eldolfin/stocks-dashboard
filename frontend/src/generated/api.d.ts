@@ -1001,7 +1001,15 @@ export interface components {
         KPIResponse: {
             analyst_price_targets: components["schemas"]["AnalystPriceTargets"];
             info: components["schemas"]["Info"];
+            main: components["schemas"]["MainKPIs"];
             query: components["schemas"]["KPIQuery"];
+        };
+        /** MainKPIs */
+        MainKPIs: {
+            /** Freecashflowyield */
+            freeCashflowYield: number;
+            /** Ratiope */
+            ratioPE: number;
         };
         /** NotFoundResponse */
         NotFoundResponse: {
@@ -1020,8 +1028,11 @@ export interface components {
         };
         /** Quote */
         Quote: {
-            /** Icon Url */
-            icon_url: string;
+            /**
+             * Icon Url
+             * @default null
+             */
+            icon_url: string | null;
             info: components["schemas"]["Info"];
             raw: components["schemas"]["RawQuote"];
         };

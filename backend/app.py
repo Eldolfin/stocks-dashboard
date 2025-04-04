@@ -13,6 +13,7 @@ from src.models import (
     KPIQuery,
     Quote,
     RawQuote,
+    MainKPIs,
     NotFoundResponse,
 )
 
@@ -52,11 +53,16 @@ def get_kpis(query: KPIQuery):
     except Exception:
         return NotFoundResponse().dict(), 404
 
+    main = MainKPIs(
+        ratioPE=dat.info["marketCap"] / dat.info["ebitda"],
+        freeCashflowYield=dat.info["freeCashflow"] / dat.info["marketCap"],
+    )
     return (
         KPIResponse(
             query=query,
             analyst_price_targets=dat.analyst_price_targets,
             info=dat.info,
+            main=main,
         ).dict(),
         200,
     )

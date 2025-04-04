@@ -224,10 +224,16 @@ class KPIQuery(BaseModel):
     ticker_name: str
 
 
+class MainKPIs(BaseModel):
+    ratioPE: float
+    freeCashflowYield: float
+
+
 class KPIResponse(BaseModel):
     analyst_price_targets: AnalystPriceTargets
     info: Info
     query: KPIQuery
+    main: MainKPIs
 
 
 ##################

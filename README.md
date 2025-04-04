@@ -4,13 +4,14 @@ using flask for the backend and svelte for the frontend.
 
 ## TODO
 
+- [ ] compare growth graph
 - [ ] KPIs
   - [ ] PER/DCF/Estimated Next Year PE
   - [ ] graphs earning growth
   - [ ] outstanding shares
   - [ ] Market sentiment (reddit & Insider buy/Sell)
-- [ ]: frontend
-- [ ]: display price overtime
+-
+- [x]: display price overtime
   - [ ]: variable candle size
   - [ ]: variable time frame (zoom)
 - [ ]: calendar
