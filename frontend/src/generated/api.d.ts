@@ -208,7 +208,7 @@ export interface components {
              * Companyofficers
              * @default null
              */
-            companyOfficers: components["schemas"]["CompanyOfficer"][];
+            companyOfficers: components["schemas"]["CompanyOfficer"][] | null;
             /**
              * Compensationasofepochdate
              * @default null
@@ -1032,13 +1032,11 @@ export interface components {
         NotFoundResponse: {
             /**
              * Code
-             * @description Status Code
              * @default -1
              */
             code: number;
             /**
              * Message
-             * @description Exception Information
              * @default Resource not found!
              */
             message: string;
@@ -1052,8 +1050,11 @@ export interface components {
             icon_url: string | null;
             info: components["schemas"]["Info"];
             raw: components["schemas"]["RawQuote"];
-            /** Today Change */
-            today_change: number;
+            /**
+             * Today Change
+             * @default null
+             */
+            today_change: number | null;
         };
         /** RawQuote */
         RawQuote: {
