@@ -16,6 +16,8 @@ from src.models import (
     RawQuote,
     MainKPIs,
     NotFoundResponse,
+    CompareGrowthQuery,
+    CompareGrowthResponse,
 )
 
 
@@ -33,18 +35,53 @@ def get_ticker(query: TickerQuery):
     try:
         dat = yf.Ticker(query.ticker_name)
         history = dat.history(period=query.period).reset_index()
-
-        # Convert the Date field to string
         history["Date"] = history["Date"].dt.strftime("%Y-%m-%d")
-
     except Exception:
+        return NotFoundResponse().dict(), 404
+
+    if history.empty:
         return NotFoundResponse().dict(), 404
 
     first_row = history.iloc[0]
     last_row = history.iloc[-1]
-    data = history.to_dict(orient="records")
+
+    dates = history["Date"].tolist()
+    candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
-    return TickerResponse(candles=data, query=query, delta=delta).dict(), 200
+
+    return (
+        TickerResponse(
+            dates=dates, candles=candles, query=query, delta=delta
+        ).dict(),
+        200,
+    )
+
+
+@app.get(
+    "/api/compare_growth/",
+    summary="compare a list of tickers growth",
+    responses={200: CompareGrowthResponse, 404: NotFoundResponse},
+)
+def get_compare_growth(query: CompareGrowthQuery):
+    if len(query.ticker_names) == 1:
+        query.ticker_names = query.ticker_names[0].split(",")
+
+    dat = yf.Tickers(query.ticker_names)
+    hist = dat.history(period=query.period)
+
+    close_df = hist.xs("Close", level="Price", axis=1)
+    base_prices = close_df.iloc[0]
+    ratios_df = close_df.divide(base_prices)
+
+    candles = {
+        ticker: ratios_df[ticker].tolist() for ticker in query.ticker_names
+    }
+    dates = [index.strftime("%Y-%m-%d") for index in ratios_df.index]
+
+    return (
+        CompareGrowthResponse(query=query, candles=candles, dates=dates).dict(),
+        200,
+    )
 
 
 @app.get(
@@ -111,6 +148,7 @@ def search_ticker(query: SearchQuery):
             today_change=today_change,
         )
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas)
+        if info.currentPrice is not None
     ]
     return SearchResponse(quotes=quotes, query=query).dict(), 200
 

@@ -2,7 +2,8 @@ export function roundPrecision(value: number, precision: number) {
   let factor = Math.pow(10, precision);
   return Math.round(value * factor) / factor;
 }
-export function formatPercent(ratio: number) {
+export function formatPercent(ratio: number | null) {
+  if (!ratio) return "";
   return `${roundPrecision(ratio * 100, 2)}%`;
 }
 export function formatCurrency(dollars: number | null) {

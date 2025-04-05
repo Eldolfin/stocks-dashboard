@@ -1,27 +1,37 @@
 <script lang="ts">
 	import Chart, { type ChartConfiguration } from 'chart.js/auto';
-	import { CHART_COLORS, transparentize } from '$lib/chart-utils';
+	import { transparentize } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
-	const { title, dataset, yValuesIndex, color } = $props();
+
+	interface Props {
+		title: string;
+		dataset: { [key: string]: number[] };
+		dates: string[];
+		color: string;
+	}
+	const { title, dataset, dates, color }: Props = $props();
 	let chartElt;
-	let chartInstance;
+	let chartInstance: Chart | undefined;
 
 	const createChart = () => {
 		const data = {
-			labels: [],
-			datasets: [
-				{
-					label: 'Price',
-					data: dataset,
-					borderColor: CHART_COLORS[color],
-					backgroundColor: transparentize(CHART_COLORS[color], 0.5),
-					yAxisID: 'y',
-					parsing: {
-						yAxisKey: yValuesIndex,
-						xAxisKey: 'Date'
-					}
-				}
-			]
+			labels: dates,
+			// datasets: dataset.map((data) => {
+			// 	return {
+			// 		label: 'Price',
+			// 		data: data,
+			// 		// FIXME: default css colors are ugly
+			// 		borderColor: color,
+			// 		backgroundColor: transparentize(color, 0.5),
+			// 		yAxisID: 'y'
+			// 	};
+			// })
+			datasets: Object.entries(dataset).map(([label, data]) => {
+				return {
+					label,
+					data
+				};
+			})
 		};
 		const config = {
 			type: 'line',

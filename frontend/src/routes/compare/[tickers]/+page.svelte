@@ -51,21 +51,17 @@
 
 <div class="flex justify-center">
 	<p class="text-8xl dark:text-white">
-		{data.ticker}
+		{data.tickers}
 	</p>
 </div>
 <div>
-	<div class="flex justify-center">
-		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor(data.history?.delta)}`}>
-			{formatPercent(data.history?.delta!)}
-		</p>
-	</div>
+	<div class="flex justify-center"></div>
 	<div class="flex justify-center">
 		<HistoryChart
-			title={`Price: ${data.history?.query.period}`}
-			dataset={{ price: data.history!.candles }}
-			dates={data.history!.dates}
-			color={ratioColor(data.history?.delta)}
+			title={`Growth compare`}
+			dataset={data.history_data!.candles}
+			dates={data.history_data!.dates}
+			color={'gray'}
 		/>
 	</div>
 	<div class="flex justify-center">
@@ -74,21 +70,5 @@
 				<Button onclick={() => changeRange(range.value)} outline color="dark">{range.label}</Button>
 			{/each}
 		</ButtonGroup>
-	</div>
-
-	<div class="mt-10 flex w-full justify-center">
-		<Card class="w-full max-w-screen-lg" shadow={true}>
-			<div class="grid grid-cols-3 gap-x-11 gap-y-3 text-xl">
-				{#each kpis as kpi}
-					{#if data.summary?.info[kpi.value] !== null}
-						<div>
-							<strong>{kpi.label}</strong>
-							<br />
-							<span>{data.summary!.info[kpi.value]}</span>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		</Card>
 	</div>
 </div>

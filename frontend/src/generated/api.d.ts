@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/compare_growth/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** compare a list of tickers growth */
+        get: operations["get_compare_growth_api_compare_growth__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/kpis/": {
         parameters: {
             query?: never;
@@ -116,6 +133,26 @@ export interface components {
              * @default null
              */
             yearBorn: number | null;
+        };
+        /** CompareGrowthQuery */
+        CompareGrowthQuery: {
+            /**
+             * Period
+             * @default ytd
+             */
+            period: string;
+            /** Ticker Names */
+            ticker_names: string[];
+        };
+        /** CompareGrowthResponse */
+        CompareGrowthResponse: {
+            /** Candles */
+            candles: {
+                [key: string]: number[];
+            };
+            /** Dates */
+            dates: string[];
+            query: components["schemas"]["CompareGrowthQuery"];
         };
         /** Info */
         Info: {
@@ -1118,30 +1155,11 @@ export interface components {
             /** Quotes */
             quotes: components["schemas"]["Quote"][];
         };
-        /** TickerCandle */
-        TickerCandle: {
-            /** Close */
-            Close: number;
-            /** Date */
-            Date: string;
-            /** Dividends */
-            Dividends: number;
-            /** High */
-            High: number;
-            /** Low */
-            Low: number;
-            /** Open */
-            Open: number;
-            /** Stock Splits */
-            "Stock Splits": number;
-            /** Volume */
-            Volume: number;
-        };
         /** TickerQuery */
         TickerQuery: {
             /**
              * Period
-             * @default 1mo
+             * @default ytd
              */
             period: string;
             /** Ticker Name */
@@ -1150,7 +1168,9 @@ export interface components {
         /** TickerResponse */
         TickerResponse: {
             /** Candles */
-            candles: components["schemas"]["TickerCandle"][];
+            candles: number[];
+            /** Dates */
+            dates: string[];
             /** Delta */
             delta: number;
             query: components["schemas"]["TickerQuery"];
@@ -1193,6 +1213,47 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_compare_growth_api_compare_growth__get: {
+        parameters: {
+            query: {
+                ticker_names: string[];
+                period?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareGrowthResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
     get_kpis_api_kpis__get: {
         parameters: {
             query: {

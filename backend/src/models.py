@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
@@ -284,27 +284,33 @@ class SearchResponse(BaseModel):
     query: SearchQuery
 
 
+##########################
+#  COMPARE GROWTH QUERY  #
+##########################
+
+
+class CompareGrowthQuery(BaseModel):
+    ticker_names: List[str]
+    period: str = "ytd"
+
+
+class CompareGrowthResponse(BaseModel):
+    query: CompareGrowthQuery
+    candles: Dict[str, List[float]]
+    dates: List[str]
+
+
 ##################
 #  TICKER QUERY  #
 ##################
 class TickerQuery(BaseModel):
     ticker_name: str
-    period: str = "1mo"  # FIXME: this is not specific enough
-
-
-class TickerCandle(BaseModel):
-    Close: float
-    Date: str
-    Dividends: float
-    High: float
-    Low: float
-    Open: float
-    Stock_Splits: int = Field(..., alias="Stock Splits")
-    Volume: int
+    period: str = "ytd"  # FIXME: this is not specific enough
 
 
 class TickerResponse(BaseModel):
-    candles: List[TickerCandle]
+    dates: List[str]
+    candles: List[float]
     query: TickerQuery
     delta: float
 
