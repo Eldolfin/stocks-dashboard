@@ -305,6 +305,8 @@ class CompareGrowthResponse(BaseModel):
 ##################
 class TickerQuery(BaseModel):
     ticker_name: str
+    # defaults to "auto"
+    interval: Optional[str] = None
     period: str = "ytd"  # FIXME: this is not specific enough
 
 

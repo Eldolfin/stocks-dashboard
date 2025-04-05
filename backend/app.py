@@ -19,6 +19,8 @@ from src.models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
 )
+from src.intervals import interval_to_duration, duration_to_interval
+from datetime import datetime
 
 
 info = Info(title="stocks API", version="1.0.0")
@@ -29,16 +31,38 @@ CORS(app, origins=["http://localhost:3000", "http://localhost:5173"])
 @app.get(
     "/api/ticker/",
     summary="get a ticker's price history",
-    responses={200: TickerResponse, 404: NotFoundResponse},
+    # responses={200: TickerResponse, 404: NotFoundResponse},
 )
 def get_ticker(query: TickerQuery):
+    N_POINTS = 20
+    if query.period == "max":
+        dat = yf.Ticker(query.ticker_name)
+        history = dat.history(period="max", interval="3mo").reset_index()
+        duration = datetime.now() - history.iloc[0]["Date"].replace(tzinfo=None)
+    else:
+        duration = interval_to_duration(query.period)
+    if query.interval is None or query.interval == "auto":
+        query.interval = duration_to_interval(duration / N_POINTS)
+
+    start = datetime.now() - duration
+    start = start.strftime("%Y-%m-%d")
     try:
         dat = yf.Ticker(query.ticker_name)
-        history = dat.history(period=query.period).reset_index()
-        history["Date"] = history["Date"].dt.strftime("%Y-%m-%d")
+        if query.period == "max":
+            history = dat.history(
+                period="max", interval=query.interval
+            ).reset_index()
+        else:
+            history = dat.history(
+                start=start, interval=query.interval
+            ).reset_index()
     except Exception:
         return NotFoundResponse().dict(), 404
 
+    if "Datetime" in history:
+        history["Date"] = history["Datetime"].dt.strftime("%Y-%m-%dT%H:%M:%S")
+    else:
+        history["Date"] = history["Date"].dt.strftime("%Y-%m-%d")
     if history.empty:
         return NotFoundResponse().dict(), 404
 
