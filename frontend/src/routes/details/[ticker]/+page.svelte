@@ -4,7 +4,6 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { formatPercent, ratioColor } from '$lib/format-utils';
-	import type { components } from '../../../generated/api.js';
 
 	let { data } = $props();
 
@@ -19,33 +18,37 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const kpis = [
-		{ label: 'Previous Close', value: 'previousClose' },
-		{ label: "Today's Range", value: 'regularMarketDayRange' },
-		{ label: '52-Week Range', value: 'fiftyTwoWeekRange' },
-		{ label: 'Return on Equity (ROE)', value: 'returnOnEquity' },
-		{ label: 'Market Capitalization', value: 'marketCap' },
-		{ label: 'EBITDA', value: 'ebitda' },
-		{ label: 'Trailing P/E Ratio', value: 'trailingPE' },
-		{ label: 'Forward P/E Ratio', value: 'forwardPE' },
-		{ label: 'Earnings Growth', value: 'earningsGrowth' },
-		{ label: 'Revenue Growth', value: 'revenueGrowth' },
-		{ label: 'Payout Ratio', value: 'payoutRatio' },
-		{ label: 'Profit Margins', value: 'profitMargins' },
-		{ label: 'Free Cash Flow', value: 'freeCashflow' },
-		{ label: 'Dividend Rate', value: 'dividendRate' },
-		{ label: 'Dividend Yield', value: 'dividendYield' },
-		{ label: 'Shares Outstanding', value: 'sharesOutstanding' }
-
-		// MAIN:
-		// ratioPE: float
-		// freeCashflowYield: float
-	] satisfies { label: string; value: keyof components['schemas']['Info'] }[];
+		{ label: 'Previous Close', value: 'info.previousClose' },
+		{ label: "Today's Range", value: 'info.regularMarketDayRange' },
+		{ label: '52-Week Range', value: 'info.fiftyTwoWeekRange' },
+		{ label: 'Return on Equity (ROE)', value: 'info.returnOnEquity' },
+		{ label: 'Market Capitalization', value: 'info.marketCap' },
+		{ label: 'EBITDA', value: 'info.ebitda' },
+		{ label: 'Trailing P/E Ratio', value: 'info.trailingPE' },
+		{ label: 'Forward P/E Ratio', value: 'info.forwardPE' },
+		{ label: 'Earnings Growth', value: 'info.earningsGrowth' },
+		{ label: 'Revenue Growth', value: 'info.revenueGrowth' },
+		{ label: 'Payout Ratio', value: 'info.payoutRatio' },
+		{ label: 'Profit Margins', value: 'info.profitMargins' },
+		{ label: 'Free Cash Flow', value: 'info.freeCashflow' },
+		{ label: 'Dividend Rate', value: 'info.dividendRate' },
+		{ label: 'Dividend Yield', value: 'info.dividendYield' },
+		{ label: 'Shares Outstanding', value: 'info.sharesOutstanding' },
+		{ label: 'P/E ratio', value: 'main.ratioPE' },
+		{ label: 'Free Cash Flow Yield', value: 'main.freeCashflowYield' }
+	];
 	const changeRange = (newValue: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
 
 		query.set('period', newValue);
 
 		goto(`?${query.toString()}`, { replaceState: true });
+	};
+	const deep_value = function (obj: any, path: string) {
+		for (let i = 0, segments = path.split('.'), len = segments.length; i < len; i++) {
+			obj = obj[segments[i]];
+		}
+		return obj;
 	};
 </script>
 
@@ -80,11 +83,11 @@
 		<Card class="w-full max-w-screen-lg" shadow={true}>
 			<div class="grid grid-cols-3 gap-x-11 gap-y-3 text-xl">
 				{#each kpis as kpi}
-					{#if data.summary?.info[kpi.value] !== null}
+					{#if deep_value(data.summary, kpi.value) !== null}
 						<div>
 							<strong>{kpi.label}</strong>
 							<br />
-							<span>{data.summary!.info[kpi.value]}</span>
+							<span>{deep_value(data.summary, kpi.value)}</span>
 						</div>
 					{/if}
 				{/each}
