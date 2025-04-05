@@ -12,7 +12,7 @@ class AnalystPriceTargets(BaseModel):
     high: Optional[float] = None
     low: Optional[float] = None
     mean: Optional[float] = None
-    median: Optional[int] = None
+    median: Optional[float] = None
 
 
 class CompanyOfficer(BaseModel):
@@ -99,16 +99,16 @@ class Info(BaseModel):
     financialCurrency: Optional[str] = None
     firstTradeDateMilliseconds: Optional[int] = None
     fiveYearAvgDividendYield: Optional[float] = None
-    floatShares: Optional[int] = None
+    floatShares: Optional[float] = None
     forwardEps: Optional[float] = None
     forwardPE: Optional[float] = None
-    freeCashflow: Optional[int] = None
+    freeCashflow: Optional[float] = None
     fullExchangeName: Optional[str] = None
     fullTimeEmployees: Optional[int] = None
     gmtOffSetMilliseconds: Optional[int] = None
     governanceEpochDate: Optional[int] = None
     grossMargins: Optional[float] = None
-    grossProfits: Optional[int] = None
+    grossProfits: Optional[float] = None
     hasPrePostMarketData: Optional[bool] = None
     heldPercentInsiders: Optional[float] = None
     heldPercentInstitutions: Optional[float] = None
@@ -127,7 +127,7 @@ class Info(BaseModel):
     longBusinessSummary: Optional[str] = None
     longName: Optional[str] = None
     market: Optional[str] = None
-    marketCap: Optional[int] = None
+    marketCap: Optional[float] = None
     marketState: Optional[str] = None
     maxAge: Optional[int] = None
     messageBoardId: Optional[str] = None
@@ -143,7 +143,7 @@ class Info(BaseModel):
     phone: Optional[str] = None
     previousClose: Optional[float] = None
     priceEpsCurrentYear: Optional[float] = None
-    priceHint: Optional[int] = None
+    priceHint: Optional[float] = None
     priceToBook: Optional[float] = None
     priceToSalesTrailing12Months: Optional[float] = None
     profitMargins: Optional[float] = None
