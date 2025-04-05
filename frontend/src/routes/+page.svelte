@@ -66,22 +66,22 @@
 	</form>
 
 	{#if pendingRequest > 0}
-		<Progressbar animate={true} tweenDuration={1500} progress={100} />
+		<Progressbar animate={true} tweenDuration={2500} progress={100} />
 	{/if}
-	{#if searchResult !== undefined}
-		<Table class="mt-10" hoverable={true}>
-			<TableHead>
-				<TableHeadCell>Stock name</TableHeadCell>
-				<TableHeadCell>Logo</TableHeadCell>
-				<TableHeadCell>Price</TableHeadCell>
-				<TableHeadCell>Today's P&L</TableHeadCell>
-				<TableHeadCell>
-					<Button disabled={comparedTickers.size < 2} href="/compare/{comparedTickersUrl()}"
-						>Compare</Button
-					>
-				</TableHeadCell>
-			</TableHead>
-			<TableBody tableBodyClass="divide-y">
+	<Table class="mt-10" hoverable={true}>
+		<TableHead>
+			<TableHeadCell>Stock name</TableHeadCell>
+			<TableHeadCell>Logo</TableHeadCell>
+			<TableHeadCell>Price</TableHeadCell>
+			<TableHeadCell>Today's P&L</TableHeadCell>
+			<TableHeadCell>
+				<Button disabled={comparedTickers.size < 2} href="/compare/{comparedTickersUrl()}"
+					>Compare</Button
+				>
+			</TableHeadCell>
+		</TableHead>
+		<TableBody tableBodyClass="divide-y">
+			{#if searchResult !== undefined}
 				{#each searchResult as quote}
 					{#if !comparedTickers.has(quote)}
 						<TableBodyRow>
@@ -120,48 +120,48 @@
 						</TableBodyRow>
 					{/if}
 				{/each}
-				<TableBodyRow color="custom">
-					<TableBodyCell></TableBodyCell>
-					<TableBodyCell></TableBodyCell>
-					<TableBodyCell></TableBodyCell>
-					<TableBodyCell></TableBodyCell>
-					<TableBodyCell></TableBodyCell>
+			{/if}
+			<TableBodyRow color="custom">
+				<TableBodyCell></TableBodyCell>
+				<TableBodyCell></TableBodyCell>
+				<TableBodyCell></TableBodyCell>
+				<TableBodyCell></TableBodyCell>
+				<TableBodyCell></TableBodyCell>
+			</TableBodyRow>
+			{#each comparedTickers.values() as quote (quote.raw.symbol)}
+				<TableBodyRow>
+					<TableBodyCell>
+						<a href="/details/{quote.raw.symbol}">
+							{quote.raw.longname}
+						</a>
+					</TableBodyCell>
+					<TableBodyCell>
+						<a href="/details/{quote.raw.symbol}">
+							<Avatar src={quote.icon_url!} rounded />
+						</a>
+					</TableBodyCell>
+					<TableBodyCell>
+						<a href="/details/{quote.raw.symbol}">
+							{formatCurrency(quote.info.currentPrice)}
+						</a>
+					</TableBodyCell>
+					<TableBodyCell>
+						<a href="/details/{quote.raw.symbol}">
+							{formatPercent(quote.today_change)}
+						</a>
+					</TableBodyCell>
+					<TableBodyCell>
+						<Checkbox
+							checked
+							on:change={() => {
+								const updated = new Set(comparedTickers);
+								updated.delete(quote);
+								comparedTickers = updated;
+							}}
+						/>
+					</TableBodyCell>
 				</TableBodyRow>
-				{#each comparedTickers.values() as quote (quote.raw.symbol)}
-					<TableBodyRow>
-						<TableBodyCell>
-							<a href="/details/{quote.raw.symbol}">
-								{quote.raw.longname}
-							</a>
-						</TableBodyCell>
-						<TableBodyCell>
-							<a href="/details/{quote.raw.symbol}">
-								<Avatar src={quote.icon_url!} rounded />
-							</a>
-						</TableBodyCell>
-						<TableBodyCell>
-							<a href="/details/{quote.raw.symbol}">
-								{formatCurrency(quote.info.currentPrice)}
-							</a>
-						</TableBodyCell>
-						<TableBodyCell>
-							<a href="/details/{quote.raw.symbol}">
-								{formatPercent(quote.today_change)}
-							</a>
-						</TableBodyCell>
-						<TableBodyCell>
-							<Checkbox
-								checked
-								on:change={() => {
-									const updated = new Set(comparedTickers);
-									updated.delete(quote);
-									comparedTickers = updated;
-								}}
-							/>
-						</TableBodyCell>
-					</TableBodyRow>
-				{/each}
-			</TableBody>
-		</Table>
-	{/if}
+			{/each}
+		</TableBody>
+	</Table>
 </div>
