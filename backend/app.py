@@ -1,5 +1,5 @@
 from flask_cors import CORS
-from flask import Flask
+from flask import Flask, request
 import yfinance as yf
 from flask_openapi3 import Info, Tag
 from flask_openapi3 import OpenAPI
@@ -18,14 +18,19 @@ from src.models import (
     NotFoundResponse,
     CompareGrowthQuery,
     CompareGrowthResponse,
+    EtoroAnalysisResponse,
 )
 from src.intervals import interval_to_duration, duration_to_interval
 from datetime import datetime
-
+from flask_openapi3.models import FileStorage
+from pydantic import BaseModel
+from flask_openapi3.models import RequestBody
+from src.etoro_data import extract_closed_position
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app, origins=["http://localhost:3000", "http://localhost:5173"])
+app.config["UPLOAD_FOLDER"] = "./etoro_sheets"
 
 
 @app.get(
@@ -175,6 +180,18 @@ def search_ticker(query: SearchQuery):
         if info.currentPrice is not None
     ]
     return SearchResponse(quotes=quotes, query=query).dict(), 200
+
+
+@app.post(
+    "/api/etoro_analysis",
+    summary="analyse etoro excel sheet",
+    responses={200: EtoroAnalysisResponse},
+)
+def analyze_etoro_excel():
+    file: FileStorage = request.files["file"]
+    read = file.read()
+    closed_position = extract_closed_position(read)
+    return closed_position
 
 
 def create_app():

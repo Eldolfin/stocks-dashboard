@@ -320,3 +320,36 @@ class TickerResponse(BaseModel):
 class NotFoundResponse(BaseModel):
     code: int = -1
     message: str = "Resource not found!"
+
+
+####################
+#  ETORO ANALYSIS  #
+####################
+class EtoroAnalysisResponse(BaseModel):
+    Action: List[str]
+    Amount: List[float]
+    Close_Date: List[str] = Field(..., alias="Close Date")
+    Close_Rate: List[float] = Field(..., alias="Close Rate")
+    Copied_From: List[str] = Field(..., alias="Copied From")
+    FX_rate_at_close__USD_: List[str] = Field(
+        ..., alias="FX rate at close (USD)"
+    )
+    FX_rate_at_open__USD_: List[str] = Field(..., alias="FX rate at open (USD)")
+    ISIN: List[str]
+    Leverage: List[int]
+    Long___Short: List[str] = Field(..., alias="Long / Short")
+    Market_Spread__USD_: List[float] = Field(..., alias="Market Spread (USD)")
+    Notes: List
+    Open_Date: List[str] = Field(..., alias="Open Date")
+    Open_Rate: List[float] = Field(..., alias="Open Rate")
+    Overnight_Fees_and_Dividends: List[float] = Field(
+        ..., alias="Overnight Fees and Dividends"
+    )
+    Position_ID: List[int] = Field(..., alias="Position ID")
+    Profit_EUR_: List[float] = Field(..., alias="Profit(EUR)")
+    Profit_USD_: List[float] = Field(..., alias="Profit(USD)")
+    Spread_Fees__USD_: List[float] = Field(..., alias="Spread Fees (USD)")
+    Stop_loss_rate: List[float] = Field(..., alias="Stop loss rate")
+    Take_profit_rate: List[float] = Field(..., alias="Take profit rate")
+    Type: List[str]
+    Units___Contracts: List[float] = Field(..., alias="Units / Contracts")
