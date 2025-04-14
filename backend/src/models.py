@@ -328,7 +328,7 @@ class NotFoundResponse(BaseModel):
 class EtoroAnalysisResponse(BaseModel):
     Action: List[str]
     Amount: List[float]
-    Close_Date: List[str] = Field(..., alias="Close Date")
+    Close_Date: List[int] = Field(..., alias="Close Date")
     Close_Rate: List[float] = Field(..., alias="Close Rate")
     Copied_From: List[str] = Field(..., alias="Copied From")
     FX_rate_at_close__USD_: List[str] = Field(
@@ -340,7 +340,7 @@ class EtoroAnalysisResponse(BaseModel):
     Long___Short: List[str] = Field(..., alias="Long / Short")
     Market_Spread__USD_: List[float] = Field(..., alias="Market Spread (USD)")
     Notes: List
-    Open_Date: List[str] = Field(..., alias="Open Date")
+    Open_Date: List[int] = Field(..., alias="Open Date")
     Open_Rate: List[float] = Field(..., alias="Open Rate")
     Overnight_Fees_and_Dividends: List[float] = Field(
         ..., alias="Overnight Fees and Dividends"

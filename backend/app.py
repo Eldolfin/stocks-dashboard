@@ -182,14 +182,17 @@ def search_ticker(query: SearchQuery):
     return SearchResponse(quotes=quotes, query=query).dict(), 200
 
 
+class EtoroForm(BaseModel):
+    file: FileStorage
+
+
 @app.post(
     "/api/etoro_analysis",
     summary="analyse etoro excel sheet",
     responses={200: EtoroAnalysisResponse},
 )
-def analyze_etoro_excel():
-    file: FileStorage = request.files["file"]
-    read = file.read()
+def analyze_etoro_excel(form: EtoroForm):
+    read = form.file.read()
     closed_position = extract_closed_position(read)
     return closed_position
 
