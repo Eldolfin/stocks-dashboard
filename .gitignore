@@ -4,3 +4,5 @@ backend/finance_dashboard_api.egg-info
 backend/finance_dashboard_api/src/finance_dashboard_api.egg-info
 backend/src/finance_dashboard_api.egg-info
 backend/__pycache__
+backend/src/__pycache__
+backend/*.xlsx

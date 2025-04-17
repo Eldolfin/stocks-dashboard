@@ -60,7 +60,7 @@
 <div>
 	<div class="flex justify-center">
 		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor(data.history?.delta)}`}>
-			{formatPercent(data.history?.delta!)}
+			{formatPercent(data.history!.delta!)}
 		</p>
 	</div>
 	<div class="flex justify-center">

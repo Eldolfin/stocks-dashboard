@@ -1,6 +1,7 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union, Literal
 from pydantic import BaseModel, Field
-
+from flask_openapi3.models import FileStorage
+from enum import Enum
 
 ###############
 #  KPI QUERY  #
@@ -320,3 +321,32 @@ class TickerResponse(BaseModel):
 class NotFoundResponse(BaseModel):
     code: int = -1
     message: str = "Resource not found!"
+
+
+####################
+#  ETORO ANALYSIS  #
+####################
+class PrecisionEnum(str, Enum):
+    B = "B"  # business day frequency
+    D = "D"  # calendar day frequency
+    W = "W"  # weekly frequency
+    M = "M"  # monthly frequency
+    Q = "Q"  # quarterly frequency
+    Y = "Y"  # yearly frequency
+    h = "h"  # hourly frequency
+    min = "min"  # minutely frequency
+    s = "s"  # secondly frequency
+    ms = "ms"  # milliseconds
+    us = "us"  # microseconds
+    ns = "ns"  # nanoseconds
+
+
+class EtoroForm(BaseModel):
+    precision: PrecisionEnum
+    file: FileStorage
+
+
+class EtoroAnalysisResponse(BaseModel):
+    close_date: List[str]
+    closed_trades: List[int]
+    profit_usd: List[float]

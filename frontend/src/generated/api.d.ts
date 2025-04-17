@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/etoro_analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analyse etoro excel sheet */
+        post: operations["analyze_etoro_excel_api_etoro_analysis_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/kpis/": {
         parameters: {
             query?: never;
@@ -153,6 +170,24 @@ export interface components {
             /** Dates */
             dates: string[];
             query: components["schemas"]["CompareGrowthQuery"];
+        };
+        /** EtoroAnalysisResponse */
+        EtoroAnalysisResponse: {
+            /** Close Date */
+            close_date: string[];
+            /** Closed Trades */
+            closed_trades: number[];
+            /** Profit Usd */
+            profit_usd: number[];
+        };
+        /** EtoroForm */
+        EtoroForm: {
+            /**
+             * File
+             * Format: binary
+             */
+            file: string;
+            precision: components["schemas"]["PrecisionEnum"];
         };
         /** Info */
         Info: {
@@ -1078,6 +1113,11 @@ export interface components {
              */
             message: string;
         };
+        /**
+         * PrecisionEnum
+         * @enum {string}
+         */
+        PrecisionEnum: "B" | "D" | "W" | "M" | "Q" | "Y" | "h" | "min" | "s" | "ms" | "us" | "ns";
         /** Quote */
         Quote: {
             /**
@@ -1155,26 +1195,6 @@ export interface components {
             /** Quotes */
             quotes: components["schemas"]["Quote"][];
         };
-        /** TickerQuery */
-        TickerQuery: {
-            /**
-             * Period
-             * @default ytd
-             */
-            period: string;
-            /** Ticker Name */
-            ticker_name: string;
-        };
-        /** TickerResponse */
-        TickerResponse: {
-            /** Candles */
-            candles: number[];
-            /** Dates */
-            dates: string[];
-            /** Delta */
-            delta: number;
-            query: components["schemas"]["TickerQuery"];
-        };
         /** ValidationErrorModel */
         ValidationErrorModel: {
             /**
@@ -1241,6 +1261,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotFoundResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    analyze_etoro_excel_api_etoro_analysis_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["EtoroForm"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EtoroAnalysisResponse"];
                 };
             };
             /** @description Unprocessable Content */
@@ -1329,6 +1382,7 @@ export interface operations {
         parameters: {
             query: {
                 ticker_name: string;
+                interval?: string | null;
                 period?: string;
             };
             header?: never;
@@ -1337,24 +1391,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TickerResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotFoundResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {

@@ -3,3 +3,4 @@ flask
 flask-openapi3[swagger,redoc,rapidoc]
 pydantic==2.11.2
 flask_cors
+openpyxl
