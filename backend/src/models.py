@@ -1,6 +1,7 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union, Literal
 from pydantic import BaseModel, Field
-
+from flask_openapi3.models import FileStorage
+from enum import Enum
 
 ###############
 #  KPI QUERY  #
@@ -325,31 +326,27 @@ class NotFoundResponse(BaseModel):
 ####################
 #  ETORO ANALYSIS  #
 ####################
+class PrecisionEnum(str, Enum):
+    B = "B"  # business day frequency
+    D = "D"  # calendar day frequency
+    W = "W"  # weekly frequency
+    M = "M"  # monthly frequency
+    Q = "Q"  # quarterly frequency
+    Y = "Y"  # yearly frequency
+    h = "h"  # hourly frequency
+    min = "min"  # minutely frequency
+    s = "s"  # secondly frequency
+    ms = "ms"  # milliseconds
+    us = "us"  # microseconds
+    ns = "ns"  # nanoseconds
+
+
+class EtoroForm(BaseModel):
+    precision: PrecisionEnum
+    file: FileStorage
+
+
 class EtoroAnalysisResponse(BaseModel):
-    Action: List[str]
-    Amount: List[float]
-    Close_Date: List[int] = Field(..., alias="Close Date")
-    Close_Rate: List[float] = Field(..., alias="Close Rate")
-    Copied_From: List[str] = Field(..., alias="Copied From")
-    FX_rate_at_close__USD_: List[str] = Field(
-        ..., alias="FX rate at close (USD)"
-    )
-    FX_rate_at_open__USD_: List[str] = Field(..., alias="FX rate at open (USD)")
-    ISIN: List[str]
-    Leverage: List[int]
-    Long___Short: List[str] = Field(..., alias="Long / Short")
-    Market_Spread__USD_: List[float] = Field(..., alias="Market Spread (USD)")
-    Notes: List
-    Open_Date: List[int] = Field(..., alias="Open Date")
-    Open_Rate: List[float] = Field(..., alias="Open Rate")
-    Overnight_Fees_and_Dividends: List[float] = Field(
-        ..., alias="Overnight Fees and Dividends"
-    )
-    Position_ID: List[int] = Field(..., alias="Position ID")
-    Profit_EUR_: List[float] = Field(..., alias="Profit(EUR)")
-    Profit_USD_: List[float] = Field(..., alias="Profit(USD)")
-    Spread_Fees__USD_: List[float] = Field(..., alias="Spread Fees (USD)")
-    Stop_loss_rate: List[float] = Field(..., alias="Stop loss rate")
-    Take_profit_rate: List[float] = Field(..., alias="Take profit rate")
-    Type: List[str]
-    Units___Contracts: List[float] = Field(..., alias="Units / Contracts")
+    close_date: List[str]
+    closed_trades: List[int]
+    profit_usd: List[float]

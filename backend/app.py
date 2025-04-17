@@ -18,11 +18,11 @@ from src.models import (
     NotFoundResponse,
     CompareGrowthQuery,
     CompareGrowthResponse,
+    EtoroForm,
     EtoroAnalysisResponse,
 )
 from src.intervals import interval_to_duration, duration_to_interval
 from datetime import datetime
-from flask_openapi3.models import FileStorage
 from pydantic import BaseModel
 from flask_openapi3.models import RequestBody
 from src.etoro_data import extract_closed_position
@@ -182,10 +182,6 @@ def search_ticker(query: SearchQuery):
     return SearchResponse(quotes=quotes, query=query).dict(), 200
 
 
-class EtoroForm(BaseModel):
-    file: FileStorage
-
-
 @app.post(
     "/api/etoro_analysis",
     summary="analyse etoro excel sheet",
@@ -193,7 +189,7 @@ class EtoroForm(BaseModel):
 )
 def analyze_etoro_excel(form: EtoroForm):
     read = form.file.read()
-    closed_position = extract_closed_position(read)
+    closed_position = extract_closed_position(read, time_unit=form.precision)
     return closed_position
 
 

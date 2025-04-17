@@ -3,13 +3,10 @@ from io import BytesIO
 
 
 def column_date_to_timestamp(column: pd.Series) -> pd.Series:
-    return (
-        pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S").astype("int64")
-        // 10**9
-    )
+    return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
-def extract_closed_position(etoro_statement: bytes):
+def extract_closed_position(etoro_statement: bytes, time_unit="m"):
     excel = pd.read_excel(BytesIO(etoro_statement), sheet_name=None)
     closed_positions_df = excel["Closed Positions"]
     closed_positions_df["Close Date"] = column_date_to_timestamp(
@@ -18,8 +15,22 @@ def extract_closed_position(etoro_statement: bytes):
     closed_positions_df["Open Date"] = column_date_to_timestamp(
         closed_positions_df["Open Date"]
     )
-    closed_positions = {
-        column: closed_positions_df[column].dropna().tolist()
-        for column in closed_positions_df.columns
+    gains_graphs_columns = {
+        "Close Date": "close_date",
+        "Profit(USD)": "profit_usd",
     }
-    return closed_positions
+    gains = closed_positions_df[gains_graphs_columns.keys()].reset_index()
+    gains = gains.rename(columns=gains_graphs_columns)
+    gains = (
+        gains.groupby(gains["close_date"].dt.to_period(time_unit))
+        .agg(
+            profit_usd=("profit_usd", "sum"),
+            closed_trades=("profit_usd", "count"),
+        )
+        .reset_index()
+    )
+    gains["close_date"] = gains["close_date"].dt.to_timestamp()
+    gains["close_date"] = gains["close_date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
+
+    gains = {column: gains[column].tolist() for column in gains.columns}
+    return gains

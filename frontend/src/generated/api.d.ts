@@ -173,52 +173,12 @@ export interface components {
         };
         /** EtoroAnalysisResponse */
         EtoroAnalysisResponse: {
-            /** Action */
-            Action: string[];
-            /** Amount */
-            Amount: number[];
             /** Close Date */
-            "Close Date": number[];
-            /** Close Rate */
-            "Close Rate": number[];
-            /** Copied From */
-            "Copied From": string[];
-            /** Fx Rate At Close (Usd) */
-            "FX rate at close (USD)": string[];
-            /** Fx Rate At Open (Usd) */
-            "FX rate at open (USD)": string[];
-            /** Isin */
-            ISIN: string[];
-            /** Leverage */
-            Leverage: number[];
-            /** Long / Short */
-            "Long / Short": string[];
-            /** Market Spread (Usd) */
-            "Market Spread (USD)": number[];
-            /** Notes */
-            Notes: unknown[];
-            /** Open Date */
-            "Open Date": number[];
-            /** Open Rate */
-            "Open Rate": number[];
-            /** Overnight Fees And Dividends */
-            "Overnight Fees and Dividends": number[];
-            /** Position Id */
-            "Position ID": number[];
-            /** Profit(Eur) */
-            "Profit(EUR)": number[];
-            /** Profit(Usd) */
-            "Profit(USD)": number[];
-            /** Spread Fees (Usd) */
-            "Spread Fees (USD)": number[];
-            /** Stop Loss Rate */
-            "Stop loss rate": number[];
-            /** Take Profit Rate */
-            "Take profit rate": number[];
-            /** Type */
-            Type: string[];
-            /** Units / Contracts */
-            "Units / Contracts": number[];
+            close_date: string[];
+            /** Closed Trades */
+            closed_trades: number[];
+            /** Profit Usd */
+            profit_usd: number[];
         };
         /** EtoroForm */
         EtoroForm: {
@@ -227,6 +187,7 @@ export interface components {
              * Format: binary
              */
             file: string;
+            precision: components["schemas"]["PrecisionEnum"];
         };
         /** Info */
         Info: {
@@ -1152,6 +1113,11 @@ export interface components {
              */
             message: string;
         };
+        /**
+         * PrecisionEnum
+         * @enum {string}
+         */
+        PrecisionEnum: "B" | "D" | "W" | "M" | "Q" | "Y" | "h" | "min" | "s" | "ms" | "us" | "ns";
         /** Quote */
         Quote: {
             /**
