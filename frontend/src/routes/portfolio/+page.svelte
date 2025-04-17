@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Helper } from 'flowbite-svelte';
-	import { Label, Fileupload } from 'flowbite-svelte';
+	import { Label, Fileupload, Helper, Heading, A } from 'flowbite-svelte';
 	import { client } from '../../lib/typed-fetch-client';
 	import type { components } from '../../generated/api.js';
 	import BarChart from '$lib/components/BarChart.svelte';
+	import { ArrowRightOutline } from 'flowbite-svelte-icons';
+	import HistoryChart from '$lib/components/HistoryChart.svelte';
 
 	type EtoroData = components['schemas']['EtoroAnalysisResponse'];
 
@@ -11,7 +12,7 @@
 	let error: string | undefined = $state(undefined);
 	let data: EtoroData | undefined = $state(undefined);
 
-	const data_profits = $derived(data!['Close Date']);
+	const now = new Date();
 
 	$effect(() => {
 		(async () => {
@@ -31,11 +32,11 @@
 	});
 </script>
 
-{#if data}
+{#if data !== undefined}
 	<div class="flex justify-center">
 		<BarChart
 			title="Profit over time"
-			dataset={new Map([['profit (USD)', data_profits]])}
+			dataset={new Map([['profit (USD)', data['Profit(USD)']]])}
 			color="green"
 			dates={data['Close Date']}
 		/>
@@ -43,11 +44,21 @@
 {:else if error}
 	<Helper color="red">{error}</Helper>
 {:else}
+	<Heading tag="h2" customSize="text-4xl font-extrabold mt-6">Step 1:</Heading>
+	<A
+		aClass="inline-flex items-center font-medium hover:underline"
+		href={`https://www.etoro.com/documents/accountstatement/2015-1-1/${now.getFullYear()}-${now.getMonth()}-${now.getDay()}`}
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		Download excel report from Etoro
+		<ArrowRightOutline class="ms-2 h-6 w-6" />
+	</A>
+	<Heading tag="h2" customSize="text-4xl font-extrabold mt-6">Step 2:</Heading>
 	<Label class="pb-2">Upload file</Label>
 	<Fileupload
 		accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 		id="etoro-excel"
 		bind:files
 	/>
-	<Helper>EXCEL FILE (MAX. 800x400px).</Helper>
 {/if}

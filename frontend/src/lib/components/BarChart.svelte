@@ -10,14 +10,14 @@
 		color: string;
 	}
 	const { title, dataset, dates, color }: Props = $props();
-	let chartInstance: Chart | undefined;
+	let chartInstance: Chart | undefined = $state();
 
 	function chart(node: HTMLCanvasElement, dataset: Dataset) {
 		function setupChart(dataset: Dataset) {
 			chartInstance = new Chart(node, {
 				type: 'bar',
 				data: {
-					labels: dates,
+					labels: dates
 					datasets: Array.from(
 						dataset.keys().map((label) => {
 							return {
