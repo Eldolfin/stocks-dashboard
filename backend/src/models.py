@@ -316,6 +316,7 @@ class TickerResponse(BaseModel):
     candles: List[float]
     query: TickerQuery
     delta: float
+    sma30: List[float]
 
 
 class NotFoundResponse(BaseModel):

@@ -11,8 +11,8 @@ dev-front:
     cd frontend && npm run dev
 
 dev:
-    ghostty -e "just dev-docker" >/dev/null 2>&1 &
-    ghostty -e "just dev-front" >/dev/null 2>&1 &
+    kitty -e just dev-docker >/dev/null 2>&1 &
+    kitty -e just dev-front >/dev/null 2>&1 &
 
 
 

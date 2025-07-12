@@ -26,6 +26,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from flask_openapi3.models import RequestBody
 from src.etoro_data import extract_closed_position
+import numpy as np
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
@@ -77,10 +78,17 @@ def get_ticker(query: TickerQuery):
     dates = history["Date"].tolist()
     candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
+    sma30 = (
+        history["Close"]
+        .rolling(window=30)
+        .mean()
+        .fillna(history["Close"])
+        .tolist()
+    )
 
     return (
         TickerResponse(
-            dates=dates, candles=candles, query=query, delta=delta
+            dates=dates, candles=candles, query=query, delta=delta, sma30=sma30
         ).dict(),
         200,
     )
