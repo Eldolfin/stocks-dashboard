@@ -78,17 +78,21 @@ def get_ticker(query: TickerQuery):
     dates = history["Date"].tolist()
     candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
-    sma30 = (
-        history["Close"]
-        .rolling(window=30)
-        .mean()
-        .fillna(history["Close"])
-        .tolist()
-    )
+    smas_sizes = [30, 300]
+    smas = {
+        size: (
+            history["Close"]
+            .rolling(window=size)
+            .mean()
+            .fillna(history["Close"])
+            .tolist()
+        )
+        for size in smas_sizes
+    }
 
     return (
         TickerResponse(
-            dates=dates, candles=candles, query=query, delta=delta, sma30=sma30
+            dates=dates, candles=candles, query=query, delta=delta, smas=smas
         ).dict(),
         200,
     )

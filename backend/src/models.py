@@ -316,7 +316,8 @@ class TickerResponse(BaseModel):
     candles: List[float]
     query: TickerQuery
     delta: float
-    sma30: List[float]
+    # Point size sma
+    smas: Dict[int, List[float]]
 
 
 class NotFoundResponse(BaseModel):

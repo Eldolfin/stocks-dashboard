@@ -66,7 +66,7 @@
 	<div class="flex justify-center">
 		<HistoryChart
 			title={`Price: ${data.history?.query.period}`}
-			dataset={{ price: data.history!.candles, sma: data.history!.sma30 }}
+			dataset={{ price: data.history!.candles, ...data.history!.smas }}
 			dates={data.history!.dates}
 			color={ratioColor(data.history?.delta)}
 		/>
