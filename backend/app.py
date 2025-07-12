@@ -1,7 +1,6 @@
 from flask_cors import CORS
-from flask import Flask, request
 import yfinance as yf
-from flask_openapi3 import Info, Tag
+from flask_openapi3 import Info
 from flask_openapi3 import OpenAPI
 from src import models
 from typing import List
@@ -23,10 +22,7 @@ from src.models import (
 )
 from src.intervals import interval_to_duration, duration_to_interval
 from datetime import datetime
-from pydantic import BaseModel
-from flask_openapi3.models import RequestBody
 from src.etoro_data import extract_closed_position
-import numpy as np
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
@@ -78,14 +74,15 @@ def get_ticker(query: TickerQuery):
     dates = history["Date"].tolist()
     candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
-    smas_sizes = [30, 300]
+    smas_history = dat.history(period="max", interval="1d").reset_index()
+    smas_sizes = [30, 100, 500]
     smas = {
         size: (
-            history["Close"]
+            smas_history["Close"]
             .rolling(window=size)
             .mean()
-            .fillna(history["Close"])
-            .tolist()
+            .fillna(0)
+            .tolist()[-len(candles) :]
         )
         for size in smas_sizes
     }
