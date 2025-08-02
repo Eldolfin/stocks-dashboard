@@ -267,7 +267,7 @@ class RawQuote(BaseModel):
     score: int
     sector: Optional[str] = None
     sectorDisp: Optional[str] = None
-    shortname: str
+    shortname: Optional[str] = None
     symbol: str
     typeDisp: str
 
