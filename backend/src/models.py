@@ -19,7 +19,7 @@ class AnalystPriceTargets(BaseModel):
 class CompanyOfficer(BaseModel):
     age: Optional[int] = None
     exercisedValue: int
-    fiscalYear: int
+    fiscalYear: Optional[int] = None
     maxAge: int
     name: str
     title: str

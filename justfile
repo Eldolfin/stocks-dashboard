@@ -1,3 +1,6 @@
+help:
+    just --list
+
 dev-docker:
     #!/bin/sh
     cd dev
@@ -5,6 +8,7 @@ dev-docker:
         -f docker-compose.yml     \
         -f docker-compose.dev.yml \
         up -d --build
+    xdg-open http://127.0.0.1:8085/
     docker compose logs -f
 
 dev-front:
