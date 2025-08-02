@@ -1,22 +1,9 @@
+
 <script lang="ts">
-	import {
-		Avatar,
-		Button,
-		Checkbox,
-		Progressbar,
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell
-	} from 'flowbite-svelte';
-	import { Label, Input } from 'flowbite-svelte';
-	import { ArrowRightOutline, CirclePlusSolid, SearchOutline } from 'flowbite-svelte-icons';
-	import type { components } from '../generated/api';
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import { debounce } from 'chart.js/helpers';
+  import type { components } from '../generated/api';
 
 	type Ticker = components['schemas']['Quote'];
 
@@ -44,124 +31,39 @@
 	if (import.meta.env.DEV) {
 		onSearch();
 	}
-	const comparedTickersUrl = () =>
-		Array.from(comparedTickers)
-			.map((t) => t.info.symbol)
-			.join(',');
 </script>
 
-<div class="p-8">
-	<Label for="input-group-1" class="mb-2 block">Search a ticker</Label>
+<!-- Header -->
+<div class="text-center">
+  <h1 class="text-4xl sm:text-5xl font-bold animate-fade-in">Search</h1>
+</div>
 
-	<form>
-		<Input
-			oninput={debounce(onSearch, 300)}
-			bind:value={searchText}
-			id="search"
-			type="text"
-			placeholder="Apple, Microsoft, ..."
-		>
-			<SearchOutline slot="left" />
-		</Input>
-	</form>
 
-	{#if pendingRequest > 0}
-		<Progressbar animate={true} tweenDuration={2500} progress={100} />
-	{/if}
-	<Table class="mt-10" hoverable={true}>
-		<TableHead>
-			<TableHeadCell>Stock name</TableHeadCell>
-			<TableHeadCell>Logo</TableHeadCell>
-			<TableHeadCell>Price</TableHeadCell>
-			<TableHeadCell>Today's P&L</TableHeadCell>
-			<TableHeadCell>
-				<Button disabled={comparedTickers.size < 2} href="/compare/{comparedTickersUrl()}"
-					>Compare</Button
-				>
-			</TableHeadCell>
-		</TableHead>
-		<TableBody tableBodyClass="divide-y">
-			{#if searchResult !== undefined}
-				{#each searchResult as quote}
-					{#if !comparedTickers.has(quote)}
-						<TableBodyRow>
-							<TableBodyCell>
-								<a href="/details/{quote.raw.symbol}">
-									{quote.raw.longname}
-								</a>
-							</TableBodyCell>
-							<TableBodyCell>
-								<a href="/details/{quote.raw.symbol}">
-									<Avatar src={quote.icon_url!} rounded />
-								</a>
-							</TableBodyCell>
-							<TableBodyCell>
-								<a href="/details/{quote.raw.symbol}">
-									{formatCurrency(quote.info.currentPrice)}
-								</a>
-							</TableBodyCell>
-							<TableBodyCell>
-								<a href="/details/{quote.raw.symbol}">
-									{formatPercent(quote.today_change)}
-								</a>
-							</TableBodyCell>
-							<TableBodyCell>
-								<Button
-									pill={true}
-									class="p-2!"
-									color="green"
-									on:click={() => {
-										const updated = new Set(comparedTickers);
-										updated.add(quote);
-										comparedTickers = updated;
-									}}><CirclePlusSolid class="h-6 w-6" /></Button
-								>
-							</TableBodyCell>
-						</TableBodyRow>
-					{/if}
-				{/each}
-			{/if}
-			<TableBodyRow color="custom">
-				<TableBodyCell></TableBodyCell>
-				<TableBodyCell></TableBodyCell>
-				<TableBodyCell></TableBodyCell>
-				<TableBodyCell></TableBodyCell>
-				<TableBodyCell></TableBodyCell>
-			</TableBodyRow>
-			{#each comparedTickers.values() as quote (quote.raw.symbol)}
-				<TableBodyRow>
-					<TableBodyCell>
-						<a href="/details/{quote.raw.symbol}">
-							{quote.raw.longname}
-						</a>
-					</TableBodyCell>
-					<TableBodyCell>
-						<a href="/details/{quote.raw.symbol}">
-							<Avatar src={quote.icon_url!} rounded />
-						</a>
-					</TableBodyCell>
-					<TableBodyCell>
-						<a href="/details/{quote.raw.symbol}">
-							{formatCurrency(quote.info.currentPrice)}
-						</a>
-					</TableBodyCell>
-					<TableBodyCell>
-						<a href="/details/{quote.raw.symbol}">
-							{formatPercent(quote.today_change)}
-						</a>
-					</TableBodyCell>
-					<TableBodyCell>
-						<Checkbox
-							checked
-							on:change={() => {
-								const updated = new Set(comparedTickers);
-								updated.delete(quote);
-								comparedTickers = updated;
-							}}
-						/>
-					</TableBodyCell>
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
+<form class="my-8">
+  <input
+    oninput={debounce(onSearch, 300)}
+    bind:value={searchText}
+    id="search"
+    type="text"
+    placeholder="Apple, Microsoft, ..."
+    class="w-full px-4 py-2 rounded-full bg-gray-800 text-white shadow focus:outline-none focus:ring-2 focus:ring-brand"
+  />
+</form>
+
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {#if searchResult !== undefined}
+    {#each searchResult as quote}
+      <div class="p-5 bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] rounded-2xl shadow-lg hover:scale-[1.02] transition">
+        <a href="/details/{quote.raw.symbol}">
+          <h2 class="font-semibold text-white mb-2">{quote.raw.longname}</h2>
+          <ul class="space-y-1 text-sm text-gray-300">
+            <li>Price: <span class="text-brand">{formatCurrency(quote.info.currentPrice)}</span></li>
+            <li>Today's P&L: <span class="text-brand">{formatPercent(quote.today_change)}</span></li>
+          </ul>
+        </a>
+      </div>
+    {/each}
+  {/if}
 </div>

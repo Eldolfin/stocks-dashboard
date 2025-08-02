@@ -1,6 +1,5 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
-	import { Button, ButtonGroup, Card } from 'flowbite-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { formatPercent, ratioColor } from '$lib/format-utils';
@@ -18,28 +17,6 @@
 		{ label: '3 year', value: '3y' },
 		{ label: 'MAX', value: 'max' }
 	];
-	const kpis = [
-		{ label: 'Previous Close', value: 'previousClose' },
-		{ label: "Today's Range", value: 'regularMarketDayRange' },
-		{ label: '52-Week Range', value: 'fiftyTwoWeekRange' },
-		{ label: 'Return on Equity (ROE)', value: 'returnOnEquity' },
-		{ label: 'Market Capitalization', value: 'marketCap' },
-		{ label: 'EBITDA', value: 'ebitda' },
-		{ label: 'Trailing P/E Ratio', value: 'trailingPE' },
-		{ label: 'Forward P/E Ratio', value: 'forwardPE' },
-		{ label: 'Earnings Growth', value: 'earningsGrowth' },
-		{ label: 'Revenue Growth', value: 'revenueGrowth' },
-		{ label: 'Payout Ratio', value: 'payoutRatio' },
-		{ label: 'Profit Margins', value: 'profitMargins' },
-		{ label: 'Free Cash Flow', value: 'freeCashflow' },
-		{ label: 'Dividend Rate', value: 'dividendRate' },
-		{ label: 'Dividend Yield', value: 'dividendYield' },
-		{ label: 'Shares Outstanding', value: 'sharesOutstanding' }
-
-		// MAIN:
-		// ratioPE: float
-		// freeCashflowYield: float
-	] satisfies { label: string; value: keyof components['schemas']['Info'] }[];
 	const changeRange = (newValue: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
 
@@ -49,14 +26,9 @@
 	};
 </script>
 
-<div class="flex justify-center">
-	<p class="text-8xl dark:text-white">
-		{data.tickers}
-	</p>
-</div>
-<div>
-	<div class="flex justify-center"></div>
-	<div class="flex justify-center">
+<div class="flex flex-col items-center">
+	<h1 class="text-4xl sm:text-5xl font-bold animate-fade-in">{data.tickers}</h1>
+	<div class="my-8 h-56 sm:h-64 bg-gradient-to-r from-[#0d182b] to-[#102139] rounded-2xl shadow-xl flex items-center justify-center text-gray-500 w-full max-w-screen-lg">
 		<HistoryChart
 			title={`Growth compare`}
 			dataset={data.history_data!.candles}
@@ -64,11 +36,9 @@
 			color={'gray'}
 		/>
 	</div>
-	<div class="flex justify-center">
-		<ButtonGroup>
-			{#each ranges as range}
-				<Button onclick={() => changeRange(range.value)} outline color="dark">{range.label}</Button>
-			{/each}
-		</ButtonGroup>
+	<div class="flex flex-wrap justify-center gap-2 mb-8">
+		{#each ranges as range}
+			<button class="px-4 py-1 rounded-full bg-gray-800 text-white shadow hover:scale-105 transition" onclick={() => changeRange(range.value)}>{range.label}</button>
+		{/each}
 	</div>
 </div>

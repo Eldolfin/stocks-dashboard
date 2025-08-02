@@ -16,20 +16,13 @@
 	const createChart = () => {
 		const data = {
 			labels: dates,
-			// datasets: dataset.map((data) => {
-			// 	return {
-			// 		label: 'Price',
-			// 		data: data,
-			// 		// FIXME: default css colors are ugly
-			// 		borderColor: color,
-			// 		backgroundColor: transparentize(color, 0.5),
-			// 		yAxisID: 'y'
-			// 	};
-			// })
 			datasets: Object.entries(dataset).map(([label, data]) => {
 				return {
 					label,
-					data
+					data,
+					borderColor: color,
+					backgroundColor: transparentize(color, 0.5),
+					yAxisID: 'y'
 				};
 			})
 		};
@@ -42,7 +35,6 @@
 					mode: 'index',
 					intersect: false
 				},
-				// stacked: false,
 				plugins: {
 					title: {
 						display: true,
@@ -67,7 +59,10 @@
 		}
 		chartInstance = new Chart(chartElt! as HTMLCanvasElement, config);
 	};
-	onMount(() => {
+
+	onMount(async () => {
+		const zoomPlugin = await import('chartjs-plugin-zoom');
+		Chart.register(zoomPlugin.default);
 		createChart();
 	});
 
@@ -80,4 +75,4 @@
 	});
 </script>
 
-<div style="width: 800px;"><canvas bind:this={chartElt}></canvas></div>
+<div class="w-full h-full"><canvas bind:this={chartElt}></canvas></div>

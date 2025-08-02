@@ -1,6 +1,5 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
-	import { Button, ButtonGroup, Card } from 'flowbite-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { formatPercent, ratioColor } from '$lib/format-utils';
@@ -31,7 +30,7 @@
 		{ label: 'Payout Ratio', value: 'info.payoutRatio' },
 		{ label: 'Profit Margins', value: 'info.profitMargins' },
 		{ label: 'Free Cash Flow', value: 'info.freeCashflow' },
-		{ label: 'Dividend Rate', value: 'info.dividendRate' },
+		{ label: 'Dividend Rate', value: 'info.dividendRate' },		
 		{ label: 'Dividend Yield', value: 'info.dividendYield' },
 		{ label: 'Shares Outstanding', value: 'info.sharesOutstanding' },
 		{ label: 'P/E ratio', value: 'main.ratioPE' },
@@ -52,46 +51,38 @@
 	};
 </script>
 
-<div class="flex justify-center">
-	<p class="text-8xl dark:text-white">
-		{data.ticker}
-	</p>
-</div>
-<div>
-	<div class="flex justify-center">
-		<p class={`text-1xl dark:text-white`} style={`color: ${ratioColor(data.history?.delta)}`}>
-			{formatPercent(data.history!.delta!)}
-		</p>
-	</div>
-	<div class="flex justify-center">
-		<HistoryChart
-			title={`Price: ${data.history?.query.period}`}
-			dataset={{ price: data.history!.candles, ...data.history!.smas }}
-			dates={data.history!.dates}
-			color={ratioColor(data.history?.delta)}
-		/>
-	</div>
-	<div class="flex justify-center">
-		<ButtonGroup>
-			{#each ranges as range}
-				<Button onclick={() => changeRange(range.value)} outline color="dark">{range.label}</Button>
-			{/each}
-		</ButtonGroup>
-	</div>
+<div class="flex flex-col items-center">
+  <h1 class="text-4xl sm:text-5xl font-bold animate-fade-in">{data.ticker}</h1>
+  <p class="text-brand text-lg sm:text-xl mt-2 animate-fade-in" style={`color: ${ratioColor(data.history?.delta)}`}>
+    {formatPercent(data.history!.delta!)}
+  </p>
+  <p class="text-sm text-gray-400">Price / ∇</p>
 
-	<div class="mt-10 flex w-full justify-center">
-		<Card class="w-full max-w-screen-lg" shadow={true}>
-			<div class="grid grid-cols-3 gap-x-11 gap-y-3 text-xl">
-				{#each kpis as kpi}
-					{#if deep_value(data.summary, kpi.value) !== null}
-						<div>
-							<strong>{kpi.label}</strong>
-							<br />
-							<span>{deep_value(data.summary, kpi.value)}</span>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		</Card>
-	</div>
+  <div class="my-8 h-56 sm:h-64 bg-gradient-to-r from-[#0d182b] to-[#102139] rounded-2xl shadow-xl flex items-center justify-center text-gray-500 w-full max-w-screen-lg">
+    <HistoryChart
+      title={`Price: ${data.history?.query.period}`}
+      dataset={{ price: data.history!.candles, ...data.history!.smas }}
+      dates={data.history!.dates}
+      color={ratioColor(data.history?.delta)}
+    />
+  </div>
+
+  <div class="flex flex-wrap justify-center gap-2 mb-8">
+    {#each ranges as range}
+      <button class="px-4 py-1 rounded-full bg-gray-800 text-white shadow hover:scale-105 transition" onclick={() => changeRange(range.value)}>{range.label}</button>
+    {/each}
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-screen-lg">
+    {#each kpis as kpi}
+      {#if deep_value(data.summary, kpi.value) !== null}
+        <div class="p-5 bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] rounded-2xl shadow-lg hover:scale-[1.02] transition">
+          <h2 class="font-semibold text-white mb-2">{kpi.label}</h2>
+          <ul class="space-y-1 text-sm text-gray-300">
+            <li><span class="text-brand">{deep_value(data.summary, kpi.value)}</span></li>
+          </ul>
+        </div>
+      {/if}
+    {/each}
+  </div>
 </div>

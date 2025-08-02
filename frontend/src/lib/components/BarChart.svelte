@@ -3,7 +3,6 @@
 	import Chart from 'chart.js/auto';
 	import { browser } from '$app/environment';
 	import { mount, onMount } from 'svelte';
-	import { Button } from 'flowbite-svelte';
 
 	type Dataset = Map<String, number[]>;
 	interface Props {
@@ -78,7 +77,7 @@
 	});
 </script>
 
-<div style="width: 800px;">
+<div class="w-full">
 	<canvas class="chart" use:chart={$state.snapshot(dataset)}></canvas>
-	<Button onclick={() => chartInstance?.resetZoom()} outline color="dark">Reset zoom</Button>
+	<button class="px-4 py-1 rounded-full bg-gray-800 text-white shadow hover:scale-105 transition mt-4" onclick={() => chartInstance?.resetZoom()}>Reset zoom</button>
 </div>

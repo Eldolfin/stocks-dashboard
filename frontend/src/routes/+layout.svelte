@@ -1,105 +1,19 @@
-<script lang="ts">
-	import '../app.css';
-	import { onMount } from 'svelte';
-	import {
-		DarkMode,
-		Navbar,
-		NavBrand,
-		NavLi,
-		NavUl,
-		NavHamburger,
-		Sidebar,
-		SidebarGroup,
-		SidebarItem,
-		SidebarWrapper,
-		Drawer,
-		CloseButton
-	} from 'flowbite-svelte';
-	import { sineIn } from 'svelte/easing';
 
-	let transitionParams = {
-		x: -320,
-		duration: 200,
-		easing: sineIn
-	};
-
-	let breakPoint: number = 1024;
-	let width: number;
-	let backdrop: boolean = false;
-	let activateClickOutside = true;
-	let drawerHidden: boolean = false;
-	$: if (width >= breakPoint) {
-		drawerHidden = false;
-		activateClickOutside = false;
-	} else {
-		drawerHidden = true;
-		activateClickOutside = true;
-	}
-	onMount(() => {
-		if (width >= breakPoint) {
-			drawerHidden = false;
-			activateClickOutside = false;
-		} else {
-			drawerHidden = true;
-			activateClickOutside = true;
-		}
-	});
-	const toggleSide = () => {
-		if (width < breakPoint) {
-			drawerHidden = !drawerHidden;
-		}
-	};
-	const toggleDrawer = () => {
-		drawerHidden = false;
-	};
-	let divClass = 'w-full ml-auto lg:block lg:w-auto order-1 lg:order-none';
-	let ulClass =
-		'flex flex-col py-3 my-4 lg:flex-row lg:my-0 text-sm font-medium gap-4 dark:lg:bg-transparent lg:bg-white lg:border-0';
+<script>
+  import "../app.css";
 </script>
 
-<svelte:window bind:innerWidth={width} />
-<header class="mx-auto w-full flex-none bg-white dark:bg-slate-950">
-	<Navbar let:hidden let:toggle>
-		<NavHamburger on:click={toggleDrawer} />
-		<NavBrand href="/" class="lg:ml-64">
-			<img src="/favicon.png" alt="Dashboard Logo" class="mr-3 h-6 sm:h-14" />
-			<span class="self-center pl-4 text-xl font-semibold whitespace-nowrap dark:text-white">
-				Wallstreet Bets
-			</span>
-		</NavBrand>
-		<div class="ml-auto flex items-center">
-			<DarkMode class="inline-block hover:text-gray-900 dark:hover:text-white" />
-		</div>
-		<NavHamburger on:click={toggle} />
-	</Navbar>
-</header>
+<div class="flex flex-col lg:flex-row min-h-screen">
+  <!-- Sidebar -->
+  <aside class="lg:w-20 w-full flex lg:flex-col flex-row items-center justify-around lg:justify-start lg:space-y-6 py-4 lg:py-6 bg-gradient-to-b from-[#0a0f1c] to-[#141e30] shadow-lg">
+    <div class="w-8 h-8 bg-brand rounded-full shadow-inner animate-pulse"></div>
+    <a href="/" title="Home" class="hover:scale-110 transition-transform">🏠</a>
+    <a href="/portfolio" title="Portfolio" class="hover:scale-110 transition-transform">📊</a>
+    <button title="Login" class="hover:scale-110 transition-transform">🔐</button>
+  </aside>
 
-<Drawer
-	transitionType="fly"
-	{backdrop}
-	{transitionParams}
-	bind:hidden={drawerHidden}
-	bind:activateClickOutside
-	width="w-64"
-	class="overflow-scroll pb-32"
-	id="sidebar"
->
-	<div class="flex items-center">
-		<CloseButton on:click={() => (drawerHidden = true)} class="mb-4 lg:hidden dark:text-white" />
-	</div>
-	<Sidebar asideClass="w-54">
-		<SidebarWrapper divClass="overflow-y-auto py-4 px-3 rounded dark:bg-gray-800">
-			<SidebarGroup>
-				<SidebarItem label="Home" href="/" on:click={toggleSide} />
-				<SidebarItem label="Portfolio" href="/portfolio" on:click={toggleSide} />
-				<SidebarItem label="Login" href="/portfolio" on:click={toggleSide} />
-			</SidebarGroup>
-		</SidebarWrapper>
-	</Sidebar>
-</Drawer>
-
-<div class="mx-auto flex w-full px-4">
-	<main class="mx-auto w-full lg:ml-72">
-		<slot />
-	</main>
+  <!-- Main -->
+  <main class="flex-1 px-4 sm:px-6 py-6 bg-gradient-to-br from-[#0a0f1c] to-[#1c2b4a]">
+    <slot />
+  </main>
 </div>

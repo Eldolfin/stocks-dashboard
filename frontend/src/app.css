@@ -1,20 +1,18 @@
-@import 'tailwindcss';
-
-@plugin 'flowbite/plugin';
-
-@custom-variant dark (&:where(.dark, .dark *));
+@import "tailwindcss";
 
 @theme {
-	--color-primary-50: #fff5f2;
-	--color-primary-100: #fff1ee;
-	--color-primary-200: #ffe4de;
-	--color-primary-300: #ffd5cc;
-	--color-primary-400: #ffbcad;
-	--color-primary-500: #fe795d;
-	--color-primary-600: #ef562f;
-	--color-primary-700: #eb4f27;
-	--color-primary-800: #cc4522;
-	--color-primary-900: #a5371b;
+  --color-brand: #00ffc3;
+  --font-family-sans: 'Inter', sans-serif;
 }
 
-@source "../node_modules/flowbite-svelte/dist";
+body {
+  @apply bg-black text-white font-sans;
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-in-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
