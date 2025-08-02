@@ -7,3 +7,4 @@ backend/__pycache__
 backend/src/__pycache__
 backend/*.xlsx
 dev/backend-db/database.db
+dev/backend-db/profile_pictures

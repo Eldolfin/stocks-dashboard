@@ -358,10 +358,19 @@ class EtoroAnalysisResponse(BaseModel):
 #  AUTH MODELS  #
 #################
 
-class RegisterBody(BaseModel):
-    email: str
-    password: str
-
 class LoginBody(BaseModel):
     email: str
     password: str
+
+
+class RegisterForm(BaseModel):
+    email: str
+    password: str
+    profile_picture: Optional[FileStorage] = None
+
+
+####################
+#  PROFILE PICTURE #
+####################
+class ProfilePictureForm(BaseModel):
+    profile_picture: FileStorage
