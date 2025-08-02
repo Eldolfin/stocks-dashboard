@@ -41,6 +41,12 @@
 					title: {
 						display: true,
 						text: title
+					},
+					tooltip: {
+						enabled: true
+					},
+					legend: {
+						display: false
 					}
 				},
 				scales: {
@@ -51,6 +57,14 @@
 					},
 					x: {
 						type: 'timeseries'
+					}
+				},
+				elements: {
+					point: {
+						radius: 0
+					},
+					line: {
+						borderWidth: 1
 					}
 				}
 			}
