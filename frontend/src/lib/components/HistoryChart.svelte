@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Chart, { type ChartConfiguration } from 'chart.js/auto';
-	import { transparentize } from '$lib/chart-utils';
+	import { transparentize, SMA_COLORS } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
 
 	interface Props {
@@ -16,12 +16,14 @@
 	const createChart = () => {
 		const data = {
 			labels: dates,
-			datasets: Object.entries(dataset).map(([label, data]) => {
+			datasets: Object.entries(dataset).map(([label, data], index) => {
+				const isMainLine = label === 'price';
+				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
 				return {
 					label,
 					data,
-					borderColor: color,
-					backgroundColor: transparentize(color, 0.5),
+					borderColor: lineColor,
+					backgroundColor: transparentize(lineColor, 0.5),
 					yAxisID: 'y'
 				};
 			})
@@ -75,4 +77,4 @@
 	});
 </script>
 
-<div class="w-full h-full"><canvas bind:this={chartElt}></canvas></div>
+<div class="w-full h-full flex justify-center items-center"><canvas bind:this={chartElt}></canvas></div>

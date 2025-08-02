@@ -2,7 +2,7 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { formatPercent, ratioColor } from '$lib/format-utils';
+	import { formatPercent, ratioColor, formatCurrency, formatLargeNumber, roundPrecision } from '$lib/format-utils';
 
 	let { data } = $props();
 
@@ -17,24 +17,31 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const kpis = [
-		{ label: 'Previous Close', value: 'info.previousClose' },
-		{ label: "Today's Range", value: 'info.regularMarketDayRange' },
-		{ label: '52-Week Range', value: 'info.fiftyTwoWeekRange' },
-		{ label: 'Return on Equity (ROE)', value: 'info.returnOnEquity' },
-		{ label: 'Market Capitalization', value: 'info.marketCap' },
-		{ label: 'EBITDA', value: 'info.ebitda' },
-		{ label: 'Trailing P/E Ratio', value: 'info.trailingPE' },
-		{ label: 'Forward P/E Ratio', value: 'info.forwardPE' },
-		{ label: 'Earnings Growth', value: 'info.earningsGrowth' },
-		{ label: 'Revenue Growth', value: 'info.revenueGrowth' },
-		{ label: 'Payout Ratio', value: 'info.payoutRatio' },
-		{ label: 'Profit Margins', value: 'info.profitMargins' },
-		{ label: 'Free Cash Flow', value: 'info.freeCashflow' },
-		{ label: 'Dividend Rate', value: 'info.dividendRate' },		
-		{ label: 'Dividend Yield', value: 'info.dividendYield' },
-		{ label: 'Shares Outstanding', value: 'info.sharesOutstanding' },
-		{ label: 'P/E ratio', value: 'main.ratioPE' },
-		{ label: 'Free Cash Flow Yield', value: 'main.freeCashflowYield' }
+		{ group: 'Valuation', items: [
+			{ label: 'Previous Close', value: 'info.previousClose', format: formatCurrency },
+			{ label: 'Market Cap', value: 'info.marketCap', format: formatLargeNumber },
+			{ label: 'Trailing P/E', value: 'info.trailingPE', format: (val: number) => roundPrecision(val, 2) },
+			{ label: 'Forward P/E', value: 'info.forwardPE', format: (val: number) => roundPrecision(val, 2) },
+			{ label: 'P/E ratio', value: 'main.ratioPE', format: (val: number) => roundPrecision(val, 2) },
+		]},
+		{ group: 'Performance', items: [
+			{ label: 'Today\'s Range', value: 'info.regularMarketDayRange' },
+			{ label: '52-Week Range', value: 'info.fiftyTwoWeekRange' },
+			{ label: 'ROE', value: 'info.returnOnEquity', format: formatPercent },
+			{ label: 'EBITDA', value: 'info.ebitda', format: formatLargeNumber },
+		]},
+		{ group: 'Dividends', items: [
+			{ label: 'Payout Ratio', value: 'info.payoutRatio', format: formatPercent },
+			{ label: 'Dividend Rate', value: 'info.dividendRate', format: (val: number) => roundPrecision(val, 2) },
+			{ label: 'Dividend Yield', value: 'info.dividendYield', format: formatPercent },
+			{ label: 'Free CF Yield', value: 'main.freeCashflowYield', format: formatPercent },
+		]},
+		{ group: 'Growth', items: [
+			{ label: 'Revenue Growth', value: 'info.revenueGrowth', format: formatPercent },
+			{ label: 'Earnings Growth', value: 'info.earningsGrowth', format: formatPercent },
+			{ label: 'Free Cash Flow', value: 'info.freeCashflow', format: formatLargeNumber },
+			{ label: 'Profit Margins', value: 'info.profitMargins', format: formatPercent },
+		]},
 	];
 	const changeRange = (newValue: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
@@ -74,15 +81,17 @@
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-screen-lg">
-    {#each kpis as kpi}
-      {#if deep_value(data.summary, kpi.value) !== null}
-        <div class="p-5 bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] rounded-2xl shadow-lg hover:scale-[1.02] transition">
-          <h2 class="font-semibold text-white mb-2">{kpi.label}</h2>
-          <ul class="space-y-1 text-sm text-gray-300">
-            <li><span class="text-brand">{deep_value(data.summary, kpi.value)}</span></li>
-          </ul>
-        </div>
-      {/if}
+    {#each kpis as group}
+      <div class="p-5 bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] rounded-2xl shadow-lg hover:scale-[1.02] transition">
+        <h2 class="font-semibold text-white mb-2">{group.group}</h2>
+        <ul class="space-y-1 text-sm text-gray-300">
+          {#each group.items as kpi}
+            {#if deep_value(data.summary, kpi.value) !== null}
+              <li>{kpi.label}: <span class="text-brand">{kpi.format ? kpi.format(deep_value(data.summary, kpi.value)) : deep_value(data.summary, kpi.value)}</span></li>
+            {/if}
+          {/each}
+        </ul>
+      </div>
     {/each}
   </div>
 </div>

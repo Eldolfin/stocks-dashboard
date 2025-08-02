@@ -96,3 +96,11 @@ const NAMED_COLORS = [
 export function namedColor(index: number) {
   return NAMED_COLORS[index % NAMED_COLORS.length];
 }
+
+export const SMA_COLORS = [
+  CHART_COLORS.blue,
+  CHART_COLORS.purple,
+  CHART_COLORS.orange,
+  CHART_COLORS.grey,
+  CHART_COLORS.yellow,
+];
