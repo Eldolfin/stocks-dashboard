@@ -23,11 +23,14 @@ from src.models import (
 from src.intervals import interval_to_duration, duration_to_interval
 from datetime import datetime
 from src.etoro_data import extract_closed_position
+from flask_caching import Cache
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app, origins=["http://localhost:3000", "http://localhost:5173"])
 app.config["UPLOAD_FOLDER"] = "./etoro_sheets"
+
+cache = Cache(app)
 
 
 @app.get(
@@ -156,6 +159,7 @@ def get_kpis(query: KPIQuery):
     summary="full-text search for ticker's",
     responses={200: SearchResponse},
 )
+@cache.memoize()
 def search_ticker(query: SearchQuery):
     raw_quotes: List[RawQuote] = list(
         map(RawQuote.model_validate, yf.Search(query.query).quotes)
