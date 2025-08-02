@@ -38,8 +38,8 @@
     }
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-    <form on:submit|preventDefault={handleRegister} class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <form on:submit|preventDefault={handleRegister} class="w-full max-w-md p-8 space-y-6 rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white">Register</h2>
 
         {#if errorMessage}
@@ -51,17 +51,17 @@
 
         <div>
             <Label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</Label>
-            <Input type="email" id="email" bind:value={email} required class="w-full" />
+            <Input type="email" id="email" bind:value={email} required class="w-full h-12 px-4 py-2" />
         </div>
 
         <div>
             <Label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</Label>
-            <Input type="password" id="password" bind:value={password} required class="w-full" />
+            <Input type="password" id="password" bind:value={password} required class="w-full h-12 px-4 py-2" />
         </div>
 
         <div>
             <Label for="profile_picture" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Picture (Optional)</Label>
-            <Fileupload id="profile_picture" bind:files={profilePicture} accept="image/*" />
+            <Fileupload id="profile_picture" bind:files={profilePicture} accept="image/*" class="w-full h-12 px-4 py-2" />
         </div>
 
         <Button type="submit" class="w-full">Register</Button>
