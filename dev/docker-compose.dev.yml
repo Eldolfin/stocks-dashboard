@@ -5,3 +5,4 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../backend:/app:ro
+      - ./backend-db:/database

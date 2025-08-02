@@ -8,8 +8,8 @@ services:
     container_name: backend
     ports:
       - 5000:5000 # local debugging
-    # volumes:
-    #   - ../backend:/app:ro
+    volumes:
+      - ./backend-db:/database
   frontend:
     image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
     build: ../frontend

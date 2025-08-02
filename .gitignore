@@ -6,3 +6,4 @@ backend/src/finance_dashboard_api.egg-info
 backend/__pycache__
 backend/src/__pycache__
 backend/*.xlsx
+dev/backend-db/database.db

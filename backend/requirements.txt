@@ -5,3 +5,4 @@ pydantic==2.11.2
 flask_cors
 openpyxl
 flask-caching
+flask-login

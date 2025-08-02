@@ -352,3 +352,16 @@ class EtoroAnalysisResponse(BaseModel):
     close_date: List[str]
     closed_trades: List[int]
     profit_usd: List[float]
+
+
+#################
+#  AUTH MODELS  #
+#################
+
+class RegisterBody(BaseModel):
+    email: str
+    password: str
+
+class LoginBody(BaseModel):
+    email: str
+    password: str
