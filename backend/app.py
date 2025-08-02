@@ -10,7 +10,7 @@ import os
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app, origins=["http://localhost:3000", "http://localhost:5173"], supports_credentials=True)
-app.config["UPLOAD_FOLDER"] = "./etoro_sheets"
+app.config["UPLOAD_FOLDER"] = "/database/etoro_sheets"
 # TODO: read from env
 app.config["SECRET_KEY"] = 'supersecretkey'
 app.config["CACHE_TYPE"] = "SimpleCache"

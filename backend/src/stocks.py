@@ -1,6 +1,12 @@
+from flask_openapi3 import APIBlueprint, Tag
+from flask_login import login_required, current_user
+from flask_caching import Cache
+from flask import current_app, send_from_directory
+import os
+from werkzeug.utils import secure_filename
 import yfinance as yf
-from src import models
 from typing import List
+from src import models
 from src.models import (
     TickerResponse,
     TickerQuery,
@@ -15,13 +21,12 @@ from src.models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
     EtoroForm,
+    EtoroReportsResponse,
+    Info
 )
 from src.intervals import interval_to_duration, duration_to_interval
 from datetime import datetime
 from src.etoro_data import extract_closed_position
-from flask_caching import Cache
-from flask_login import login_required
-from flask_openapi3 import APIBlueprint, Tag
 
 stocks_bp = APIBlueprint('stocks', __name__, url_prefix='/api')
 cache = Cache()
@@ -36,8 +41,7 @@ def get_ticker(query: TickerQuery):
     if query.period == "max":
         dat = yf.Ticker(query.ticker_name)
         history = dat.history(period="max", interval="3mo").reset_index()
-        duration = datetime.now() - \
-            history.iloc[0]["Date"].replace(tzinfo=None)
+        duration = datetime.now() - history.iloc[0]["Date"].replace(tzinfo=None)
     else:
         duration = interval_to_duration(query.period)
     if query.interval is None or query.interval == "auto":
@@ -152,8 +156,8 @@ def search_ticker(query: SearchQuery):
     )
     quotes_names = list(quote.symbol for quote in raw_quotes)
     tickers = yf.Tickers(quotes_names).tickers
-    infos: List[models.Info] = [
-        models.Info.model_validate(t.info) for t in tickers.values()
+    infos: List[Info] = [
+        Info.model_validate(t.info) for t in tickers.values()
     ]
     deltas = [
         (
@@ -184,6 +188,39 @@ def search_ticker(query: SearchQuery):
 @stocks_bp.post("/etoro_analysis", tags=[stocks_tag])
 @login_required
 def analyze_etoro_excel(form: EtoroForm):
+    etoro_upload_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
+    os.makedirs(etoro_upload_folder, exist_ok=True)
+    filename = secure_filename(form.file.filename)
+    file_path = os.path.join(etoro_upload_folder, filename)
+    form.file.save(file_path)
+
     read = form.file.read()
     closed_position = extract_closed_position(read, time_unit=form.precision)
+    return closed_position
+
+
+@stocks_bp.get("/etoro/reports", tags=[stocks_tag])
+@login_required
+def list_etoro_reports():
+    user_etoro_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
+    if not os.path.exists(user_etoro_folder):
+        return EtoroReportsResponse(reports=[]).dict(), 200
+    
+    reports = [f for f in os.listdir(user_etoro_folder) if os.path.isfile(os.path.join(user_etoro_folder, f))]
+    return EtoroReportsResponse(reports=reports).dict(), 200
+
+
+@stocks_bp.get("/etoro_analysis_by_name", tags=[stocks_tag])
+@login_required
+def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
+    user_etoro_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
+    file_path = os.path.join(user_etoro_folder, query.filename)
+
+    if not os.path.exists(file_path):
+        return NotFoundResponse().dict(), 404
+
+    with open(file_path, "rb") as f:
+        read = f.read()
+    
+    closed_position = extract_closed_position(read, time_unit=query.precision)
     return closed_position

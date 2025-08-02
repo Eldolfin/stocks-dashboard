@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/etoro/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["stocks_list_etoro_reports_etoro_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/etoro_analysis": {
         parameters: {
             query?: never;
@@ -30,6 +46,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["stocks_analyze_etoro_excel_etoro_analysis_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/etoro_analysis_by_name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["stocks_analyze_etoro_excel_by_name_etoro_analysis_by_name_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -94,6 +126,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["auth_upload_profile_picture_profile_picture_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profile/pictures/{user_email}/{filename}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["auth_get_profile_picture_profile_pictures__user_email___filename__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -270,6 +318,16 @@ export interface operations {
             };
         };
     };
+    stocks_list_etoro_reports_etoro_reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
     stocks_analyze_etoro_excel_etoro_analysis_post: {
         parameters: {
             query?: never;
@@ -282,6 +340,29 @@ export interface operations {
                 "multipart/form-data": components["schemas"]["EtoroForm"];
             };
         };
+        responses: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    stocks_analyze_etoro_excel_by_name_etoro_analysis_by_name_get: {
+        parameters: {
+            query: {
+                filename: string;
+                precision: components["schemas"]["PrecisionEnum"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Unprocessable Content */
             422: {
@@ -362,6 +443,29 @@ export interface operations {
                 "multipart/form-data": components["schemas"]["ProfilePictureForm"];
             };
         };
+        responses: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    auth_get_profile_picture_profile_pictures__user_email___filename__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_email: string;
+                filename: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Unprocessable Content */
             422: {
