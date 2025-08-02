@@ -374,3 +374,12 @@ class RegisterForm(BaseModel):
 ####################
 class ProfilePictureForm(BaseModel):
     profile_picture: FileStorage
+
+
+class ProfilePicturePath(BaseModel):
+    filename: str
+
+
+class ProfilePicturePathParams(BaseModel):
+    user_email: str
+    filename: str

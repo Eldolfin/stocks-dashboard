@@ -6,6 +6,7 @@ from src import models
 from flask_openapi3 import APIBlueprint, Tag
 import os
 from werkzeug.utils import secure_filename
+from flask import request, current_app, send_from_directory
 
 UPLOAD_FOLDER = '/database/profile_pictures'
 
@@ -31,9 +32,13 @@ def register(form: models.RegisterForm):
             if form.profile_picture:
                 file = form.profile_picture
                 if file.filename != '':
+                    user_upload_folder = os.path.join(UPLOAD_FOLDER, email)
+                    os.makedirs(user_upload_folder, exist_ok=True)
                     filename = secure_filename(file.filename)
-                    profile_picture_path = os.path.join(UPLOAD_FOLDER, filename)
+                    profile_picture_path = os.path.join(user_upload_folder, filename)
                     file.save(profile_picture_path)
+                    # Store relative path in DB
+                    profile_picture_path = os.path.join(email, filename)
 
             cursor.execute("INSERT INTO users (email, password, profile_picture) VALUES (?, ?, ?)",
                            (email, hashed_password, profile_picture_path))
@@ -76,9 +81,13 @@ def upload_profile_picture(form: models.ProfilePictureForm):
     if file.filename == '':
         return {'error': 'No selected file'}, 400
     if file:
+        user_upload_folder = os.path.join(UPLOAD_FOLDER, current_user.email)
+        os.makedirs(user_upload_folder, exist_ok=True)
         filename = secure_filename(file.filename)
-        profile_picture_path = os.path.join(UPLOAD_FOLDER, filename)
+        profile_picture_path = os.path.join(user_upload_folder, filename)
         file.save(profile_picture_path)
+        # Store relative path in DB
+        profile_picture_path = os.path.join(current_user.email, filename)
         with sqlite3.connect('/database/database.db') as conn:
             cursor = conn.cursor()
             cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?",
@@ -86,3 +95,8 @@ def upload_profile_picture(form: models.ProfilePictureForm):
             conn.commit()
         return {'message': 'Profile picture updated successfully', 'profile_picture': profile_picture_path}, 200
     return {'error': 'Something went wrong'}, 500
+
+
+@auth_bp.get('/profile/pictures/<user_email>/<filename>', tags=[auth_tag])
+def get_profile_picture(path: models.ProfilePicturePathParams):
+    return send_from_directory(os.path.join(UPLOAD_FOLDER, path.user_email), path.filename)

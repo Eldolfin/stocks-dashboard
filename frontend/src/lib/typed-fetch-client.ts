@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import type { paths } from "../generated/api";
 import { browser, dev } from "$app/environment";
 
-let baseUrl: string = "";
+export let baseUrl: string = "";
 if (dev) {
   baseUrl = "http://localhost:5000";
 } else if (browser) {
@@ -13,4 +13,5 @@ if (dev) {
 
 export const client = createClient<paths>({
   baseUrl,
+  credentials: 'include',
 });

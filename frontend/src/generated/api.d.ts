@@ -11,8 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** compare a list of tickers growth */
-        get: operations["get_compare_growth_api_compare_growth__get"];
+        get: operations["stocks_get_compare_growth_compare_growth__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -30,8 +29,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** analyse etoro excel sheet */
-        post: operations["analyze_etoro_excel_api_etoro_analysis_post"];
+        post: operations["stocks_analyze_etoro_excel_etoro_analysis_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -45,10 +43,73 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** get a ticker's kpis */
-        get: operations["get_kpis_api_kpis__get"];
+        get: operations["stocks_get_kpis_kpis__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["auth_login_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["auth_logout_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profile/picture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["auth_upload_profile_picture_profile_picture_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["auth_register_register_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -62,8 +123,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** full-text search for ticker's */
-        get: operations["search_ticker_api_search__get"];
+        get: operations["stocks_search_ticker_search__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -79,8 +139,23 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** get a ticker's price history */
-        get: operations["get_ticker_api_ticker__get"];
+        get: operations["stocks_get_ticker_ticker__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["auth_get_user_user_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -93,93 +168,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** AnalystPriceTargets */
-        AnalystPriceTargets: {
-            /**
-             * Current
-             * @default null
-             */
-            current: number | null;
-            /**
-             * High
-             * @default null
-             */
-            high: number | null;
-            /**
-             * Low
-             * @default null
-             */
-            low: number | null;
-            /**
-             * Mean
-             * @default null
-             */
-            mean: number | null;
-            /**
-             * Median
-             * @default null
-             */
-            median: number | null;
-        };
-        /** CompanyOfficer */
-        CompanyOfficer: {
-            /**
-             * Age
-             * @default null
-             */
-            age: number | null;
-            /** Exercisedvalue */
-            exercisedValue: number;
-            /** Fiscalyear */
-            fiscalYear: number;
-            /** Maxage */
-            maxAge: number;
-            /** Name */
-            name: string;
-            /** Title */
-            title: string;
-            /**
-             * Totalpay
-             * @default null
-             */
-            totalPay: number | null;
-            /** Unexercisedvalue */
-            unexercisedValue: number;
-            /**
-             * Yearborn
-             * @default null
-             */
-            yearBorn: number | null;
-        };
-        /** CompareGrowthQuery */
-        CompareGrowthQuery: {
-            /**
-             * Period
-             * @default ytd
-             */
-            period: string;
-            /** Ticker Names */
-            ticker_names: string[];
-        };
-        /** CompareGrowthResponse */
-        CompareGrowthResponse: {
-            /** Candles */
-            candles: {
-                [key: string]: number[];
-            };
-            /** Dates */
-            dates: string[];
-            query: components["schemas"]["CompareGrowthQuery"];
-        };
-        /** EtoroAnalysisResponse */
-        EtoroAnalysisResponse: {
-            /** Close Date */
-            close_date: string[];
-            /** Closed Trades */
-            closed_trades: number[];
-            /** Profit Usd */
-            profit_usd: number[];
-        };
         /** EtoroForm */
         EtoroForm: {
             /**
@@ -189,1011 +177,37 @@ export interface components {
             file: string;
             precision: components["schemas"]["PrecisionEnum"];
         };
-        /** Info */
-        Info: {
-            /**
-             * 52Weekchange
-             * @default null
-             */
-            "52WeekChange": number | null;
-            /**
-             * Sandp52Weekchange
-             * @default null
-             */
-            SandP52WeekChange: number | null;
-            /**
-             * Address1
-             * @default null
-             */
-            address1: string | null;
-            /**
-             * Ask
-             * @default null
-             */
-            ask: number | null;
-            /**
-             * Asksize
-             * @default null
-             */
-            askSize: number | null;
-            /**
-             * Auditrisk
-             * @default null
-             */
-            auditRisk: number | null;
-            /**
-             * Averageanalystrating
-             * @default null
-             */
-            averageAnalystRating: string | null;
-            /**
-             * Averagedailyvolume10Day
-             * @default null
-             */
-            averageDailyVolume10Day: number | null;
-            /**
-             * Averagedailyvolume3Month
-             * @default null
-             */
-            averageDailyVolume3Month: number | null;
-            /**
-             * Averagevolume
-             * @default null
-             */
-            averageVolume: number | null;
-            /**
-             * Averagevolume10Days
-             * @default null
-             */
-            averageVolume10days: number | null;
-            /**
-             * Beta
-             * @default null
-             */
-            beta: number | null;
-            /**
-             * Bid
-             * @default null
-             */
-            bid: number | null;
-            /**
-             * Bidsize
-             * @default null
-             */
-            bidSize: number | null;
-            /**
-             * Boardrisk
-             * @default null
-             */
-            boardRisk: number | null;
-            /**
-             * Bookvalue
-             * @default null
-             */
-            bookValue: number | null;
-            /**
-             * City
-             * @default null
-             */
-            city: string | null;
-            /**
-             * Companyofficers
-             * @default null
-             */
-            companyOfficers: components["schemas"]["CompanyOfficer"][] | null;
-            /**
-             * Compensationasofepochdate
-             * @default null
-             */
-            compensationAsOfEpochDate: number | null;
-            /**
-             * Compensationrisk
-             * @default null
-             */
-            compensationRisk: number | null;
-            /**
-             * Corporateactions
-             * @default null
-             */
-            corporateActions: unknown[] | null;
-            /**
-             * Country
-             * @default null
-             */
-            country: string | null;
-            /**
-             * Cryptotradeable
-             * @default null
-             */
-            cryptoTradeable: boolean | null;
-            /**
-             * Currency
-             * @default null
-             */
-            currency: string | null;
-            /**
-             * Currentprice
-             * @default null
-             */
-            currentPrice: number | null;
-            /**
-             * Currentratio
-             * @default null
-             */
-            currentRatio: number | null;
-            /**
-             * Custompricealertconfidence
-             * @default null
-             */
-            customPriceAlertConfidence: string | null;
-            /**
-             * Dateshortinterest
-             * @default null
-             */
-            dateShortInterest: number | null;
-            /**
-             * Dayhigh
-             * @default null
-             */
-            dayHigh: number | null;
-            /**
-             * Daylow
-             * @default null
-             */
-            dayLow: number | null;
-            /**
-             * Debttoequity
-             * @default null
-             */
-            debtToEquity: number | null;
-            /**
-             * Displayname
-             * @default null
-             */
-            displayName: string | null;
-            /**
-             * Dividenddate
-             * @default null
-             */
-            dividendDate: number | null;
-            /**
-             * Dividendrate
-             * @default null
-             */
-            dividendRate: number | null;
-            /**
-             * Dividendyield
-             * @default null
-             */
-            dividendYield: number | null;
-            /**
-             * Earningscalltimestampend
-             * @default null
-             */
-            earningsCallTimestampEnd: number | null;
-            /**
-             * Earningscalltimestampstart
-             * @default null
-             */
-            earningsCallTimestampStart: number | null;
-            /**
-             * Earningsgrowth
-             * @default null
-             */
-            earningsGrowth: number | null;
-            /**
-             * Earningsquarterlygrowth
-             * @default null
-             */
-            earningsQuarterlyGrowth: number | null;
-            /**
-             * Earningstimestamp
-             * @default null
-             */
-            earningsTimestamp: number | null;
-            /**
-             * Earningstimestampend
-             * @default null
-             */
-            earningsTimestampEnd: number | null;
-            /**
-             * Earningstimestampstart
-             * @default null
-             */
-            earningsTimestampStart: number | null;
-            /**
-             * Ebitda
-             * @default null
-             */
-            ebitda: number | null;
-            /**
-             * Ebitdamargins
-             * @default null
-             */
-            ebitdaMargins: number | null;
-            /**
-             * Enterprisetoebitda
-             * @default null
-             */
-            enterpriseToEbitda: number | null;
-            /**
-             * Enterprisetorevenue
-             * @default null
-             */
-            enterpriseToRevenue: number | null;
-            /**
-             * Enterprisevalue
-             * @default null
-             */
-            enterpriseValue: number | null;
-            /**
-             * Epscurrentyear
-             * @default null
-             */
-            epsCurrentYear: number | null;
-            /**
-             * Epsforward
-             * @default null
-             */
-            epsForward: number | null;
-            /**
-             * Epstrailingtwelvemonths
-             * @default null
-             */
-            epsTrailingTwelveMonths: number | null;
-            /**
-             * Esgpopulated
-             * @default null
-             */
-            esgPopulated: boolean | null;
-            /**
-             * Exdividenddate
-             * @default null
-             */
-            exDividendDate: number | null;
-            /**
-             * Exchange
-             * @default null
-             */
-            exchange: string | null;
-            /**
-             * Exchangedatadelayedby
-             * @default null
-             */
-            exchangeDataDelayedBy: number | null;
-            /**
-             * Exchangetimezonename
-             * @default null
-             */
-            exchangeTimezoneName: string | null;
-            /**
-             * Exchangetimezoneshortname
-             * @default null
-             */
-            exchangeTimezoneShortName: string | null;
-            /**
-             * Executiveteam
-             * @default null
-             */
-            executiveTeam: unknown[] | null;
-            /**
-             * Fax
-             * @default null
-             */
-            fax: string | null;
-            /**
-             * Fiftydayaverage
-             * @default null
-             */
-            fiftyDayAverage: number | null;
-            /**
-             * Fiftydayaveragechange
-             * @default null
-             */
-            fiftyDayAverageChange: number | null;
-            /**
-             * Fiftydayaveragechangepercent
-             * @default null
-             */
-            fiftyDayAverageChangePercent: number | null;
-            /**
-             * Fiftytwoweekchangepercent
-             * @default null
-             */
-            fiftyTwoWeekChangePercent: number | null;
-            /**
-             * Fiftytwoweekhigh
-             * @default null
-             */
-            fiftyTwoWeekHigh: number | null;
-            /**
-             * Fiftytwoweekhighchange
-             * @default null
-             */
-            fiftyTwoWeekHighChange: number | null;
-            /**
-             * Fiftytwoweekhighchangepercent
-             * @default null
-             */
-            fiftyTwoWeekHighChangePercent: number | null;
-            /**
-             * Fiftytwoweeklow
-             * @default null
-             */
-            fiftyTwoWeekLow: number | null;
-            /**
-             * Fiftytwoweeklowchange
-             * @default null
-             */
-            fiftyTwoWeekLowChange: number | null;
-            /**
-             * Fiftytwoweeklowchangepercent
-             * @default null
-             */
-            fiftyTwoWeekLowChangePercent: number | null;
-            /**
-             * Fiftytwoweekrange
-             * @default null
-             */
-            fiftyTwoWeekRange: string | null;
-            /**
-             * Financialcurrency
-             * @default null
-             */
-            financialCurrency: string | null;
-            /**
-             * Firsttradedatemilliseconds
-             * @default null
-             */
-            firstTradeDateMilliseconds: number | null;
-            /**
-             * Fiveyearavgdividendyield
-             * @default null
-             */
-            fiveYearAvgDividendYield: number | null;
-            /**
-             * Floatshares
-             * @default null
-             */
-            floatShares: number | null;
-            /**
-             * Forwardeps
-             * @default null
-             */
-            forwardEps: number | null;
-            /**
-             * Forwardpe
-             * @default null
-             */
-            forwardPE: number | null;
-            /**
-             * Freecashflow
-             * @default null
-             */
-            freeCashflow: number | null;
-            /**
-             * Fullexchangename
-             * @default null
-             */
-            fullExchangeName: string | null;
-            /**
-             * Fulltimeemployees
-             * @default null
-             */
-            fullTimeEmployees: number | null;
-            /**
-             * Gmtoffsetmilliseconds
-             * @default null
-             */
-            gmtOffSetMilliseconds: number | null;
-            /**
-             * Governanceepochdate
-             * @default null
-             */
-            governanceEpochDate: number | null;
-            /**
-             * Grossmargins
-             * @default null
-             */
-            grossMargins: number | null;
-            /**
-             * Grossprofits
-             * @default null
-             */
-            grossProfits: number | null;
-            /**
-             * Hasprepostmarketdata
-             * @default null
-             */
-            hasPrePostMarketData: boolean | null;
-            /**
-             * Heldpercentinsiders
-             * @default null
-             */
-            heldPercentInsiders: number | null;
-            /**
-             * Heldpercentinstitutions
-             * @default null
-             */
-            heldPercentInstitutions: number | null;
-            /**
-             * Impliedsharesoutstanding
-             * @default null
-             */
-            impliedSharesOutstanding: number | null;
-            /**
-             * Industry
-             * @default null
-             */
-            industry: string | null;
-            /**
-             * Industrydisp
-             * @default null
-             */
-            industryDisp: string | null;
-            /**
-             * Industrykey
-             * @default null
-             */
-            industryKey: string | null;
-            /**
-             * Irwebsite
-             * @default null
-             */
-            irWebsite: string | null;
-            /**
-             * Isearningsdateestimate
-             * @default null
-             */
-            isEarningsDateEstimate: boolean | null;
-            /**
-             * Language
-             * @default null
-             */
-            language: string | null;
-            /**
-             * Lastdividenddate
-             * @default null
-             */
-            lastDividendDate: number | null;
-            /**
-             * Lastdividendvalue
-             * @default null
-             */
-            lastDividendValue: number | null;
-            /**
-             * Lastfiscalyearend
-             * @default null
-             */
-            lastFiscalYearEnd: number | null;
-            /**
-             * Lastsplitdate
-             * @default null
-             */
-            lastSplitDate: number | null;
-            /**
-             * Lastsplitfactor
-             * @default null
-             */
-            lastSplitFactor: string | null;
-            /**
-             * Longbusinesssummary
-             * @default null
-             */
-            longBusinessSummary: string | null;
-            /**
-             * Longname
-             * @default null
-             */
-            longName: string | null;
-            /**
-             * Market
-             * @default null
-             */
-            market: string | null;
-            /**
-             * Marketcap
-             * @default null
-             */
-            marketCap: number | null;
-            /**
-             * Marketstate
-             * @default null
-             */
-            marketState: string | null;
-            /**
-             * Maxage
-             * @default null
-             */
-            maxAge: number | null;
-            /**
-             * Messageboardid
-             * @default null
-             */
-            messageBoardId: string | null;
-            /**
-             * Mostrecentquarter
-             * @default null
-             */
-            mostRecentQuarter: number | null;
-            /**
-             * Netincometocommon
-             * @default null
-             */
-            netIncomeToCommon: number | null;
-            /**
-             * Nextfiscalyearend
-             * @default null
-             */
-            nextFiscalYearEnd: number | null;
-            /**
-             * Numberofanalystopinions
-             * @default null
-             */
-            numberOfAnalystOpinions: number | null;
-            /**
-             * Open
-             * @default null
-             */
-            open: number | null;
-            /**
-             * Operatingcashflow
-             * @default null
-             */
-            operatingCashflow: number | null;
-            /**
-             * Operatingmargins
-             * @default null
-             */
-            operatingMargins: number | null;
-            /**
-             * Overallrisk
-             * @default null
-             */
-            overallRisk: number | null;
-            /**
-             * Payoutratio
-             * @default null
-             */
-            payoutRatio: number | null;
-            /**
-             * Phone
-             * @default null
-             */
-            phone: string | null;
-            /**
-             * Previousclose
-             * @default null
-             */
-            previousClose: number | null;
-            /**
-             * Priceepscurrentyear
-             * @default null
-             */
-            priceEpsCurrentYear: number | null;
-            /**
-             * Pricehint
-             * @default null
-             */
-            priceHint: number | null;
-            /**
-             * Pricetobook
-             * @default null
-             */
-            priceToBook: number | null;
-            /**
-             * Pricetosalestrailing12Months
-             * @default null
-             */
-            priceToSalesTrailing12Months: number | null;
-            /**
-             * Profitmargins
-             * @default null
-             */
-            profitMargins: number | null;
-            /**
-             * Quickratio
-             * @default null
-             */
-            quickRatio: number | null;
-            /**
-             * Quotesourcename
-             * @default null
-             */
-            quoteSourceName: string | null;
-            /**
-             * Quotetype
-             * @default null
-             */
-            quoteType: string | null;
-            /**
-             * Recommendationkey
-             * @default null
-             */
-            recommendationKey: string | null;
-            /**
-             * Recommendationmean
-             * @default null
-             */
-            recommendationMean: number | null;
-            /**
-             * Region
-             * @default null
-             */
-            region: string | null;
-            /**
-             * Regularmarketchange
-             * @default null
-             */
-            regularMarketChange: number | null;
-            /**
-             * Regularmarketchangepercent
-             * @default null
-             */
-            regularMarketChangePercent: number | null;
-            /**
-             * Regularmarketdayhigh
-             * @default null
-             */
-            regularMarketDayHigh: number | null;
-            /**
-             * Regularmarketdaylow
-             * @default null
-             */
-            regularMarketDayLow: number | null;
-            /**
-             * Regularmarketdayrange
-             * @default null
-             */
-            regularMarketDayRange: string | null;
-            /**
-             * Regularmarketopen
-             * @default null
-             */
-            regularMarketOpen: number | null;
-            /**
-             * Regularmarketpreviousclose
-             * @default null
-             */
-            regularMarketPreviousClose: number | null;
-            /**
-             * Regularmarketprice
-             * @default null
-             */
-            regularMarketPrice: number | null;
-            /**
-             * Regularmarkettime
-             * @default null
-             */
-            regularMarketTime: number | null;
-            /**
-             * Regularmarketvolume
-             * @default null
-             */
-            regularMarketVolume: number | null;
-            /**
-             * Returnonassets
-             * @default null
-             */
-            returnOnAssets: number | null;
-            /**
-             * Returnonequity
-             * @default null
-             */
-            returnOnEquity: number | null;
-            /**
-             * Revenuegrowth
-             * @default null
-             */
-            revenueGrowth: number | null;
-            /**
-             * Revenuepershare
-             * @default null
-             */
-            revenuePerShare: number | null;
-            /**
-             * Sector
-             * @default null
-             */
-            sector: string | null;
-            /**
-             * Sectordisp
-             * @default null
-             */
-            sectorDisp: string | null;
-            /**
-             * Sectorkey
-             * @default null
-             */
-            sectorKey: string | null;
-            /**
-             * Shareholderrightsrisk
-             * @default null
-             */
-            shareHolderRightsRisk: number | null;
-            /**
-             * Sharesoutstanding
-             * @default null
-             */
-            sharesOutstanding: number | null;
-            /**
-             * Sharespercentsharesout
-             * @default null
-             */
-            sharesPercentSharesOut: number | null;
-            /**
-             * Sharesshort
-             * @default null
-             */
-            sharesShort: number | null;
-            /**
-             * Sharesshortpreviousmonthdate
-             * @default null
-             */
-            sharesShortPreviousMonthDate: number | null;
-            /**
-             * Sharesshortpriormonth
-             * @default null
-             */
-            sharesShortPriorMonth: number | null;
-            /**
-             * Shortname
-             * @default null
-             */
-            shortName: string | null;
-            /**
-             * Shortpercentoffloat
-             * @default null
-             */
-            shortPercentOfFloat: number | null;
-            /**
-             * Shortratio
-             * @default null
-             */
-            shortRatio: number | null;
-            /**
-             * Sourceinterval
-             * @default null
-             */
-            sourceInterval: number | null;
-            /**
-             * State
-             * @default null
-             */
-            state: string | null;
-            /**
-             * Symbol
-             * @default null
-             */
-            symbol: string | null;
-            /**
-             * Targethighprice
-             * @default null
-             */
-            targetHighPrice: number | null;
-            /**
-             * Targetlowprice
-             * @default null
-             */
-            targetLowPrice: number | null;
-            /**
-             * Targetmeanprice
-             * @default null
-             */
-            targetMeanPrice: number | null;
-            /**
-             * Targetmedianprice
-             * @default null
-             */
-            targetMedianPrice: number | null;
-            /**
-             * Totalcash
-             * @default null
-             */
-            totalCash: number | null;
-            /**
-             * Totalcashpershare
-             * @default null
-             */
-            totalCashPerShare: number | null;
-            /**
-             * Totaldebt
-             * @default null
-             */
-            totalDebt: number | null;
-            /**
-             * Totalrevenue
-             * @default null
-             */
-            totalRevenue: number | null;
-            /**
-             * Tradeable
-             * @default null
-             */
-            tradeable: boolean | null;
-            /**
-             * Trailingannualdividendrate
-             * @default null
-             */
-            trailingAnnualDividendRate: number | null;
-            /**
-             * Trailingannualdividendyield
-             * @default null
-             */
-            trailingAnnualDividendYield: number | null;
-            /**
-             * Trailingeps
-             * @default null
-             */
-            trailingEps: number | null;
-            /**
-             * Trailingpe
-             * @default null
-             */
-            trailingPE: number | null;
-            /** Trailingpegratio */
-            trailingPegRatio: number | null;
-            /**
-             * Triggerable
-             * @default null
-             */
-            triggerable: boolean | null;
-            /**
-             * Twohundreddayaverage
-             * @default null
-             */
-            twoHundredDayAverage: number | null;
-            /**
-             * Twohundreddayaveragechange
-             * @default null
-             */
-            twoHundredDayAverageChange: number | null;
-            /**
-             * Twohundreddayaveragechangepercent
-             * @default null
-             */
-            twoHundredDayAverageChangePercent: number | null;
-            /**
-             * Typedisp
-             * @default null
-             */
-            typeDisp: string | null;
-            /**
-             * Underlyingsymbol
-             * @default null
-             */
-            underlyingSymbol: string | null;
-            /**
-             * Volume
-             * @default null
-             */
-            volume: number | null;
-            /**
-             * Website
-             * @default null
-             */
-            website: string | null;
-            /**
-             * Zip
-             * @default null
-             */
-            zip: string | null;
-        };
-        /** KPIQuery */
-        KPIQuery: {
-            /** Ticker Name */
-            ticker_name: string;
-        };
-        /** KPIResponse */
-        KPIResponse: {
-            /** @default null */
-            analyst_price_targets: components["schemas"]["AnalystPriceTargets"] | null;
-            info: components["schemas"]["Info"];
-            /** @default null */
-            main: components["schemas"]["MainKPIs"] | null;
-            query: components["schemas"]["KPIQuery"];
-        };
-        /** MainKPIs */
-        MainKPIs: {
-            /** Freecashflowyield */
-            freeCashflowYield: number;
-            /** Ratiope */
-            ratioPE: number;
-        };
-        /** NotFoundResponse */
-        NotFoundResponse: {
-            /**
-             * Code
-             * @default -1
-             */
-            code: number;
-            /**
-             * Message
-             * @default Resource not found!
-             */
-            message: string;
+        /** LoginBody */
+        LoginBody: {
+            /** Email */
+            email: string;
+            /** Password */
+            password: string;
         };
         /**
          * PrecisionEnum
          * @enum {string}
          */
         PrecisionEnum: "B" | "D" | "W" | "M" | "Q" | "Y" | "h" | "min" | "s" | "ms" | "us" | "ns";
-        /** Quote */
-        Quote: {
+        /** ProfilePictureForm */
+        ProfilePictureForm: {
             /**
-             * Icon Url
-             * @default null
+             * Profile Picture
+             * Format: binary
              */
-            icon_url: string | null;
-            info: components["schemas"]["Info"];
-            raw: components["schemas"]["RawQuote"];
-            /**
-             * Today Change
-             * @default null
-             */
-            today_change: number | null;
+            profile_picture: string;
         };
-        /** RawQuote */
-        RawQuote: {
+        /** RegisterForm */
+        RegisterForm: {
+            /** Email */
+            email: string;
+            /** Password */
+            password: string;
             /**
-             * Dispsecindflag
+             * Profile Picture
              * @default null
              */
-            dispSecIndFlag: boolean | null;
-            /** Exchdisp */
-            exchDisp: string;
-            /** Exchange */
-            exchange: string;
-            /** Index */
-            index: string;
-            /**
-             * Industry
-             * @default null
-             */
-            industry: string | null;
-            /**
-             * Industrydisp
-             * @default null
-             */
-            industryDisp: string | null;
-            /** Isyahoofinance */
-            isYahooFinance: boolean;
-            /**
-             * Longname
-             * @default null
-             */
-            longname: string | null;
-            /** Quotetype */
-            quoteType: string;
-            /** Score */
-            score: number;
-            /**
-             * Sector
-             * @default null
-             */
-            sector: string | null;
-            /**
-             * Sectordisp
-             * @default null
-             */
-            sectorDisp: string | null;
-            /** Shortname */
-            shortname: string;
-            /** Symbol */
-            symbol: string;
-            /** Typedisp */
-            typeDisp: string;
-        };
-        /** SearchQuery */
-        SearchQuery: {
-            /** Query */
-            query: string;
-        };
-        /** SearchResponse */
-        SearchResponse: {
-            query: components["schemas"]["SearchQuery"];
-            /** Quotes */
-            quotes: components["schemas"]["Quote"][];
+            profile_picture: string | null;
         };
         /** ValidationErrorModel */
         ValidationErrorModel: {
@@ -1233,7 +247,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    get_compare_growth_api_compare_growth__get: {
+    stocks_get_compare_growth_compare_growth__get: {
         parameters: {
             query: {
                 ticker_names: string[];
@@ -1245,24 +259,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompareGrowthResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotFoundResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {
@@ -1274,7 +270,7 @@ export interface operations {
             };
         };
     };
-    analyze_etoro_excel_api_etoro_analysis_post: {
+    stocks_analyze_etoro_excel_etoro_analysis_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1287,15 +283,6 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EtoroAnalysisResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {
@@ -1307,7 +294,7 @@ export interface operations {
             };
         };
     };
-    get_kpis_api_kpis__get: {
+    stocks_get_kpis_kpis__get: {
         parameters: {
             query: {
                 ticker_name: string;
@@ -1318,24 +305,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KPIResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotFoundResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {
@@ -1347,7 +316,89 @@ export interface operations {
             };
         };
     };
-    search_ticker_api_search__get: {
+    auth_login_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginBody"];
+            };
+        };
+        responses: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    auth_logout_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    auth_upload_profile_picture_profile_picture_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ProfilePictureForm"];
+            };
+        };
+        responses: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    auth_register_register_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["RegisterForm"];
+            };
+        };
+        responses: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    stocks_search_ticker_search__get: {
         parameters: {
             query: {
                 query: string;
@@ -1358,15 +409,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {
@@ -1378,7 +420,7 @@ export interface operations {
             };
         };
     };
-    get_ticker_api_ticker__get: {
+    stocks_get_ticker_ticker__get: {
         parameters: {
             query: {
                 ticker_name: string;
@@ -1401,5 +443,15 @@ export interface operations {
                 };
             };
         };
+    };
+    auth_get_user_user_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
     };
 }
