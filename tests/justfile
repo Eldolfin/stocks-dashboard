@@ -3,18 +3,18 @@ help:
 
 # Restart frontend & backend with a clean DB
 test-prepare:
-    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml down
+    docker compose -f ../dev/docker-compose.yml -f ../dev/docker-compose.dev.yml -f docker-compose.yml down
     docker volume rm wsb-test-backend-db || true
     docker volume create wsb-test-backend-db
-    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml up -d --build --wait
+    docker compose -f ../dev/docker-compose.yml -f ../dev/docker-compose.dev.yml -f docker-compose.yml up -d --build --wait
 
 # Restarts frontend & backend with a clean DB then runs tests
-run: test-prepare _run
+run: _run
 _run:
     npx playwright test --reporter=line
 
 # Same as `test` but with the --ui argument passed to playwright for debugging
-run-ui: test-prepare
+run-ui:
     npx playwright test --ui
 
 # watch tests files only, and keep the same running backend instance

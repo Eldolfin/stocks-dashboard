@@ -12,12 +12,15 @@ dependencies = [
     "openpyxl",
     "flask-caching>=2.3.1",
     "flask-login>=0.6.3",
+    "pandas>=2.3.1",
 ]
 
 [dependency-groups]
 dev = [
+    "marimo>=0.14.16",
     "mypy>=1.17.1",
     "pandas-stubs>=2.3.0.250703",
+    "pyarrow>=21.0.0",
     "pylsp-mypy>=0.7.0",
     "python-lsp-server>=1.13.0",
     "ruff>=0.12.7",

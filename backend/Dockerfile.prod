@@ -1,5 +1,6 @@
 FROM python:3.13-slim
 ENV FLASK_APP=src
+ENV PYTHONPATH=/app
 
 WORKDIR /app
 

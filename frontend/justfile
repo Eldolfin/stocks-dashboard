@@ -1,2 +1,5 @@
 lint:
 	npm run check
+
+generate-api-types:
+	npm run generate-api-types

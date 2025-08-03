@@ -170,11 +170,12 @@ This project is a financial dashboard that displays stock information. It has a 
 ## Development Workflow
 
 *   When developing the frontend, run `npm run check` in the `frontend` folder and fix all the errors listed.
-*   When developing the backend, run `just lint` in the `backend` folder and fix all the errors listed, run `just format` before git committing
+*   When developing the backend, run `uv run ruff check backend/` and `uv run ruff format backend/` to lint and format the code. Fix all the errors listed before committing.
 *   To run the end-to-end tests, use the command `just tests run`. This will restart the frontend and backend with a clean database, and then run the Playwright tests.
 *   After any feature addition or bug fix, you should write new end-to-end tests to validate the changes and ensure that everything works as expected.
 *   If the end-to-end tests fail, you need to fix the issue and rerun the tests until they pass.
 *   When commiting, some pre-commit hooks run lint checks, do not try to bypass them or disable them, think through the issue and handle them safely.
+*   Don't try to install library, I'm using docker so they should be installed there. You can check their logs with docker compose logs in the `dev` folder
 
 ## API Type Generation
 

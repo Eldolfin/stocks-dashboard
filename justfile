@@ -4,6 +4,8 @@ mod tests
 mod backend
 mod frontend
 
+generate-api-types:
+	cd frontend && just generate-api-types
 
 help:
     just --list
