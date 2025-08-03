@@ -24,6 +24,6 @@ export async function load(
 
   return {
     tickers: params.tickers,
-    history_data: history_data.data,
+    history_data: history_data.data!,
   };
 }

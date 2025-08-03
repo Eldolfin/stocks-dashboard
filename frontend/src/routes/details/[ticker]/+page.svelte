@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { formatPercent, ratioColor, formatCurrency, formatLargeNumber, roundPrecision } from '$lib/format-utils';
+	import type { components } from '../../../generated/api.js';
 
 	let { data } = $props();
 
@@ -56,21 +57,25 @@
 		}
 		return obj;
 	};
+
+	const history = data.history as components['schemas']['TickerResponse'];
+	const summary = data.summary as components['schemas']['KPIResponse'];
 </script>
+
 
 <div class="flex flex-col items-center">
   <h1 class="text-4xl sm:text-5xl font-bold animate-fade-in">{data.ticker}</h1>
-  <p class="text-brand text-lg sm:text-xl mt-2 animate-fade-in" style={`color: ${ratioColor(data.history?.delta)}`}>
-    {formatPercent(data.history!.delta!)}
+  <p class="text-brand text-lg sm:text-xl mt-2 animate-fade-in" style={`color: ${ratioColor(history.delta)}`}>
+    {formatPercent(history.delta!)}
   </p>
   <p class="text-sm text-gray-400">Price / ∇</p>
 
   <div class="my-8 h-56 sm:h-64 bg-gradient-to-r from-[#0d182b] to-[#102139] rounded-2xl shadow-xl flex items-center justify-center text-gray-500 w-full max-w-screen-lg">
     <HistoryChart
-      title={`Price: ${data.history?.query.period}`}
-      dataset={{ price: data.history!.candles, ...data.history!.smas }}
-      dates={data.history!.dates}
-      color={ratioColor(data.history?.delta)}
+      title={`Price: ${history.query.period}`}
+      dataset={{ price: history.candles, ...history.smas }}
+      dates={history.dates}
+      color={ratioColor(history.delta)}
     />
   </div>
 
@@ -86,8 +91,8 @@
         <h2 class="font-semibold text-white mb-2">{group.group}</h2>
         <ul class="space-y-1 text-sm text-gray-300">
           {#each group.items as kpi}
-            {#if deep_value(data.summary, kpi.value) !== null}
-              <li>{kpi.label}: <span class="text-brand">{kpi.format ? kpi.format(deep_value(data.summary, kpi.value)) : deep_value(data.summary, kpi.value)}</span></li>
+            {#if deep_value(summary, kpi.value) !== null}
+              <li>{kpi.label}: <span class="text-brand">{kpi.format ? kpi.format(deep_value(summary, kpi.value)) : deep_value(summary, kpi.value)}</span></li>
             {/if}
           {/each}
         </ul>

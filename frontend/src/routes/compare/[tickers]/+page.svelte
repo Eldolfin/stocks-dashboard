@@ -1,10 +1,8 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { formatPercent, ratioColor } from '$lib/format-utils';
-	import type { components } from '../../../generated/api.js';
-
+		
 	let { data } = $props();
 
 	const ranges = [
@@ -18,12 +16,14 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const changeRange = (newValue: string) => {
-		let query = new URLSearchParams($page.url.searchParams.toString());
+		let query = new URLSearchParams(page.url.searchParams.toString());
 
 		query.set('period', newValue);
 
 		goto(`?${query.toString()}`, { replaceState: true });
 	};
+
+	const historyData = data.history_data;
 </script>
 
 <div class="flex flex-col items-center">
@@ -31,8 +31,8 @@
 	<div class="my-8 h-56 sm:h-64 bg-gradient-to-r from-[#0d182b] to-[#102139] rounded-2xl shadow-xl flex items-center justify-center text-gray-500 w-full max-w-screen-lg">
 		<HistoryChart
 			title={`Growth compare`}
-			dataset={data.history_data!.candles}
-			dates={data.history_data!.dates}
+			dataset={historyData.candles}
+			dates={historyData.dates}
 			color={'gray'}
 		/>
 	</div>

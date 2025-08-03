@@ -29,8 +29,8 @@
 			const response = await client.GET('/api/etoro/reports');
 			if (response.data) {
 				uploadedReports = response.data.reports;
-			} else if (response.error) {
-				console.error('Failed to fetch uploaded reports:', response.error);
+			} else{
+				console.error('Failed to fetch uploaded reports');
 			}
 		} catch (err) {
 			console.error('An error occurred while fetching uploaded reports:', err);
@@ -53,13 +53,13 @@
 					body: formData as any // FIXME?
 				});
 
-				error = res.error?.toString();
-				data = res.data;
-
-				if (data) {
+				 if (res.data) {
+					data = res.data;
 					error = undefined;
 					// After successful upload, refresh the list of reports
 					await fetchUploadedReports();
+				} else  {
+					error = 'Failed to refetch data';
 				}
 				loading = false;
 			}
@@ -78,12 +78,12 @@
 			}
 		});
 
-		error = res.error?.toString();
-		data = res.data;
-
-		if (data) {
-			error = undefined;
-		}
+		if (res.error) {
+				error = (res.error as components['schemas']['NotFoundResponse']).message;
+			} else if (res.data) {
+				data = res.data;
+				error = undefined;
+			}
 		loading = false;
 	}
 </script>

@@ -28,9 +28,10 @@
 			return;
 		}
 		pendingRequest += 1;
-		const res = await client
+		const { data, error } = await client
 			.GET('/api/search/', {
 				params: {
+
 					query: {
 						query: searchText
 					}
@@ -38,10 +39,12 @@
 			})
 			.finally(() => (pendingRequest -= 1));
 
-		const newResults = res.data?.quotes || [];
-		// Update cache with new results
-		newResults.forEach((ticker) => tickerCache.set(ticker.raw.symbol, ticker));
-		searchResult = newResults;
+		if (data) {
+			const newResults = data.quotes || [];
+			// Update cache with new results
+			newResults.forEach((ticker: Ticker) => tickerCache.set(ticker.raw.symbol, ticker));
+			searchResult = newResults;
+		}
 	};
 
 	if (import.meta.env.DEV) {
@@ -135,8 +138,8 @@
 								src={quote.icon_url}
 								alt=""
 								class="mr-2 h-6 w-6 rounded-full"
-								onerror={() => {
-									this.style.display = 'none';
+								onerror={(e) => {
+									(e.target as HTMLImageElement).style.display = 'none';
 								}}
 							/>
 						{/if}

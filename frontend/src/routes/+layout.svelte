@@ -6,7 +6,7 @@
     import { onMount } from 'svelte';
     import { baseUrl } from '../lib/typed-fetch-client';
 
-	  let { data } = $props();
+	  let { data, children } = $props();
 
     async function handleLogout() {
         try {
@@ -42,6 +42,6 @@
 
     <!-- Main -->
     <main class="flex-1 px-4 sm:px-6 py-6 bg-gradient-to-br from-[#0a0f1c] to-[#1c2b4a]">
-        <slot />
+        {@render children()}
     </main>
 </div>

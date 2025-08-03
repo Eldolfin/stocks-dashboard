@@ -2,10 +2,11 @@
     import { client } from '$lib/typed-fetch-client';
     import { goto } from '$app/navigation';
     import { Button, Label, Input, Fileupload } from 'flowbite-svelte';
+	import type { components } from '../../generated/api';
 
     let email = '';
     let password = '';
-    let profilePicture: FileList | null = null;
+    let profilePicture: FileList | undefined = undefined;
     let errorMessage = '';
     let successMessage = '';
 
@@ -13,20 +14,23 @@
         errorMessage = '';
         successMessage = '';
 
-        const formData = new FormData();
-        formData.append('email', email);
-        formData.append('password', password);
+        const body: components["schemas"]["RegisterForm"] = {
+            email,
+            password,
+            profile_picture: null
+        };
+
         if (profilePicture && profilePicture.length > 0) {
-            formData.append('profile_picture', profilePicture[0]);
+            body.profile_picture = profilePicture[0] as any;
         }
 
         try {
             const response = await client.POST('/api/register', {
-                body: formData
+                body: body as any,
             });
 
             if (response.error) {
-                errorMessage = response.error.error || 'Registration failed';
+                errorMessage = (response.error as any).message || 'Registration failed';
             } else if (response.data) {
                 successMessage = 'Registration successful! You can now log in.';
                 goto('/login');
