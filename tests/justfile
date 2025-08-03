@@ -6,7 +6,7 @@ test-prepare:
     docker compose -f ../dev/docker-compose.yml -f docker-compose.yml down
     docker volume rm wsb-test-backend-db || true
     docker volume create wsb-test-backend-db
-    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml up -d --build
+    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml up -d --build --wait
 
 # Restarts frontend & backend with a clean DB then runs tests
 run: test-prepare _run

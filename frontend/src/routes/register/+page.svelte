@@ -5,7 +5,7 @@
 
     let email = '';
     let password = '';
-    let profilePicture: FileList | null = null;
+    let profilePicture: FileList | undefined = undefined;
     let errorMessage = '';
     let successMessage = '';
 
@@ -22,11 +22,11 @@
 
         try {
             const response = await client.POST('/api/register', {
-                body: formData
+                body: formData as any
             });
 
             if (response.error) {
-                errorMessage = response.error.error || 'Registration failed';
+                errorMessage = response.error[0]?.msg || 'Registration failed';
             } else if (response.data) {
                 successMessage = 'Registration successful! You can now log in.';
                 goto('/login');

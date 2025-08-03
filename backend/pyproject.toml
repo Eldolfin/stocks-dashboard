@@ -2,6 +2,7 @@
 name = "finance_dashboard_api"
 version = "1.0.0"
 description = "Api for a simple finance dashboard"
+requires-python = ">=3.12"
 dependencies = [
     "yfinance",
     "flask",

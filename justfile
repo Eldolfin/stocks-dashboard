@@ -2,6 +2,9 @@ set dotenv-load := true
 set dotenv-required := true
 
 mod tests
+mod backend
+mod frontend
+
 
 help:
     just --list
