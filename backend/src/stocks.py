@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from typing import List
 
 import yfinance as yf
 from flask import current_app
@@ -153,12 +152,12 @@ def get_kpis(query: KPIQuery):
 @login_required
 @cache.memoize()
 def search_ticker(query: SearchQuery):
-    raw_quotes: List[RawQuote] = list(
+    raw_quotes: list[RawQuote] = list(
         map(RawQuote.model_validate, yf.Search(query.query).quotes),
     )
-    quotes_names = list(quote.symbol for quote in raw_quotes)
+    quotes_names = [quote.symbol for quote in raw_quotes]
     tickers = yf.Tickers(quotes_names).tickers
-    infos: List[Info] = [
+    infos: list[Info] = [
         Info.model_validate(t.info) for t in tickers.values()
     ]
     deltas = [
@@ -196,8 +195,7 @@ def analyze_etoro_excel(form: EtoroForm):
     file_path = os.path.join(etoro_upload_folder, filename)
     form.file.save(file_path)
 
-    closed_position = extract_closed_position(file_path, time_unit=form.precision)
-    return closed_position
+    return extract_closed_position(file_path, time_unit=form.precision)
 
 
 @stocks_bp.get("/etoro/reports", tags=[stocks_tag], responses={200: models.EtoroReportsResponse})
@@ -220,5 +218,4 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     if not os.path.exists(file_path):
         return NotFoundResponse().dict(), 404
 
-    closed_position = extract_closed_position(file_path, time_unit=query.precision)
-    return closed_position
+    return extract_closed_position(file_path, time_unit=query.precision)

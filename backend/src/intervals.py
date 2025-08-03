@@ -36,7 +36,8 @@ def interval_to_duration(interval: str) -> timedelta:
         return timedelta(days=30 * int(interval[:-2]))
     if interval.endswith("y"):
         return timedelta(days=365 * int(interval[:-1]))
-    raise ValueError("Unknown interval format")
+    msg = "Unknown interval format"
+    raise ValueError(msg)
 
 
 # Function to convert a duration (timedelta) to an interval string

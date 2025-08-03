@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Optional
 
 from flask_openapi3.models import FileStorage
 from pydantic import BaseModel, Field
@@ -47,10 +47,10 @@ class Info(BaseModel):
     boardRisk: Optional[int] = None
     bookValue: Optional[float] = None
     city: Optional[str] = None
-    companyOfficers: Optional[List[CompanyOfficer]] = None
+    companyOfficers: Optional[list[CompanyOfficer]] = None
     compensationAsOfEpochDate: Optional[int] = None
     compensationRisk: Optional[int] = None
-    corporateActions: Optional[List] = None
+    corporateActions: Optional[list] = None
     country: Optional[str] = None
     cryptoTradeable: Optional[bool] = None
     currency: Optional[str] = None
@@ -86,7 +86,7 @@ class Info(BaseModel):
     exchangeDataDelayedBy: Optional[int] = None
     exchangeTimezoneName: Optional[str] = None
     exchangeTimezoneShortName: Optional[str] = None
-    executiveTeam: Optional[List] = None
+    executiveTeam: Optional[list] = None
     fiftyDayAverage: Optional[float] = None
     fiftyDayAverageChange: Optional[float] = None
     fiftyDayAverageChangePercent: Optional[float] = None
@@ -241,7 +241,7 @@ class Resolution(BaseModel):
 
 
 class Thumbnail(BaseModel):
-    resolutions: List[Resolution]
+    resolutions: list[Resolution]
 
 
 class News(BaseModel):
@@ -252,7 +252,7 @@ class News(BaseModel):
     title: str
     type: str
     uuid: str
-    relatedTickers: Optional[List[str]] = None
+    relatedTickers: Optional[list[str]] = None
 
 
 class RawQuote(BaseModel):
@@ -282,7 +282,7 @@ class Quote(BaseModel):
 
 
 class SearchResponse(BaseModel):
-    quotes: List[Quote]
+    quotes: list[Quote]
     query: SearchQuery
 
 
@@ -300,14 +300,14 @@ class Quote(BaseModel):
 
 
 class CompareGrowthQuery(BaseModel):
-    ticker_names: List[str]
+    ticker_names: list[str]
     period: str = "ytd"
 
 
 class CompareGrowthResponse(BaseModel):
     query: CompareGrowthQuery
-    candles: Dict[str, List[float]]
-    dates: List[str]
+    candles: dict[str, list[float]]
+    dates: list[str]
 
 
 ##################
@@ -321,12 +321,12 @@ class TickerQuery(BaseModel):
 
 
 class TickerResponse(BaseModel):
-    dates: List[str]
-    candles: List[float]
+    dates: list[str]
+    candles: list[float]
     query: TickerQuery
     delta: float
     # Point size sma
-    smas: Dict[int, List[float]]
+    smas: dict[int, list[float]]
 
 
 class NotFoundResponse(BaseModel):
@@ -358,9 +358,9 @@ class EtoroForm(BaseModel):
 
 
 class EtoroAnalysisResponse(BaseModel):
-    close_date: List[str]
-    closed_trades: List[int]
-    profit_usd: List[float]
+    close_date: list[str]
+    closed_trades: list[int]
+    profit_usd: list[float]
 
 
 class EtoroAnalysisByNameQuery(BaseModel):
@@ -369,7 +369,7 @@ class EtoroAnalysisByNameQuery(BaseModel):
 
 
 class EtoroReportsResponse(BaseModel):
-    reports: List[str]
+    reports: list[str]
 
 
 #################
