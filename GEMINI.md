@@ -44,12 +44,24 @@ This project is a financial dashboard that displays stock information. It has a 
 *   `backend/app.py`:
     *   **Purpose:** The main Flask application file that defines the API endpoints.
     *   **Functions:**
-        *   `get_ticker(query: TickerQuery)`: Retrieves historical price data for a given ticker.
-        *   `get_compare_growth(query: CompareGrowthQuery)`: Compares the growth of multiple tickers.
-        *   `get_kpis(query: KPIQuery)`: Fetches Key Performance Indicators (KPIs) for a specific ticker.
-        *   `search_ticker(query: SearchQuery)`: Performs a full-text search for tickers.
-        *   `analyze_etoro_excel(form: EtoroForm)`: Analyzes an uploaded eToro Excel sheet to extract closed position data.
         *   `create_app()`: Factory function to create and configure the Flask app.
+*   `backend/src/auth.py`:
+    *   **Purpose:** Defines authentication-related endpoints.
+    *   **Functions:**
+        *   `register`: Handles user registration.
+        *   `login`: Authenticates users.
+        *   `get_user`: Retrieves the current user's information.
+        *   `logout`: Logs out the current user.
+        *   `upload_profile_picture`: Handles profile picture uploads.
+        *   `get_profile_picture`: Serves profile pictures.
+*   `backend/src/stocks.py`:
+    *   **Purpose:** Defines endpoints for retrieving stock data.
+    *   **Functions:**
+        *   `get_ticker`: Retrieves historical price data for a given ticker.
+        *   `get_compare_growth`: Compares the growth of multiple tickers.
+        *   `get_kpis`: Fetches Key Performance Indicators (KPIs) for a specific ticker.
+        *   `search_ticker`: Performs a full-text search for tickers.
+        *   `analyze_etoro_excel`: Analyzes an uploaded eToro Excel sheet to extract closed position data.
 
 *   `backend/src/etoro_data.py`:
     *   **Purpose:** Contains functions for processing eToro Excel statements.
@@ -148,11 +160,19 @@ This project is a financial dashboard that displays stock information. It has a 
     *   **Purpose:** A reusable Svelte component for rendering line charts (historical data) using Chart.js, with zoom and pan functionality.
     *   **Props:** `title`, `dataset`, `dates`, `delta`.
 
+### Testing
+
+*   `tests/`:
+    *   **Purpose:** Contains end-to-end tests for the application using Playwright.
+    *   `tests/justfile`: Defines commands for running tests.
+    *   `tests/playwright.config.ts`: Configuration file for Playwright.
+
 ## Development Workflow
 
-*   To start the backend development server, run `just dev-docker`. This will build and run the backend Docker container.
-*   To start the frontend development server, run `just dev-front`. This will launch the Svelte development server.
-*   The backend API documentation is available at `http://localhost:5000/openapi/`.
+*   When developing the frontend, run `npm run check` in the `frontend` folder and fix all the errors listed.
+*   To run the end-to-end tests, use the command `just tests run`. This will restart the frontend and backend with a clean database, and then run the Playwright tests.
+*   After any feature addition or bug fix, you should write new end-to-end tests to validate the changes and ensure that everything works as expected.
+*   If the end-to-end tests fail, you need to fix the issue and rerun the tests until they pass.
 
 ## API Type Generation
 

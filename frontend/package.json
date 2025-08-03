@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch && tsc --noEmit",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
     "generate-api-types": "npx openapi-typescript http://localhost:5000/openapi/openapi.json -o src/generated/api.d.ts",
