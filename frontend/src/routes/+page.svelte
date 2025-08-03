@@ -31,7 +31,6 @@
 		const { data, error } = await client
 			.GET('/api/search/', {
 				params: {
-
 					query: {
 						query: searchText
 					}
@@ -53,19 +52,18 @@
 
 	const comparedTickersUrl = () => Array.from(comparedTickers).join(',');
 	function handleCompareChange(e: Event, quote: Ticker) {
-	const target = e.target as HTMLInputElement;
-	const symbol = quote.raw.symbol;
+		const target = e.target as HTMLInputElement;
+		const symbol = quote.raw.symbol;
 
-	// Create a new Set to trigger reactivity
-	const updated = new Set(comparedTickers);
-	if (target.checked) {
-		updated.add(symbol);
-	} else {
-		updated.delete(symbol);
+		// Create a new Set to trigger reactivity
+		const updated = new Set(comparedTickers);
+		if (target.checked) {
+			updated.add(symbol);
+		} else {
+			updated.delete(symbol);
+		}
+		comparedTickers = updated; // <-- reassign to trigger Svelte reactivity
 	}
-	comparedTickers = updated; // <-- reassign to trigger Svelte reactivity
-}
-
 </script>
 
 <!-- Header -->
@@ -80,7 +78,7 @@
 		id="search"
 		type="text"
 		placeholder="Apple, Microsoft, ..."
-		class="w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:outline-none focus:ring-2 focus:ring-brand"
+		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:ring-2 focus:outline-none"
 	/>
 </form>
 
@@ -94,11 +92,7 @@
 				<div>
 					<a href="/details/{quote.raw.symbol}" class="flex flex-col items-center text-center">
 						{#if quote.icon_url}
-							<img
-								src={quote.icon_url}
-								alt=""
-								class="mb-2 h-12 w-12 rounded-full"
-							/>
+							<img src={quote.icon_url} alt="" class="mb-2 h-12 w-12 rounded-full" />
 						{/if}
 						<h2 class="text-lg font-semibold text-white">{quote.raw.longname}</h2>
 					</a>
@@ -116,7 +110,7 @@
 						<input
 							type="checkbox"
 							onclick={(e) => handleCompareChange(e, quote)}
-							class="form-checkbox h-5 w-5 rounded border-gray-300 text-brand"
+							class="form-checkbox text-brand h-5 w-5 rounded border-gray-300"
 							checked={comparedTickers.has(quote.raw.symbol)}
 						/>
 					</div>
@@ -146,23 +140,22 @@
 						{quote.raw.longname}
 					</a>
 					<button
-	onclick={() => {
-		const updated = new Set(comparedTickers);
-		updated.delete(quote.raw.symbol);
-		comparedTickers = updated;
-	}}
-	class="text-gray-400 transition hover:text-white"
->
-	&times;
-</button>
-
+						onclick={() => {
+							const updated = new Set(comparedTickers);
+							updated.delete(quote.raw.symbol);
+							comparedTickers = updated;
+						}}
+						class="text-gray-400 transition hover:text-white"
+					>
+						&times;
+					</button>
 				</li>
 			{/each}
 		</ul>
 		<div class="mt-4 flex justify-end">
 			<a
 				href="/compare/{comparedTickersUrl()}"
-				class="rounded-full bg-brand px-4 py-2 font-semibold text-black shadow transition hover:scale-105 {comparedTickers.size <
+				class="bg-brand rounded-full px-4 py-2 font-semibold text-black shadow transition hover:scale-105 {comparedTickers.size <
 				2
 					? 'cursor-not-allowed opacity-50'
 					: ''}"

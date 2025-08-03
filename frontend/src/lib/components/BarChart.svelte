@@ -77,7 +77,10 @@
 	});
 </script>
 
-<div class="w-full flex flex-col items-center">
+<div class="flex w-full flex-col items-center">
 	<canvas class="chart" use:chart={$state.snapshot(dataset)}></canvas>
-	<button class="px-4 py-1 rounded-full bg-gray-800 text-white shadow hover:scale-105 transition mt-4" onclick={() => chartInstance?.resetZoom()}>Reset zoom</button>
+	<button
+		class="mt-4 rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
+		onclick={() => chartInstance?.resetZoom()}>Reset zoom</button
+	>
 </div>

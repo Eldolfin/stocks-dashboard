@@ -1,18 +1,24 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-brand: #00ffc3;
-  --font-family-sans: 'Inter', sans-serif;
+	--color-brand: #00ffc3;
+	--font-family-sans: 'Inter', sans-serif;
 }
 
 body {
-  @apply bg-black text-white font-sans;
+	@apply bg-black font-sans text-white;
 }
 
 .animate-fade-in {
-  animation: fadeIn 1s ease-in-out forwards;
+	animation: fadeIn 1s ease-in-out forwards;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }

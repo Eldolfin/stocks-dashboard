@@ -161,7 +161,7 @@ def search_ticker(query: SearchQuery):
             icon_url=(None if info.website is None else f"https://logo.clearbit.com/{info.website}"),
             today_change=today_change,
         )
-        for (raw, info, today_change) in zip(raw_quotes, infos, deltas)
+        for (raw, info, today_change) in zip(raw_quotes, infos, deltas, strict=False)
         if info.currentPrice is not None
     ]
     return SearchResponse(quotes=quotes, query=query).dict(), 200

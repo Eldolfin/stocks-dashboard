@@ -29,7 +29,7 @@
 			const response = await client.GET('/api/etoro/reports');
 			if (response.data) {
 				uploadedReports = response.data.reports;
-			} else{
+			} else {
 				console.error('Failed to fetch uploaded reports');
 			}
 		} catch (err) {
@@ -53,12 +53,12 @@
 					body: formData as any // FIXME?
 				});
 
-				 if (res.data) {
+				if (res.data) {
 					data = res.data;
 					error = undefined;
 					// After successful upload, refresh the list of reports
 					await fetchUploadedReports();
-				} else  {
+				} else {
 					error = 'Failed to refetch data';
 				}
 				loading = false;
@@ -79,11 +79,11 @@
 		});
 
 		if (res.error) {
-				error = (res.error as components['schemas']['NotFoundResponse']).message;
-			} else if (res.data) {
-				data = res.data;
-				error = undefined;
-			}
+			error = (res.error as components['schemas']['NotFoundResponse']).message;
+		} else if (res.data) {
+			data = res.data;
+			error = undefined;
+		}
 		loading = false;
 	}
 </script>

@@ -24,6 +24,6 @@ watch-tests:
 # watch all repository files, and runs tests from a clean state
 watch-all:
     cd .. && git ls-files | entr -cr just tests run
-    
+
 # Ran by github actions
 ci: run
