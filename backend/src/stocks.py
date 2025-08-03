@@ -9,10 +9,9 @@ from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
 from werkzeug.utils import secure_filename
 
-from src import models
-from src.etoro_data import extract_closed_position
-from src.intervals import duration_to_interval, interval_to_duration, now
-from src.models import (
+from etoro_data import extract_closed_position
+from intervals import duration_to_interval, interval_to_duration, now
+from models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
     EtoroForm,
@@ -30,6 +29,8 @@ from src.models import (
     TickerResponse,
 )
 
+from . import models
+
 stocks_bp = APIBlueprint("stocks", __name__, url_prefix="/api")
 cache = Cache()
 
@@ -39,7 +40,7 @@ stocks_tag = Tag(name="stocks", description="Stocks data endpoints")
 @stocks_bp.get("/ticker/", tags=[stocks_tag], responses={200: models.TickerResponse, 404: models.NotFoundResponse})
 @login_required
 def get_ticker(query: TickerQuery):
-    N_POINTS = 20
+    n_points = 20
     if query.period == "max":
         dat = yf.Ticker(query.ticker_name)
         history = dat.history(period="max", interval="3mo").reset_index()
@@ -47,7 +48,7 @@ def get_ticker(query: TickerQuery):
     else:
         duration = interval_to_duration(query.period)
     if query.interval is None or query.interval == "auto":
-        query.interval = duration_to_interval(duration / N_POINTS)
+        query.interval = duration_to_interval(duration / n_points)
 
     start = now() - duration
     start = start.strftime("%Y-%m-%d")

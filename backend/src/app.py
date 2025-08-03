@@ -1,20 +1,21 @@
 import os
 import sqlite3
 
+import flask
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_openapi3 import Info, OpenAPI
 
-from src.auth import UPLOAD_FOLDER, auth_bp
-from src.stocks import cache, stocks_bp
-from src.user import User
+from auth import UPLOAD_FOLDER, auth_bp
+from stocks import cache, stocks_bp
+from user import User
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app, origins=["http://localhost:3000", "http://localhost:5173"], supports_credentials=True)
 app.config["UPLOAD_FOLDER"] = "/database/etoro_sheets"
 # TODO: read from env
-app.config["SECRET_KEY"] = "supersecretkey"
+app.config["SECRET_KEY"] = os.environ.get("BACKEND_AUTH_SECRET_KEY")
 app.config["CACHE_TYPE"] = "SimpleCache"
 
 cache.init_app(app)
@@ -37,11 +38,11 @@ with sqlite3.connect("/database/database.db") as conn:
     """)
 
 # Create the profile pictures upload directory if it doesn't exist
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER.mkdir(parents=True)
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: str) -> User:
     with sqlite3.connect("/database/database.db") as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
@@ -51,5 +52,5 @@ def load_user(user_id):
         return None
 
 
-def create_app():
+def create_app() -> flask.Flask:
     return app

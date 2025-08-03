@@ -15,5 +15,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.17.1",
+    "pandas-stubs>=2.3.0.250703",
     "ruff>=0.12.7",
+    "types-flask-cors>=6.0.0.20250520",
 ]

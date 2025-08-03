@@ -1,5 +1,7 @@
-import os
+# ruff: noqa: ANN201
+
 import sqlite3
+from pathlib import Path
 
 from flask import send_from_directory
 from flask_login import current_user, login_required, login_user, logout_user
@@ -10,7 +12,7 @@ from werkzeug.utils import secure_filename
 from src import models
 from src.user import User
 
-UPLOAD_FOLDER = "/database/profile_pictures"
+UPLOAD_FOLDER = Path("/database/profile_pictures")
 
 auth_bp = APIBlueprint("auth", __name__, url_prefix="/api")
 
@@ -34,13 +36,13 @@ def register(form: models.RegisterForm):
             if form.profile_picture:
                 file = form.profile_picture
                 if file.filename != "":
-                    user_upload_folder = os.path.join(UPLOAD_FOLDER, email)
-                    os.makedirs(user_upload_folder, exist_ok=True)
+                    user_upload_folder = UPLOAD_FOLDER / email
+                    user_upload_folder.makedirs(exist_ok=True)
                     filename = secure_filename(file.filename)
-                    profile_picture_path = os.path.join(user_upload_folder, filename)
+                    profile_picture_path = user_upload_folder / filename
                     file.save(profile_picture_path)
                     # Store relative path in DB
-                    profile_picture_path = os.path.join(email, filename)
+                    profile_picture_path = email / filename
 
             cursor.execute(
                 "INSERT INTO users (email, password, profile_picture) VALUES (?, ?, ?)",
@@ -89,23 +91,24 @@ def upload_profile_picture(form: models.ProfilePictureForm):
     if file.filename == "":
         return {"error": "No selected file"}, 400
     if file:
-        user_upload_folder = os.path.join(UPLOAD_FOLDER, current_user.email)
-        os.makedirs(user_upload_folder, exist_ok=True)
+        user_upload_folder = UPLOAD_FOLDER / current_user.email
+        user_upload_folder.makedirs(exist_ok=True)
         filename = secure_filename(file.filename)
-        profile_picture_path = os.path.join(user_upload_folder, filename)
+        profile_picture_path = user_upload_folder / filename
         file.save(profile_picture_path)
         # Store relative path in DB
-        profile_picture_path = os.path.join(current_user.email, filename)
+        profile_picture_path = current_user.email / filename
         with sqlite3.connect("/database/database.db") as conn:
             cursor = conn.cursor()
             cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?", (profile_picture_path, current_user.id))
             conn.commit()
         return models.ProfilePictureResponse(
-            message="Profile picture updated successfully", profile_picture=profile_picture_path
+            message="Profile picture updated successfully",
+            profile_picture=profile_picture_path,
         ).dict(), 200
     return models.NotFoundResponse(message="Something went wrong").dict(), 500
 
 
 @auth_bp.get("/profile/pictures/<user_email>/<filename>", tags=[auth_tag])
 def get_profile_picture(path: models.ProfilePicturePathParams):
-    return send_from_directory(os.path.join(UPLOAD_FOLDER, path.user_email), path.filename)
+    return send_from_directory(UPLOAD_FOLDER / path.user_email, path.filename)

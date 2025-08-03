@@ -3,7 +3,6 @@ line-length = 120
 indent-width = 4
 
 [lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
 select = ["ALL"]
-ignore = ["FA", "D", "A002", "N815", "TD003", "TD002"]
+ignore = ["FA", "D", "TD", "FIX", "A002", "N815", "TD003", "T201"]
 

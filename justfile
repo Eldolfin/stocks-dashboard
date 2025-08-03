@@ -1,3 +1,6 @@
+set dotenv-load := true
+set dotenv-required := true
+
 mod tests
 
 help:
