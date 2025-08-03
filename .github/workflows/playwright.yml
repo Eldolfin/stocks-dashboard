@@ -18,6 +18,8 @@ jobs:
       run: cd tests && npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+    - name: Setup environement
+      run: cp .env.example .env
     - name: Run Playwright tests
       run: just tests ci
     - name: Show logs on failure
