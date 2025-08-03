@@ -17,7 +17,7 @@ services:
     build: ../frontend
     container_name: frontend
     extra_hosts:
-      - "host.docker.internal:host-gateway
+      - "host.docker.internal:host-gateway"
   caddy:
     image: caddy:2.9-alpine
     depends_on:
