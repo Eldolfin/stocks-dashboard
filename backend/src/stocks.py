@@ -10,12 +10,13 @@ from flask_openapi3 import APIBlueprint, Tag
 from werkzeug.utils import secure_filename
 
 from . import models
-from .etoro_data import extract_closed_position
+from .etoro_data import extract_closed_position, extract_net_worth
 from .intervals import duration_to_interval, interval_to_duration, now
 from .models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
     EtoroForm,
+    EtoroNetWorthResponse,
     EtoroReportsResponse,
     Info,
     KPIQuery,
@@ -181,6 +182,20 @@ def analyze_etoro_excel(form: EtoroForm):
     return extract_closed_position(file_path, time_unit=form.precision)
 
 
+@stocks_bp.post("/etoro_net_worth", tags=[stocks_tag], responses={200: models.EtoroNetWorthResponse})
+@login_required
+def analyze_etoro_net_worth(form: EtoroForm):
+    if isinstance(form.file, str) or form.file.filename is None:
+        return {"error": "Sheet has no filename (this happened on page reload right?)"}, 401
+    etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    etoro_upload_folder.mkdir(exist_ok=True, parents=True)
+    filename = secure_filename(form.file.filename)
+    file_path = Path(etoro_upload_folder) / filename
+    form.file.save(file_path)
+
+    return extract_net_worth(file_path, time_unit=form.precision)
+
+
 @stocks_bp.get("/etoro/reports", tags=[stocks_tag], responses={200: models.EtoroReportsResponse})
 @login_required
 def list_etoro_reports():
@@ -206,3 +221,19 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
         return NotFoundResponse().dict(), 404
 
     return extract_closed_position(file_path, time_unit=query.precision)
+
+
+@stocks_bp.get(
+    "/etoro_net_worth_by_name",
+    tags=[stocks_tag],
+    responses={200: models.EtoroNetWorthResponse, 404: models.NotFoundResponse},
+)
+@login_required
+def analyze_etoro_net_worth_by_name(query: models.EtoroAnalysisByNameQuery):
+    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    file_path = Path(user_etoro_folder) / query.filename
+
+    if not Path.exists(file_path):
+        return NotFoundResponse().dict(), 404
+
+    return extract_net_worth(file_path, time_unit=query.precision)

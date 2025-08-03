@@ -68,6 +68,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/etoro_net_worth': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['stocks_analyze_etoro_net_worth_etoro_net_worth_post'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/etoro_net_worth_by_name': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['stocks_analyze_etoro_net_worth_by_name_etoro_net_worth_by_name_get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/kpis/': {
 		parameters: {
 			query?: never;
@@ -362,6 +394,15 @@ export interface components {
 			 */
 			file: string;
 			precision: components['schemas']['PrecisionEnum'];
+		};
+		/** EtoroNetWorthResponse */
+		EtoroNetWorthResponse: {
+			/** Dates */
+			dates: string[];
+			/** Net Worth */
+			net_worth: number[];
+			/** Transactions */
+			transactions: number[];
 		};
 		/** EtoroReportsResponse */
 		EtoroReportsResponse: {
@@ -1592,6 +1633,80 @@ export interface operations {
 				};
 				content: {
 					'application/json': components['schemas']['EtoroAnalysisResponse'];
+				};
+			};
+			/** @description Not Found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['NotFoundResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_analyze_etoro_net_worth_etoro_net_worth_post: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'multipart/form-data': components['schemas']['EtoroForm'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['EtoroNetWorthResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_analyze_etoro_net_worth_by_name_etoro_net_worth_by_name_get: {
+		parameters: {
+			query: {
+				filename: string;
+				precision: components['schemas']['PrecisionEnum'];
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['EtoroNetWorthResponse'];
 				};
 			};
 			/** @description Not Found */

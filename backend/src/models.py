@@ -354,6 +354,12 @@ class EtoroAnalysisResponse(BaseModel):
     profit_usd: list[float]
 
 
+class EtoroNetWorthResponse(BaseModel):
+    dates: list[str]
+    net_worth: list[float]
+    transactions: list[int]
+
+
 class EtoroAnalysisByNameQuery(BaseModel):
     filename: str
     precision: PrecisionEnum

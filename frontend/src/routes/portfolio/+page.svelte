@@ -2,9 +2,11 @@
 	import { client } from '../../lib/typed-fetch-client';
 	import type { components } from '../../generated/api.js';
 	import BarChart from '$lib/components/BarChart.svelte';
+	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import { onMount } from 'svelte'; // Import onMount
 
 	type EtoroData = components['schemas']['EtoroAnalysisResponse'];
+	type EtoroNetWorthData = components['schemas']['EtoroNetWorthResponse'];
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
 
@@ -17,9 +19,11 @@
 	let files: FileList | undefined = $state(undefined);
 	let error: string | undefined = $state(undefined);
 	let data: EtoroData | undefined = $state(undefined);
+	let netWorthData: EtoroNetWorthData | undefined = $state(undefined);
 	let precision_index: number = $state(1); // 'M'
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
+	let viewMode: 'profit' | 'networth' = $state('profit'); // Toggle between views
 
 	const now = new Date();
 
@@ -49,17 +53,25 @@
 				const formData = new FormData();
 				formData.append('file', files[0]);
 				formData.append('precision', precision_values[precision_index][1]);
-				const res = await client.POST('/api/etoro_analysis', {
-					body: formData as unknown as EtoroForm // FIXME: ???
-				});
+				
+				// Fetch both profit and net worth data
+				const [profitRes, netWorthRes] = await Promise.all([
+					client.POST('/api/etoro_analysis', {
+						body: formData as unknown as EtoroForm // FIXME: ???
+					}),
+					client.POST('/api/etoro_net_worth', {
+						body: formData as unknown as EtoroForm // FIXME: ???
+					})
+				]);
 
-				if (res.data) {
-					data = res.data;
+				if (profitRes.data && netWorthRes.data) {
+					data = profitRes.data;
+					netWorthData = netWorthRes.data;
 					error = undefined;
 					// After successful upload, refresh the list of reports
 					await fetchUploadedReports();
 				} else {
-					error = 'Failed to refetch data';
+					error = 'Failed to fetch data';
 				}
 				loading = false;
 			}
@@ -69,19 +81,31 @@
 	// Function to handle re-analysis of a selected report (placeholder for now)
 	async function reAnalyzeReport(reportName: string) {
 		loading = true;
-		const res = await client.GET('/api/etoro_analysis_by_name', {
-			params: {
-				query: {
-					filename: reportName,
-					precision: precision_values[precision_index][1]
+		
+		const [profitRes, netWorthRes] = await Promise.all([
+			client.GET('/api/etoro_analysis_by_name', {
+				params: {
+					query: {
+						filename: reportName,
+						precision: precision_values[precision_index][1]
+					}
 				}
-			}
-		});
+			}),
+			client.GET('/api/etoro_net_worth_by_name', {
+				params: {
+					query: {
+						filename: reportName,
+						precision: precision_values[precision_index][1]
+					}
+				}
+			})
+		]);
 
-		if (res.error) {
-			error = (res.error as components['schemas']['NotFoundResponse']).message;
-		} else if (res.data) {
-			data = res.data;
+		if (profitRes.error || netWorthRes.error) {
+			error = 'Failed to fetch data';
+		} else if (profitRes.data && netWorthRes.data) {
+			data = profitRes.data;
+			netWorthData = netWorthRes.data;
 			error = undefined;
 		}
 		loading = false;
@@ -89,16 +113,48 @@
 </script>
 
 <div class="p-8">
-	{#if data !== undefined}
-		<div class="flex justify-center">
-			<BarChart
-				dataset={new Map([
-					['profit (USD)', new Array(...data.profit_usd)],
-					['closed trades', new Array(...data.closed_trades)]
-				])}
-				dates={data.close_date}
-			/>
+	{#if data !== undefined && (viewMode === 'profit' || (viewMode === 'networth' && netWorthData !== undefined))}
+		<!-- View Mode Toggle -->
+		<div class="mb-6 flex justify-center">
+			<div class="inline-flex rounded-lg bg-gray-700 p-1">
+				<button
+					class="rounded-md px-4 py-2 text-sm font-medium transition-colors {viewMode === 'profit'
+						? 'bg-brand text-black'
+						: 'text-gray-300 hover:text-white'}"
+					onclick={() => (viewMode = 'profit')}
+				>
+					Profit Analysis
+				</button>
+				<button
+					class="rounded-md px-4 py-2 text-sm font-medium transition-colors {viewMode === 'networth'
+						? 'bg-brand text-black'
+						: 'text-gray-300 hover:text-white'}"
+					onclick={() => (viewMode = 'networth')}
+				>
+					Net Worth Over Time
+				</button>
+			</div>
 		</div>
+
+		<div class="flex justify-center">
+			{#if viewMode === 'profit'}
+				<BarChart
+					dataset={new Map([
+						['profit (USD)', new Array(...data.profit_usd)],
+						['closed trades', new Array(...data.closed_trades)]
+					])}
+					dates={data.close_date}
+				/>
+			{:else if netWorthData}
+				<HistoryChart
+					title="Net Worth Over Time"
+					dataset={{ 'Net Worth (USD)': netWorthData.net_worth }}
+					dates={netWorthData.dates}
+					color="#00ff88"
+				/>
+			{/if}
+		</div>
+		
 		<div class="mt-4 flex flex-col items-center">
 			<label for="precision-range" class="mb-2 block text-white"
 				>{precision_values[precision_index][0]}</label
