@@ -11,7 +11,7 @@ test-prepare:
 # Restarts frontend & backend with a clean DB then runs tests
 run: test-prepare _run
 _run:
-    npx playwright test
+    npx playwright test --reporter=line
 
 # Same as `test` but with the --ui argument passed to playwright for debugging
 run-ui: test-prepare

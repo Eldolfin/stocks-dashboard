@@ -174,6 +174,7 @@ This project is a financial dashboard that displays stock information. It has a 
 *   To run the end-to-end tests, use the command `just tests run`. This will restart the frontend and backend with a clean database, and then run the Playwright tests.
 *   After any feature addition or bug fix, you should write new end-to-end tests to validate the changes and ensure that everything works as expected.
 *   If the end-to-end tests fail, you need to fix the issue and rerun the tests until they pass.
+*   When commiting, some pre-commit hooks run lint checks, do not try to bypass them or disable them, think through the issue and handle them safely.
 
 ## API Type Generation
 
