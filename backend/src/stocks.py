@@ -37,7 +37,6 @@ stocks_tag = Tag(name="stocks", description="Stocks data endpoints")
 
 
 @stocks_bp.get("/ticker/", tags=[stocks_tag], responses={200: models.TickerResponse, 404: models.NotFoundResponse})
-@login_required
 def get_ticker(query: TickerQuery):
     n_points = 20
     if query.period == "max":
@@ -99,7 +98,6 @@ def get_ticker(query: TickerQuery):
 
 
 @stocks_bp.get("/compare_growth/", tags=[stocks_tag], responses={200: models.CompareGrowthResponse})
-@login_required
 def get_compare_growth(query: CompareGrowthQuery):
     if len(query.ticker_names) == 1:
         query.ticker_names = query.ticker_names[0].split(",")
@@ -121,7 +119,6 @@ def get_compare_growth(query: CompareGrowthQuery):
 
 
 @stocks_bp.get("/kpis/", tags=[stocks_tag], responses={200: KPIResponse, 404: NotFoundResponse})
-@login_required
 def get_kpis(query: KPIQuery):
     try:
         dat = yf.Ticker(query.ticker_name)
@@ -141,13 +138,12 @@ def get_kpis(query: KPIQuery):
             analyst_price_targets=dat.analyst_price_targets,
             info=dat.info,
             main=main,
-        ),
+        ).dict(),
         200,
     )
 
 
 @stocks_bp.get("/search/", tags=[stocks_tag], responses={200: SearchResponse})
-@login_required
 @cache.memoize()
 def search_ticker(query: SearchQuery):
     raw_quotes: list[RawQuote] = list(
@@ -174,10 +170,10 @@ def search_ticker(query: SearchQuery):
 @stocks_bp.post("/etoro_analysis", tags=[stocks_tag], responses={200: models.EtoroAnalysisResponse})
 @login_required
 def analyze_etoro_excel(form: EtoroForm):
-    if form.file.filename is None:
-        return {"error": "profile picture should have a filename"}, 401
+    if isinstance(form.file, str) or form.file.filename is None:
+        return {"error": "Sheet has no filename (this happened on page reload right?)"}, 401
     etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
-    etoro_upload_folder.mkdir(exist_ok=True)
+    etoro_upload_folder.mkdir(exist_ok=True, parents=True)
     filename = secure_filename(form.file.filename)
     file_path = Path(etoro_upload_folder) / filename
     form.file.save(file_path)
@@ -192,7 +188,7 @@ def list_etoro_reports():
     if not Path.exists(user_etoro_folder):
         return EtoroReportsResponse(reports=[]).dict(), 200
 
-    reports = [f for f in user_etoro_folder.iterdir() if (Path(user_etoro_folder) / f).exists()]
+    reports = [f.name for f in user_etoro_folder.iterdir() if (Path(user_etoro_folder) / f).exists()]
     return EtoroReportsResponse(reports=reports).dict(), 200
 
 

@@ -12,7 +12,11 @@ from .user import User
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
-CORS(app, origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:8085"], supports_credentials=True)
+CORS(
+    app,
+    origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:8085"],
+    supports_credentials=True,
+)
 app.config["UPLOAD_FOLDER"] = "/database/etoro_sheets"
 app.config["SECRET_KEY"] = os.environ.get("BACKEND_AUTH_SECRET_KEY")
 app.config["CACHE_TYPE"] = "SimpleCache"

@@ -2,11 +2,11 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY pyproject.toml .
 RUN pip install .
 RUN pip install ipython
 
-COPY . .
+ENV FLASK_APP=src.app:create_app
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--debug"]
 
