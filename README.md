@@ -2,6 +2,9 @@
 
 using flask for the backend and svelte for the frontend.
 
+## Preview
+![Portfolio hover graph screenshot](./tests/tests/portfolio.spec.ts-snapshots/portfolio-hover-first-chromium-linux.png)
+
 ## Getting started
 
 ### Live version
