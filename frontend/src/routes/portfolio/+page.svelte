@@ -6,7 +6,7 @@
 
 	type EtoroData = components['schemas']['EtoroAnalysisResponse'];
 	type Precision = components['schemas']['PrecisionEnum'];
-	type EtoroReportsResponse = components['schemas']['EtoroReportsResponse']; // Import the new type
+	type EtoroForm = components['schemas']['EtoroForm'];
 
 	const precision_values: Array<[string, Precision]> = [
 		['Year', 'Y'],
@@ -50,7 +50,7 @@
 				formData.append('file', files[0]);
 				formData.append('precision', precision_values[precision_index][1]);
 				const res = await client.POST('/api/etoro_analysis', {
-					body: formData as any // FIXME?
+					body: formData as unknown as EtoroForm // FIXME: ???
 				});
 
 				if (res.data) {
@@ -92,12 +92,10 @@
 	{#if data !== undefined}
 		<div class="flex justify-center">
 			<BarChart
-				title="Profit over time"
 				dataset={new Map([
 					['profit (USD)', new Array(...data.profit_usd)],
 					['closed trades', new Array(...data.closed_trades)]
 				])}
-				color="green"
 				dates={data.close_date}
 			/>
 		</div>
@@ -154,7 +152,7 @@
 		{#if uploadedReports.length > 0}
 			<h2 class="mt-6 text-4xl font-bold text-white">Previously Uploaded Reports:</h2>
 			<ul class="list-inside list-disc text-white">
-				{#each uploadedReports as report}
+				{#each uploadedReports as report (report)}
 					<li>
 						<button onclick={() => reAnalyzeReport(report)} class="text-blue-400 hover:underline">
 							{report}

@@ -2,6 +2,7 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data } = $props();
 
@@ -16,7 +17,7 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const changeRange = (newValue: string) => {
-		let query = new URLSearchParams(page.url.searchParams.toString());
+		let query = new SvelteURLSearchParams(page.url.searchParams.toString());
 
 		query.set('period', newValue);
 
@@ -39,7 +40,7 @@
 		/>
 	</div>
 	<div class="mb-8 flex flex-wrap justify-center gap-2">
-		{#each ranges as range}
+		{#each ranges as range (range.label)}
 			<button
 				class="rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
 				onclick={() => changeRange(range.value)}>{range.label}</button

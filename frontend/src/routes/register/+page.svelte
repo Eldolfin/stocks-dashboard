@@ -2,6 +2,9 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { goto } from '$app/navigation';
 	import { Button, Label, Input, Fileupload } from 'flowbite-svelte';
+	import type { components} from '../../generated/api.d.ts';
+
+	type RegisterForm = components['requestBodies']['EtoroForm'];
 
 	let email = '';
 	let password = '';
@@ -22,7 +25,7 @@
 
 		try {
 			const response = await client.POST('/api/register', {
-				body: formData as any
+				body: formData as unknown as RegisterForm
 			});
 
 			if (response.error) {

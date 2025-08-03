@@ -2,7 +2,6 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { goto } from '$app/navigation';
 	import { Button, Label, Input } from 'flowbite-svelte';
-	import type { components } from '../../generated/api';
 
 	let email = '';
 	let password = '';

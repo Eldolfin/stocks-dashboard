@@ -2,8 +2,6 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
-	import { SvelteSet } from 'svelte/reactivity';
-
 	type Ticker = components['schemas']['Quote'];
 
 	let searchResult = $state<Ticker[] | undefined>(undefined);

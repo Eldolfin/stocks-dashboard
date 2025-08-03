@@ -6,12 +6,10 @@
 
 	type Dataset = Map<string, number[]>;
 	interface Props {
-		title: string;
 		dataset: Dataset;
 		dates: string[];
-		color: string;
 	}
-	const { title, dataset, dates, color }: Props = $props();
+	const { dataset, dates }: Props = $props();
 	let chartInstance: Chart | undefined = $state();
 
 	function chart(node: HTMLCanvasElement, dataset: Dataset) {
