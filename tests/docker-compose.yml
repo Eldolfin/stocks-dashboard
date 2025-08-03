@@ -1,0 +1,8 @@
+services:
+  backend:
+    volumes:
+      - wsb-test-backend-db:/database
+
+volumes:
+  wsb-test-backend-db:
+    external: true

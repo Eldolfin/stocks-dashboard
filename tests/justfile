@@ -1,0 +1,16 @@
+help:
+    just --list
+
+test-prepare:
+    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml down
+    docker volume rm wsb-test-backend-db || true
+    docker volume create wsb-test-backend-db
+    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml up -d
+
+test: test-prepare
+    npx playwright test
+
+test-ui: test-prepare
+    npx playwright test --ui
+
+ci: test
