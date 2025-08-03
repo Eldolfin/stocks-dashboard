@@ -2,7 +2,7 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-		
+
 	let { data } = $props();
 
 	const ranges = [
@@ -27,8 +27,10 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<h1 class="text-4xl sm:text-5xl font-bold animate-fade-in">{data.tickers}</h1>
-	<div class="my-8 h-56 sm:h-64 bg-gradient-to-r from-[#0d182b] to-[#102139] rounded-2xl shadow-xl flex items-center justify-center text-gray-500 w-full max-w-screen-lg">
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{data.tickers}</h1>
+	<div
+		class="my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
+	>
 		<HistoryChart
 			title={`Growth compare`}
 			dataset={historyData.candles}
@@ -36,9 +38,12 @@
 			color={'gray'}
 		/>
 	</div>
-	<div class="flex flex-wrap justify-center gap-2 mb-8">
+	<div class="mb-8 flex flex-wrap justify-center gap-2">
 		{#each ranges as range}
-			<button class="px-4 py-1 rounded-full bg-gray-800 text-white shadow hover:scale-105 transition" onclick={() => changeRange(range.value)}>{range.label}</button>
+			<button
+				class="rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
+				onclick={() => changeRange(range.value)}>{range.label}</button
+			>
 		{/each}
 	</div>
 </div>

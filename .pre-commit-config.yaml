@@ -1,0 +1,52 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  # Backend Python hooks
+  - repo: local
+    hooks:
+      - id: backend-ruff-check
+        name: Backend Ruff Check
+        entry: bash -c 'cd backend && uv run ruff check --diff'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      - id: backend-ruff-format
+        name: Backend Ruff Format
+        entry: bash -c 'cd backend && uv run ruff format --diff'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      - id: backend-mypy
+        name: Backend MyPy
+        entry: bash -c 'cd backend && uv run mypy src'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+  # Frontend Node.js hooks
+  - repo: local
+    hooks:
+      - id: frontend-check
+        name: Frontend Svelte Check
+        entry: bash -c 'cd frontend && npm run check'
+        language: system
+        files: ^frontend/.*\.(ts|js|svelte)$
+        pass_filenames: false
+
+      - id: frontend-format-check
+        name: Frontend Prettier Check
+        entry: bash -c 'cd frontend && npx prettier --check .'
+        language: system
+        files: ^frontend/.*\.(ts|js|svelte|json|css|html)$
+        pass_filenames: false
+
+  # Generic hooks for all files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files

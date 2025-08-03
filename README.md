@@ -12,6 +12,25 @@ available at [wsb.eldolfin.top](https://wsb.eldolfin.top/)
 
 dependencies: just, docker, docker-compose, npm
 
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure code quality. Install them with:
+
+```sh
+pip install pre-commit
+pre-commit install
+```
+
+The hooks will automatically run:
+- **Backend**: `ruff check`, `ruff format`, and `mypy` on Python files
+- **Frontend**: `svelte-check` and `prettier` on TypeScript/Svelte files
+- **General**: trailing whitespace removal, end-of-file fixing, YAML validation
+
+You can run hooks manually on all files:
+```sh
+pre-commit run --all-files
+```
+
 ### Backend
 
 ```sh

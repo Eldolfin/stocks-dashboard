@@ -91,4 +91,6 @@
 	});
 </script>
 
-<div class="w-full h-full flex justify-center items-center"><canvas bind:this={chartElt}></canvas></div>
+<div class="flex h-full w-full items-center justify-center">
+	<canvas bind:this={chartElt}></canvas>
+</div>
