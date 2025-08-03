@@ -9,8 +9,8 @@ test-prepare:
     docker compose -f ../dev/docker-compose.yml -f docker-compose.yml up -d --build
 
 # Restarts frontend & backend with a clean DB then runs tests
-run: test-prepare _test
-_test:
+run: test-prepare _run
+_run:
     npx playwright test
 
 # Same as `test` but with the --ui argument passed to playwright for debugging
@@ -19,11 +19,11 @@ run-ui: test-prepare
 
 # watch tests files only, and keep the same running backend instance
 watch-tests:
-    git ls-files | entr -cr just _test
+    git ls-files | entr -cr just _run
 
 # watch all repository files, and runs tests from a clean state
 watch-all:
-    cd .. && git ls-files | entr -cr just tests test
+    cd .. && git ls-files | entr -cr just tests run
     
 # Ran by github actions
 ci: run
