@@ -1,7 +1,7 @@
 from flask_openapi3 import APIBlueprint, Tag
 from flask_login import login_required, current_user
 from flask_caching import Cache
-from flask import current_app, send_from_directory
+from flask import current_app
 import os
 from werkzeug.utils import secure_filename
 import yfinance as yf
@@ -194,8 +194,7 @@ def analyze_etoro_excel(form: EtoroForm):
     file_path = os.path.join(etoro_upload_folder, filename)
     form.file.save(file_path)
 
-    read = form.file.read()
-    closed_position = extract_closed_position(read, time_unit=form.precision)
+    closed_position = extract_closed_position(file_path, time_unit=form.precision)
     return closed_position
 
 
@@ -219,8 +218,5 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     if not os.path.exists(file_path):
         return NotFoundResponse().dict(), 404
 
-    with open(file_path, "rb") as f:
-        read = f.read()
-    
-    closed_position = extract_closed_position(read, time_unit=query.precision)
+    closed_position = extract_closed_position(file_path, time_unit=query.precision)
     return closed_position

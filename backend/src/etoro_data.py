@@ -6,8 +6,8 @@ def column_date_to_timestamp(column: pd.Series) -> pd.Series:
     return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
-def extract_closed_position(etoro_statement: bytes, time_unit="m"):
-    excel = pd.read_excel(BytesIO(etoro_statement), sheet_name=None)
+def extract_closed_position(etoro_statement_file: str, time_unit="m"):
+    excel = pd.read_excel(etoro_statement_file, sheet_name=None)
     closed_positions_df = excel["Closed Positions"]
     closed_positions_df["Close Date"] = column_date_to_timestamp(
         closed_positions_df["Close Date"]
