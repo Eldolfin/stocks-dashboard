@@ -1,6 +1,6 @@
 <script lang="ts">
     import { client } from '$lib/typed-fetch-client';
-    import { goto } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
     import { Button, Label, Input } from 'flowbite-svelte';
 
     let email = '';
@@ -20,8 +20,7 @@
             if (response.error) {
                 errorMessage = response.error.message || 'Login failed';
             } else if (response.data) {
-                // Assuming successful login redirects to home or dashboard
-                goto('/');
+                goto('/', {invalidate:["data:user_auth"]});
             }
         } catch (error) {
             errorMessage = 'An unexpected error occurred.';

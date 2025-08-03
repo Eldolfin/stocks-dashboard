@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  const email = `test-user-${test.info().workerIndex}@a.a`;
+  const email = `test-user-${test.info().workerIndex}-${Date.now()}@a.a`;
   const password = "test";
 
   await page.goto('/');
@@ -25,7 +25,5 @@ test('test', async ({ page }) => {
   // back to the home page
   await expect(page.getByRole('heading', { name: 'Search' })).toBeVisible();
 
-  // TODO: we should not need to refresh here for hte logout button to be visible
-  await page.goto('/');
   await expect(page.getByRole('button', { name: '🔓' })).toBeVisible();
 });
