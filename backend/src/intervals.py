@@ -1,5 +1,8 @@
-from datetime import datetime, timedelta
+# ruff: noqa: C901,PLR0911,PLR0912
 
+import datetime as dt
+
+TIMEZONE = dt.timezone.utc
 INTERVALS = [
     "1m",
     "2m",
@@ -19,29 +22,32 @@ INTERVALS = [
 
 
 # Function to convert an interval to a duration (in minutes)
-def interval_to_duration(interval: str) -> timedelta:
+def interval_to_duration(interval: str) -> dt.timedelta:
     if interval == "ytd":
-        return datetime.now() - datetime(
-            year=datetime.now().year, month=1, day=1,
+        return now() - dt.datetime(
+            year=now().year,
+            month=1,
+            day=1,
+            tzinfo=TIMEZONE,
         )
     if interval.endswith("m"):  # minutes
-        return timedelta(minutes=int(interval[:-1]))
+        return dt.timedelta(minutes=int(interval[:-1]))
     if interval.endswith("h"):  # hours
-        return timedelta(hours=int(interval[:-1]))
+        return dt.timedelta(hours=int(interval[:-1]))
     if interval.endswith("d"):  # days
-        return timedelta(days=int(interval[:-1]))
+        return dt.timedelta(days=int(interval[:-1]))
     if interval.endswith("wk"):  # weeks
-        return timedelta(weeks=int(interval[:-2]))
+        return dt.timedelta(weeks=int(interval[:-2]))
     if interval.endswith("mo"):  # months (approx 30 days)
-        return timedelta(days=30 * int(interval[:-2]))
+        return dt.timedelta(days=30 * int(interval[:-2]))
     if interval.endswith("y"):
-        return timedelta(days=365 * int(interval[:-1]))
+        return dt.timedelta(days=365 * int(interval[:-1]))
     msg = "Unknown interval format"
     raise ValueError(msg)
 
 
-# Function to convert a duration (timedelta) to an interval string
-def duration_to_interval(duration: timedelta) -> str:
+# Function to convert a duration (dt.timedelta) to an interval string
+def duration_to_interval(duration: dt.timedelta) -> str:
     total_minutes = duration.total_seconds() / 60
 
     # Match the closest interval from INTERVALS
@@ -72,3 +78,7 @@ def duration_to_interval(duration: timedelta) -> str:
     if total_minutes <= 30 * 24 * 60 * 60:
         return "1mo"
     return "3mo"
+
+
+def now() -> dt.datetime:
+    return dt.datetime.now(TIMEZONE)

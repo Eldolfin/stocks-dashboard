@@ -1,5 +1,6 @@
-import os
-from datetime import datetime
+# ruff: noqa: ANN201,BLE001
+
+from pathlib import Path
 
 import yfinance as yf
 from flask import current_app
@@ -10,7 +11,7 @@ from werkzeug.utils import secure_filename
 
 from src import models
 from src.etoro_data import extract_closed_position
-from src.intervals import duration_to_interval, interval_to_duration
+from src.intervals import duration_to_interval, interval_to_duration, now
 from src.models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
@@ -42,23 +43,25 @@ def get_ticker(query: TickerQuery):
     if query.period == "max":
         dat = yf.Ticker(query.ticker_name)
         history = dat.history(period="max", interval="3mo").reset_index()
-        duration = datetime.now() - history.iloc[0]["Date"].replace(tzinfo=None)
+        duration = now() - history.iloc[0]["Date"].replace(tzinfo=None)
     else:
         duration = interval_to_duration(query.period)
     if query.interval is None or query.interval == "auto":
         query.interval = duration_to_interval(duration / N_POINTS)
 
-    start = datetime.now() - duration
+    start = now() - duration
     start = start.strftime("%Y-%m-%d")
     try:
         dat = yf.Ticker(query.ticker_name)
         if query.period == "max":
             history = dat.history(
-                period="max", interval=query.interval,
+                period="max",
+                interval=query.interval,
             ).reset_index()
         else:
             history = dat.history(
-                start=start, interval=query.interval,
+                start=start,
+                interval=query.interval,
             ).reset_index()
     except Exception:
         return NotFoundResponse().dict(), 404
@@ -79,19 +82,17 @@ def get_ticker(query: TickerQuery):
     smas_history = dat.history(period="max", interval="1d").reset_index()
     smas_sizes = [30, 100, 500]
     smas = {
-        size: (
-            smas_history["Close"]
-            .rolling(window=size)
-            .mean()
-            .fillna(0)
-            .tolist()[-len(candles):]
-        )
+        size: (smas_history["Close"].rolling(window=size).mean().fillna(0).tolist()[-len(candles) :])
         for size in smas_sizes
     }
 
     return (
         TickerResponse(
-            dates=dates, candles=candles, query=query, delta=delta, smas=smas,
+            dates=dates,
+            candles=candles,
+            query=query,
+            delta=delta,
+            smas=smas,
         ).dict(),
         200,
     )
@@ -110,14 +111,11 @@ def get_compare_growth(query: CompareGrowthQuery):
     base_prices = close_df.iloc[0]
     ratios_df = close_df.divide(base_prices)
 
-    candles = {
-        ticker: ratios_df[ticker].tolist() for ticker in query.ticker_names
-    }
+    candles = {ticker: ratios_df[ticker].tolist() for ticker in query.ticker_names}
     dates = [index.strftime("%Y-%m-%d") for index in ratios_df.index]
 
     return (
-        CompareGrowthResponse(
-            query=query, candles=candles, dates=dates).dict(),
+        CompareGrowthResponse(query=query, candles=candles, dates=dates).dict(),
         200,
     )
 
@@ -157,27 +155,14 @@ def search_ticker(query: SearchQuery):
     )
     quotes_names = [quote.symbol for quote in raw_quotes]
     tickers = yf.Tickers(quotes_names).tickers
-    infos: list[Info] = [
-        Info.model_validate(t.info) for t in tickers.values()
-    ]
-    deltas = [
-        (
-            ((i.currentPrice - i.open) / i.currentPrice)
-            if i.currentPrice and i.open
-            else None
-        )
-        for i in infos
-    ]
+    infos: list[Info] = [Info.model_validate(t.info) for t in tickers.values()]
+    deltas = [(((i.currentPrice - i.open) / i.currentPrice) if i.currentPrice and i.open else None) for i in infos]
 
     quotes = [
         Quote(
             raw=raw,
             info=info,
-            icon_url=(
-                None
-                if info.website is None
-                else f"https://logo.clearbit.com/{info.website}"
-            ),
+            icon_url=(None if info.website is None else f"https://logo.clearbit.com/{info.website}"),
             today_change=today_change,
         )
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas)
@@ -189,10 +174,10 @@ def search_ticker(query: SearchQuery):
 @stocks_bp.post("/etoro_analysis", tags=[stocks_tag], responses={200: models.EtoroAnalysisResponse})
 @login_required
 def analyze_etoro_excel(form: EtoroForm):
-    etoro_upload_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
-    os.makedirs(etoro_upload_folder, exist_ok=True)
+    etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    etoro_upload_folder.makedirs(exist_ok=True)
     filename = secure_filename(form.file.filename)
-    file_path = os.path.join(etoro_upload_folder, filename)
+    file_path = Path(etoro_upload_folder) / filename
     form.file.save(file_path)
 
     return extract_closed_position(file_path, time_unit=form.precision)
@@ -201,21 +186,25 @@ def analyze_etoro_excel(form: EtoroForm):
 @stocks_bp.get("/etoro/reports", tags=[stocks_tag], responses={200: models.EtoroReportsResponse})
 @login_required
 def list_etoro_reports():
-    user_etoro_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
-    if not os.path.exists(user_etoro_folder):
+    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    if not Path.exists(user_etoro_folder):
         return EtoroReportsResponse(reports=[]).dict(), 200
 
-    reports = [f for f in os.listdir(user_etoro_folder) if os.path.isfile(os.path.join(user_etoro_folder, f))]
+    reports = [f for f in user_etoro_folder.iterdir() if (Path(user_etoro_folder) / f).exists()]
     return EtoroReportsResponse(reports=reports).dict(), 200
 
 
-@stocks_bp.get("/etoro_analysis_by_name", tags=[stocks_tag], responses={200: models.EtoroAnalysisResponse, 404: models.NotFoundResponse})
+@stocks_bp.get(
+    "/etoro_analysis_by_name",
+    tags=[stocks_tag],
+    responses={200: models.EtoroAnalysisResponse, 404: models.NotFoundResponse},
+)
 @login_required
 def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
-    user_etoro_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
-    file_path = os.path.join(user_etoro_folder, query.filename)
+    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    file_path = Path(user_etoro_folder) / query.filename
 
-    if not os.path.exists(file_path):
+    if not Path.exists(file_path):
         return NotFoundResponse().dict(), 404
 
     return extract_closed_position(file_path, time_unit=query.precision)

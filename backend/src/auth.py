@@ -42,8 +42,10 @@ def register(form: models.RegisterForm):
                     # Store relative path in DB
                     profile_picture_path = os.path.join(email, filename)
 
-            cursor.execute("INSERT INTO users (email, password, profile_picture) VALUES (?, ?, ?)",
-                           (email, hashed_password, profile_picture_path))
+            cursor.execute(
+                "INSERT INTO users (email, password, profile_picture) VALUES (?, ?, ?)",
+                (email, hashed_password, profile_picture_path),
+            )
             conn.commit()
         except sqlite3.IntegrityError:
             return {"error": "email already exists"}, 409
@@ -76,7 +78,11 @@ def logout():
     return {}, 200
 
 
-@auth_bp.post("/profile/picture", tags=[auth_tag], responses={200: models.ProfilePictureResponse, 400: models.NotFoundResponse, 500: models.NotFoundResponse})
+@auth_bp.post(
+    "/profile/picture",
+    tags=[auth_tag],
+    responses={200: models.ProfilePictureResponse, 400: models.NotFoundResponse, 500: models.NotFoundResponse},
+)
 @login_required
 def upload_profile_picture(form: models.ProfilePictureForm):
     file = form.profile_picture
@@ -92,10 +98,11 @@ def upload_profile_picture(form: models.ProfilePictureForm):
         profile_picture_path = os.path.join(current_user.email, filename)
         with sqlite3.connect("/database/database.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?",
-                           (profile_picture_path, current_user.id))
+            cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?", (profile_picture_path, current_user.id))
             conn.commit()
-        return models.ProfilePictureResponse(message="Profile picture updated successfully", profile_picture=profile_picture_path).dict(), 200
+        return models.ProfilePictureResponse(
+            message="Profile picture updated successfully", profile_picture=profile_picture_path
+        ).dict(), 200
     return models.NotFoundResponse(message="Something went wrong").dict(), 500
 
 

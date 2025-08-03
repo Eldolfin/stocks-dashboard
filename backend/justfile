@@ -1,2 +1,5 @@
 lint:
-    uv run ruff check --statistics --unsafe-fixes
+    uv run ruff check
+
+format:
+    uv run ruff format

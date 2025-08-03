@@ -376,6 +376,7 @@ class EtoroReportsResponse(BaseModel):
 #  AUTH MODELS  #
 #################
 
+
 class LoginBody(BaseModel):
     email: str
     password: str
