@@ -66,7 +66,7 @@ def login(body: models.LoginBody):
         if user and check_password_hash(user[2], body.password):
             user_obj = User(id=user[0], email=user[1], profile_picture=user[3])
             login_user(user_obj)
-            return (), 200
+            return {"result":"OK"}, 200
         return models.NotFoundResponse(message="Invalid credentials").dict(), 401
 
 

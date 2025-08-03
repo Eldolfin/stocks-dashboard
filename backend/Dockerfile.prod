@@ -2,13 +2,13 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN pip3 install waitress
+RUN pip install waitress
 
 COPY pyproject.toml .
-RUN pip install -e .
+RUN pip install .
 
 COPY . .
 
-CMD [ "waitress-serve", "--host", "0.0.0.0", "--port", "5000", "--call", "app:create_app" ]
+CMD [ "waitress-serve", "--host", "0.0.0.0", "--port", "5000", "--call", "src.app:create_app" ]
 
 HEALTHCHECK CMD curl -o /dev/null http://localhost:5000/openapi/openapi.json
