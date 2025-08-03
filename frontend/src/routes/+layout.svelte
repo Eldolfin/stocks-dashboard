@@ -1,9 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { client } from '$lib/typed-fetch-client';
-	import { goto, invalidate } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { baseUrl } from '../lib/typed-fetch-client';
+	import { invalidate } from '$app/navigation';
 
 	let { data, children } = $props();
 

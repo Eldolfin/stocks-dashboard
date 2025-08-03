@@ -32,10 +32,10 @@
 		class="my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
 	>
 		<HistoryChart
-			title={`Growth compare`}
+			title="Growth compare"
 			dataset={historyData.candles}
 			dates={historyData.dates}
-			color={'gray'}
+			color="gray"
 		/>
 	</div>
 	<div class="mb-8 flex flex-wrap justify-center gap-2">

@@ -2,6 +2,7 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	type Ticker = components['schemas']['Quote'];
 
@@ -28,7 +29,7 @@
 			return;
 		}
 		pendingRequest += 1;
-		const { data, error } = await client
+		const { data  } = await client
 			.GET('/api/search/', {
 				params: {
 					query: {
@@ -55,14 +56,11 @@
 		const target = e.target as HTMLInputElement;
 		const symbol = quote.raw.symbol;
 
-		// Create a new Set to trigger reactivity
-		const updated = new Set(comparedTickers);
 		if (target.checked) {
-			updated.add(symbol);
+			comparedTickers.add(symbol);
 		} else {
-			updated.delete(symbol);
+			comparedTickers.delete(symbol);
 		}
-		comparedTickers = updated; // <-- reassign to trigger Svelte reactivity
 	}
 </script>
 
@@ -85,7 +83,7 @@
 <!-- Stat Cards -->
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 	{#if searchResult !== undefined}
-		{#each searchResult as quote}
+		{#each searchResult as quote (quote.info.symbol)}
 			<div
 				class="flex h-full flex-col justify-between rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-5 shadow-lg transition hover:scale-[1.02]"
 			>
@@ -141,9 +139,7 @@
 					</a>
 					<button
 						onclick={() => {
-							const updated = new Set(comparedTickers);
-							updated.delete(quote.raw.symbol);
-							comparedTickers = updated;
+							comparedTickers.delete(quote.raw.symbol);
 						}}
 						class="text-gray-400 transition hover:text-white"
 					>

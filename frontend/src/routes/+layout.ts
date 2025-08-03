@@ -1,7 +1,7 @@
+import type { Load } from "@sveltejs/kit"
 import { client } from '$lib/typed-fetch-client';
-import type { components } from '../generated/api';
 
-export const load = async ({ depends, fetch }) => {
+export const load: Load = async ({ depends, fetch }) => {
 	depends('data:user_auth');
 	let isLoggedIn = false;
 	let userProfilePicture: string | null = null;

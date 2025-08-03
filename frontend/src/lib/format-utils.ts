@@ -1,5 +1,5 @@
 export function roundPrecision(value: number, precision: number) {
-	let factor = Math.pow(10, precision);
+	const factor = Math.pow(10, precision);
 	return Math.round(value * factor) / factor;
 }
 export function formatPercent(ratio: number | null) {

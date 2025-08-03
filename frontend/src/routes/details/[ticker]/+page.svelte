@@ -10,6 +10,7 @@
 		roundPrecision
 	} from '$lib/format-utils';
 	import type { components } from '../../../generated/api.js';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data } = $props();
 
@@ -79,7 +80,7 @@
 		}
 	];
 	const changeRange = (newValue: string) => {
-		let query = new URLSearchParams($page.url.searchParams.toString());
+		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
 
 		query.set('period', newValue);
 
