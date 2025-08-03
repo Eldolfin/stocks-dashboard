@@ -2,7 +2,7 @@
 
 import datetime as dt
 
-TIMEZONE = dt.timezone.utc
+TIMEZONE = dt.UTC
 INTERVALS = [
     "1m",
     "2m",

@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional
 
 from flask_openapi3.models import FileStorage
 from pydantic import BaseModel, Field
@@ -10,204 +9,204 @@ from pydantic import BaseModel, Field
 
 
 class AnalystPriceTargets(BaseModel):
-    current: Optional[float] = None
-    high: Optional[float] = None
-    low: Optional[float] = None
-    mean: Optional[float] = None
-    median: Optional[float] = None
+    current: float | None = None
+    high: float | None = None
+    low: float | None = None
+    mean: float | None = None
+    median: float | None = None
 
 
 class CompanyOfficer(BaseModel):
-    age: Optional[int] = None
+    age: int | None = None
     exercisedValue: int
-    fiscalYear: Optional[int] = None
+    fiscalYear: int | None = None
     maxAge: int
     name: str
     title: str
-    totalPay: Optional[int] = None
+    totalPay: int | None = None
     unexercisedValue: int
-    yearBorn: Optional[int] = None
+    yearBorn: int | None = None
 
 
 class Info(BaseModel):
-    field_52WeekChange: Optional[float] = Field(None, alias="52WeekChange")
-    SandP52WeekChange: Optional[float] = None
-    address1: Optional[str] = None
-    ask: Optional[float] = None
-    askSize: Optional[int] = None
-    auditRisk: Optional[int] = None
-    averageAnalystRating: Optional[str] = None
-    averageDailyVolume10Day: Optional[int] = None
-    averageDailyVolume3Month: Optional[int] = None
-    averageVolume: Optional[int] = None
-    averageVolume10days: Optional[int] = None
-    beta: Optional[float] = None
-    bid: Optional[float] = None
-    bidSize: Optional[int] = None
-    boardRisk: Optional[int] = None
-    bookValue: Optional[float] = None
-    city: Optional[str] = None
-    companyOfficers: Optional[list[CompanyOfficer]] = None
-    compensationAsOfEpochDate: Optional[int] = None
-    compensationRisk: Optional[int] = None
-    corporateActions: Optional[list] = None
-    country: Optional[str] = None
-    cryptoTradeable: Optional[bool] = None
-    currency: Optional[str] = None
-    currentPrice: Optional[float] = None
-    currentRatio: Optional[float] = None
-    customPriceAlertConfidence: Optional[str] = None
-    dateShortInterest: Optional[int] = None
-    dayHigh: Optional[float] = None
-    dayLow: Optional[float] = None
-    debtToEquity: Optional[float] = None
-    displayName: Optional[str] = None
-    dividendDate: Optional[int] = None
-    dividendRate: Optional[float] = None
-    dividendYield: Optional[float] = None
-    earningsCallTimestampEnd: Optional[int] = None
-    earningsCallTimestampStart: Optional[int] = None
-    earningsGrowth: Optional[float] = None
-    earningsQuarterlyGrowth: Optional[float] = None
-    earningsTimestamp: Optional[int] = None
-    earningsTimestampEnd: Optional[int] = None
-    earningsTimestampStart: Optional[int] = None
-    ebitda: Optional[int] = None
-    ebitdaMargins: Optional[float] = None
-    enterpriseToEbitda: Optional[float] = None
-    enterpriseToRevenue: Optional[float] = None
-    enterpriseValue: Optional[int] = None
-    epsCurrentYear: Optional[float] = None
-    epsForward: Optional[float] = None
-    epsTrailingTwelveMonths: Optional[float] = None
-    esgPopulated: Optional[bool] = None
-    exDividendDate: Optional[int] = None
-    exchange: Optional[str] = None
-    exchangeDataDelayedBy: Optional[int] = None
-    exchangeTimezoneName: Optional[str] = None
-    exchangeTimezoneShortName: Optional[str] = None
-    executiveTeam: Optional[list] = None
-    fiftyDayAverage: Optional[float] = None
-    fiftyDayAverageChange: Optional[float] = None
-    fiftyDayAverageChangePercent: Optional[float] = None
-    fiftyTwoWeekChangePercent: Optional[float] = None
-    fiftyTwoWeekHigh: Optional[float] = None
-    fiftyTwoWeekHighChange: Optional[float] = None
-    fiftyTwoWeekHighChangePercent: Optional[float] = None
-    fiftyTwoWeekLow: Optional[float] = None
-    fiftyTwoWeekLowChange: Optional[float] = None
-    fiftyTwoWeekLowChangePercent: Optional[float] = None
-    fiftyTwoWeekRange: Optional[str] = None
-    financialCurrency: Optional[str] = None
-    firstTradeDateMilliseconds: Optional[int] = None
-    fiveYearAvgDividendYield: Optional[float] = None
-    floatShares: Optional[float] = None
-    forwardEps: Optional[float] = None
-    forwardPE: Optional[float] = None
-    freeCashflow: Optional[float] = None
-    fullExchangeName: Optional[str] = None
-    fullTimeEmployees: Optional[int] = None
-    gmtOffSetMilliseconds: Optional[int] = None
-    governanceEpochDate: Optional[int] = None
-    grossMargins: Optional[float] = None
-    grossProfits: Optional[float] = None
-    hasPrePostMarketData: Optional[bool] = None
-    heldPercentInsiders: Optional[float] = None
-    heldPercentInstitutions: Optional[float] = None
-    impliedSharesOutstanding: Optional[int] = None
-    industry: Optional[str] = None
-    industryDisp: Optional[str] = None
-    industryKey: Optional[str] = None
-    irWebsite: Optional[str] = None
-    isEarningsDateEstimate: Optional[bool] = None
-    language: Optional[str] = None
-    lastDividendDate: Optional[int] = None
-    lastDividendValue: Optional[float] = None
-    lastFiscalYearEnd: Optional[int] = None
-    lastSplitDate: Optional[int] = None
-    lastSplitFactor: Optional[str] = None
-    longBusinessSummary: Optional[str] = None
-    longName: Optional[str] = None
-    market: Optional[str] = None
-    marketCap: Optional[float] = None
-    marketState: Optional[str] = None
-    maxAge: Optional[int] = None
-    messageBoardId: Optional[str] = None
-    mostRecentQuarter: Optional[int] = None
-    netIncomeToCommon: Optional[int] = None
-    nextFiscalYearEnd: Optional[int] = None
-    numberOfAnalystOpinions: Optional[int] = None
-    open: Optional[float] = None
-    operatingCashflow: Optional[int] = None
-    operatingMargins: Optional[float] = None
-    overallRisk: Optional[int] = None
-    payoutRatio: Optional[float] = None
-    phone: Optional[str] = None
-    previousClose: Optional[float] = None
-    priceEpsCurrentYear: Optional[float] = None
-    priceHint: Optional[float] = None
-    priceToBook: Optional[float] = None
-    priceToSalesTrailing12Months: Optional[float] = None
-    profitMargins: Optional[float] = None
-    quickRatio: Optional[float] = None
-    quoteSourceName: Optional[str] = None
-    quoteType: Optional[str] = None
-    recommendationKey: Optional[str] = None
-    recommendationMean: Optional[float] = None
-    region: Optional[str] = None
-    regularMarketChange: Optional[float] = None
-    regularMarketChangePercent: Optional[float] = None
-    regularMarketDayHigh: Optional[float] = None
-    regularMarketDayLow: Optional[float] = None
-    regularMarketDayRange: Optional[str] = None
-    regularMarketOpen: Optional[float] = None
-    regularMarketPreviousClose: Optional[float] = None
-    regularMarketPrice: Optional[float] = None
-    regularMarketTime: Optional[int] = None
-    regularMarketVolume: Optional[int] = None
-    returnOnAssets: Optional[float] = None
-    returnOnEquity: Optional[float] = None
-    revenueGrowth: Optional[float] = None
-    revenuePerShare: Optional[float] = None
-    sector: Optional[str] = None
-    sectorDisp: Optional[str] = None
-    sectorKey: Optional[str] = None
-    shareHolderRightsRisk: Optional[int] = None
-    sharesOutstanding: Optional[int] = None
-    sharesPercentSharesOut: Optional[float] = None
-    sharesShort: Optional[int] = None
-    sharesShortPreviousMonthDate: Optional[int] = None
-    sharesShortPriorMonth: Optional[int] = None
-    shortName: Optional[str] = None
-    shortPercentOfFloat: Optional[float] = None
-    shortRatio: Optional[float] = None
-    sourceInterval: Optional[int] = None
-    state: Optional[str] = None
-    symbol: Optional[str] = None
-    targetHighPrice: Optional[float] = None
-    targetLowPrice: Optional[float] = None
-    targetMeanPrice: Optional[float] = None
-    targetMedianPrice: Optional[float] = None
-    totalCash: Optional[int] = None
-    totalCashPerShare: Optional[float] = None
-    totalDebt: Optional[int] = None
-    totalRevenue: Optional[int] = None
-    tradeable: Optional[bool] = None
-    trailingAnnualDividendRate: Optional[float] = None
-    trailingAnnualDividendYield: Optional[float] = None
-    trailingEps: Optional[float] = None
-    trailingPE: Optional[float] = None
-    trailingPegRatio: Optional[float]
-    triggerable: Optional[bool] = None
-    twoHundredDayAverage: Optional[float] = None
-    twoHundredDayAverageChange: Optional[float] = None
-    twoHundredDayAverageChangePercent: Optional[float] = None
-    typeDisp: Optional[str] = None
-    volume: Optional[int] = None
-    website: Optional[str] = None
-    zip: Optional[str] = None
-    fax: Optional[str] = None
-    underlyingSymbol: Optional[str] = None
+    field_52WeekChange: float | None = Field(None, alias="52WeekChange")
+    SandP52WeekChange: float | None = None
+    address1: str | None = None
+    ask: float | None = None
+    askSize: int | None = None
+    auditRisk: int | None = None
+    averageAnalystRating: str | None = None
+    averageDailyVolume10Day: int | None = None
+    averageDailyVolume3Month: int | None = None
+    averageVolume: int | None = None
+    averageVolume10days: int | None = None
+    beta: float | None = None
+    bid: float | None = None
+    bidSize: int | None = None
+    boardRisk: int | None = None
+    bookValue: float | None = None
+    city: str | None = None
+    companyOfficers: list[CompanyOfficer] | None = None
+    compensationAsOfEpochDate: int | None = None
+    compensationRisk: int | None = None
+    corporateActions: list | None = None
+    country: str | None = None
+    cryptoTradeable: bool | None = None
+    currency: str | None = None
+    currentPrice: float | None = None
+    currentRatio: float | None = None
+    customPriceAlertConfidence: str | None = None
+    dateShortInterest: int | None = None
+    dayHigh: float | None = None
+    dayLow: float | None = None
+    debtToEquity: float | None = None
+    displayName: str | None = None
+    dividendDate: int | None = None
+    dividendRate: float | None = None
+    dividendYield: float | None = None
+    earningsCallTimestampEnd: int | None = None
+    earningsCallTimestampStart: int | None = None
+    earningsGrowth: float | None = None
+    earningsQuarterlyGrowth: float | None = None
+    earningsTimestamp: int | None = None
+    earningsTimestampEnd: int | None = None
+    earningsTimestampStart: int | None = None
+    ebitda: int | None = None
+    ebitdaMargins: float | None = None
+    enterpriseToEbitda: float | None = None
+    enterpriseToRevenue: float | None = None
+    enterpriseValue: int | None = None
+    epsCurrentYear: float | None = None
+    epsForward: float | None = None
+    epsTrailingTwelveMonths: float | None = None
+    esgPopulated: bool | None = None
+    exDividendDate: int | None = None
+    exchange: str | None = None
+    exchangeDataDelayedBy: int | None = None
+    exchangeTimezoneName: str | None = None
+    exchangeTimezoneShortName: str | None = None
+    executiveTeam: list | None = None
+    fiftyDayAverage: float | None = None
+    fiftyDayAverageChange: float | None = None
+    fiftyDayAverageChangePercent: float | None = None
+    fiftyTwoWeekChangePercent: float | None = None
+    fiftyTwoWeekHigh: float | None = None
+    fiftyTwoWeekHighChange: float | None = None
+    fiftyTwoWeekHighChangePercent: float | None = None
+    fiftyTwoWeekLow: float | None = None
+    fiftyTwoWeekLowChange: float | None = None
+    fiftyTwoWeekLowChangePercent: float | None = None
+    fiftyTwoWeekRange: str | None = None
+    financialCurrency: str | None = None
+    firstTradeDateMilliseconds: int | None = None
+    fiveYearAvgDividendYield: float | None = None
+    floatShares: float | None = None
+    forwardEps: float | None = None
+    forwardPE: float | None = None
+    freeCashflow: float | None = None
+    fullExchangeName: str | None = None
+    fullTimeEmployees: int | None = None
+    gmtOffSetMilliseconds: int | None = None
+    governanceEpochDate: int | None = None
+    grossMargins: float | None = None
+    grossProfits: float | None = None
+    hasPrePostMarketData: bool | None = None
+    heldPercentInsiders: float | None = None
+    heldPercentInstitutions: float | None = None
+    impliedSharesOutstanding: int | None = None
+    industry: str | None = None
+    industryDisp: str | None = None
+    industryKey: str | None = None
+    irWebsite: str | None = None
+    isEarningsDateEstimate: bool | None = None
+    language: str | None = None
+    lastDividendDate: int | None = None
+    lastDividendValue: float | None = None
+    lastFiscalYearEnd: int | None = None
+    lastSplitDate: int | None = None
+    lastSplitFactor: str | None = None
+    longBusinessSummary: str | None = None
+    longName: str | None = None
+    market: str | None = None
+    marketCap: float | None = None
+    marketState: str | None = None
+    maxAge: int | None = None
+    messageBoardId: str | None = None
+    mostRecentQuarter: int | None = None
+    netIncomeToCommon: int | None = None
+    nextFiscalYearEnd: int | None = None
+    numberOfAnalystOpinions: int | None = None
+    open: float | None = None
+    operatingCashflow: int | None = None
+    operatingMargins: float | None = None
+    overallRisk: int | None = None
+    payoutRatio: float | None = None
+    phone: str | None = None
+    previousClose: float | None = None
+    priceEpsCurrentYear: float | None = None
+    priceHint: float | None = None
+    priceToBook: float | None = None
+    priceToSalesTrailing12Months: float | None = None
+    profitMargins: float | None = None
+    quickRatio: float | None = None
+    quoteSourceName: str | None = None
+    quoteType: str | None = None
+    recommendationKey: str | None = None
+    recommendationMean: float | None = None
+    region: str | None = None
+    regularMarketChange: float | None = None
+    regularMarketChangePercent: float | None = None
+    regularMarketDayHigh: float | None = None
+    regularMarketDayLow: float | None = None
+    regularMarketDayRange: str | None = None
+    regularMarketOpen: float | None = None
+    regularMarketPreviousClose: float | None = None
+    regularMarketPrice: float | None = None
+    regularMarketTime: int | None = None
+    regularMarketVolume: int | None = None
+    returnOnAssets: float | None = None
+    returnOnEquity: float | None = None
+    revenueGrowth: float | None = None
+    revenuePerShare: float | None = None
+    sector: str | None = None
+    sectorDisp: str | None = None
+    sectorKey: str | None = None
+    shareHolderRightsRisk: int | None = None
+    sharesOutstanding: int | None = None
+    sharesPercentSharesOut: float | None = None
+    sharesShort: int | None = None
+    sharesShortPreviousMonthDate: int | None = None
+    sharesShortPriorMonth: int | None = None
+    shortName: str | None = None
+    shortPercentOfFloat: float | None = None
+    shortRatio: float | None = None
+    sourceInterval: int | None = None
+    state: str | None = None
+    symbol: str | None = None
+    targetHighPrice: float | None = None
+    targetLowPrice: float | None = None
+    targetMeanPrice: float | None = None
+    targetMedianPrice: float | None = None
+    totalCash: int | None = None
+    totalCashPerShare: float | None = None
+    totalDebt: int | None = None
+    totalRevenue: int | None = None
+    tradeable: bool | None = None
+    trailingAnnualDividendRate: float | None = None
+    trailingAnnualDividendYield: float | None = None
+    trailingEps: float | None = None
+    trailingPE: float | None = None
+    trailingPegRatio: float | None
+    triggerable: bool | None = None
+    twoHundredDayAverage: float | None = None
+    twoHundredDayAverageChange: float | None = None
+    twoHundredDayAverageChangePercent: float | None = None
+    typeDisp: str | None = None
+    volume: int | None = None
+    website: str | None = None
+    zip: str | None = None
+    fax: str | None = None
+    underlyingSymbol: str | None = None
 
 
 class KPIQuery(BaseModel):
@@ -220,10 +219,10 @@ class MainKPIs(BaseModel):
 
 
 class KPIResponse(BaseModel):
-    analyst_price_targets: Optional[AnalystPriceTargets] = None
+    analyst_price_targets: AnalystPriceTargets | None = None
     info: Info
     query: KPIQuery
-    main: Optional[MainKPIs] = None
+    main: MainKPIs | None = None
 
 
 ##################
@@ -248,27 +247,27 @@ class News(BaseModel):
     link: str
     providerPublishTime: int
     publisher: str
-    thumbnail: Optional[Thumbnail] = None
+    thumbnail: Thumbnail | None = None
     title: str
     type: str
     uuid: str
-    relatedTickers: Optional[list[str]] = None
+    relatedTickers: list[str] | None = None
 
 
 class RawQuote(BaseModel):
-    dispSecIndFlag: Optional[bool] = None
+    dispSecIndFlag: bool | None = None
     exchDisp: str
     exchange: str
     index: str
-    industry: Optional[str] = None
-    industryDisp: Optional[str] = None
+    industry: str | None = None
+    industryDisp: str | None = None
     isYahooFinance: bool
-    longname: Optional[str] = None
+    longname: str | None = None
     quoteType: str
     score: int
-    sector: Optional[str] = None
-    sectorDisp: Optional[str] = None
-    shortname: Optional[str] = None
+    sector: str | None = None
+    sectorDisp: str | None = None
+    shortname: str | None = None
     symbol: str
     typeDisp: str
 
@@ -276,9 +275,9 @@ class RawQuote(BaseModel):
 class Quote(BaseModel):
     raw: RawQuote
     info: Info
-    icon_url: Optional[str] = None
+    icon_url: str | None = None
     # Change % for since open
-    today_change: Optional[float] = None
+    today_change: float | None = None
 
 
 class SearchResponse(BaseModel):
@@ -308,7 +307,7 @@ class CompareGrowthResponse(BaseModel):
 class TickerQuery(BaseModel):
     ticker_name: str
     # defaults to "auto"
-    interval: Optional[str] = None
+    interval: str | None = None
     period: str = "ytd"  # FIXME: this is not specific enough
 
 
@@ -377,13 +376,13 @@ class LoginBody(BaseModel):
 class RegisterForm(BaseModel):
     email: str
     password: str
-    profile_picture: Optional[FileStorage] = None
+    profile_picture: FileStorage | None = None
 
 
 class RegisterResponse(BaseModel):
     id: int
     email: str
-    profile_picture: Optional[str] = None
+    profile_picture: str | None = None
 
 
 ####################
@@ -409,4 +408,4 @@ class ProfilePicturePathParams(BaseModel):
 
 class UserResponse(BaseModel):
     email: str
-    profile_picture: Optional[str] = None
+    profile_picture: str | None = None
