@@ -286,14 +286,6 @@ class SearchResponse(BaseModel):
     query: SearchQuery
 
 
-class Quote(BaseModel):
-    raw: RawQuote
-    info: Info
-    icon_url: Optional[str] = None
-    # Change % for since open
-    today_change: Optional[float] = None
-
-
 ##########################
 #  COMPARE GROWTH QUERY  #
 ##########################

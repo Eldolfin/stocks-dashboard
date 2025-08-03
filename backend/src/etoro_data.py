@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -5,7 +7,7 @@ def column_date_to_timestamp(column: pd.Series) -> pd.Series:
     return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
-def extract_closed_position(etoro_statement_file: str, time_unit: str = "m") -> dict[str, list[str]]:
+def extract_closed_position(etoro_statement_file: Path, time_unit: str = "m") -> dict[str, list[str]]:
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
     closed_positions_df = excel["Closed Positions"]
     closed_positions_df["Close Date"] = column_date_to_timestamp(
@@ -31,5 +33,4 @@ def extract_closed_position(etoro_statement_file: str, time_unit: str = "m") -> 
     gains["close_date"] = gains["close_date"].dt.to_timestamp()
     gains["close_date"] = gains["close_date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
 
-    gains = {column: gains[column].tolist() for column in gains.columns}
-    return gains
+    return {column: gains[column].tolist() for column in gains.columns}

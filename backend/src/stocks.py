@@ -9,9 +9,10 @@ from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
 from werkzeug.utils import secure_filename
 
-from etoro_data import extract_closed_position
-from intervals import duration_to_interval, interval_to_duration, now
-from models import (
+from . import models
+from .etoro_data import extract_closed_position
+from .intervals import duration_to_interval, interval_to_duration, now
+from .models import (
     CompareGrowthQuery,
     CompareGrowthResponse,
     EtoroForm,
@@ -28,8 +29,6 @@ from models import (
     TickerQuery,
     TickerResponse,
 )
-
-from . import models
 
 stocks_bp = APIBlueprint("stocks", __name__, url_prefix="/api")
 cache = Cache()
@@ -175,8 +174,10 @@ def search_ticker(query: SearchQuery):
 @stocks_bp.post("/etoro_analysis", tags=[stocks_tag], responses={200: models.EtoroAnalysisResponse})
 @login_required
 def analyze_etoro_excel(form: EtoroForm):
+    if form.file.filename is None:
+        return {"error": "profile picture should have a filename"}, 401
     etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
-    etoro_upload_folder.makedirs(exist_ok=True)
+    etoro_upload_folder.mkdir(exist_ok=True)
     filename = secure_filename(form.file.filename)
     file_path = Path(etoro_upload_folder) / filename
     form.file.save(file_path)

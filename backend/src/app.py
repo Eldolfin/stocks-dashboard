@@ -6,9 +6,9 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_openapi3 import Info, OpenAPI
 
-from auth import UPLOAD_FOLDER, auth_bp
-from stocks import cache, stocks_bp
-from user import User
+from .auth import UPLOAD_FOLDER, auth_bp
+from .stocks import cache, stocks_bp
+from .user import User
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
@@ -42,7 +42,7 @@ UPLOAD_FOLDER.mkdir(parents=True)
 
 
 @login_manager.user_loader
-def load_user(user_id: str) -> User:
+def load_user(user_id: str) -> User | None:
     with sqlite3.connect("/database/database.db") as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))

@@ -9,8 +9,8 @@ from flask_openapi3 import APIBlueprint, Tag
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from src import models
-from src.user import User
+from . import models
+from .user import User
 
 UPLOAD_FOLDER = Path("/database/profile_pictures")
 
@@ -35,14 +35,17 @@ def register(form: models.RegisterForm):
 
             if form.profile_picture:
                 file = form.profile_picture
+                if file.filename is None:
+                    return {"error": "profile picture should have a filename"}, 401
+
                 if file.filename != "":
                     user_upload_folder = UPLOAD_FOLDER / email
-                    user_upload_folder.makedirs(exist_ok=True)
+                    user_upload_folder.mkdir(exist_ok=True)
                     filename = secure_filename(file.filename)
                     profile_picture_path = user_upload_folder / filename
                     file.save(profile_picture_path)
                     # Store relative path in DB
-                    profile_picture_path = email / filename
+                    profile_picture_path = Path(email) / filename
 
             cursor.execute(
                 "INSERT INTO users (email, password, profile_picture) VALUES (?, ?, ?)",
@@ -63,7 +66,7 @@ def login(body: models.LoginBody):
         if user and check_password_hash(user[2], body.password):
             user_obj = User(id=user[0], email=user[1], profile_picture=user[3])
             login_user(user_obj)
-            return models.LoginResponse(email=user_obj.email, profile_picture=user_obj.profile_picture).dict(), 200
+            return (), 200
         return models.NotFoundResponse(message="Invalid credentials").dict(), 401
 
 
@@ -91,8 +94,10 @@ def upload_profile_picture(form: models.ProfilePictureForm):
     if file.filename == "":
         return {"error": "No selected file"}, 400
     if file:
+        if file.filename is None:
+            return {"error": "profile picture should have a filename"}, 401
         user_upload_folder = UPLOAD_FOLDER / current_user.email
-        user_upload_folder.makedirs(exist_ok=True)
+        user_upload_folder.mkdir(exist_ok=True)
         filename = secure_filename(file.filename)
         profile_picture_path = user_upload_folder / filename
         file.save(profile_picture_path)
