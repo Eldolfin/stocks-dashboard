@@ -2,7 +2,7 @@
 name = "finance_dashboard_api"
 version = "1.0.0"
 description = "Api for a simple finance dashboard"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "yfinance",
     "flask",
@@ -18,7 +18,13 @@ dependencies = [
 dev = [
     "mypy>=1.17.1",
     "pandas-stubs>=2.3.0.250703",
-    "python-lsp-server[mypy]>=1.13.0",
+    "pylsp-mypy>=0.7.0",
+    "python-lsp-server>=1.13.0",
     "ruff>=0.12.7",
     "types-flask-cors>=6.0.0.20250520",
 ]
+
+[tool.pylsp-mypy]
+enabled = true
+live_mode = true
+strict = true
