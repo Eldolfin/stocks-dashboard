@@ -2,6 +2,11 @@ name: 'finance-dashboard-dev'
 services:
   backend:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     volumes:
       - ../backend:/app:ro
+  frontend:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ../frontend:/app

@@ -3,9 +3,11 @@ import type { paths } from '../generated/api';
 import { browser, dev } from '$app/environment';
 
 export let baseUrl: string = '';
-if (dev) {
+if (dev && browser) {
 	baseUrl = 'http://localhost:5000';
-} else if (browser) {
+} else if (dev && !browser) {
+	baseUrl = "http://backend:5000";
+} else if (browser && !dev) {
 	baseUrl = '/api';
 } else {
 	baseUrl = browser ? '/' : 'http://caddy/api';

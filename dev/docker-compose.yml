@@ -14,10 +14,15 @@ services:
       BACKEND_AUTH_SECRET_KEY: ${BACKEND_AUTH_SECRET_KEY}
   frontend:
     image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
-    build: ../frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.prod
     container_name: frontend
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      backend:
+        condition: service_healthy
   caddy:
     image: caddy:2.9-alpine
     depends_on:
