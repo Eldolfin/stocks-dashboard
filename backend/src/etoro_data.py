@@ -34,3 +34,34 @@ def extract_closed_position(etoro_statement_file: Path, time_unit: str = "m") ->
     gains["close_date"] = gains["close_date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
 
     return {column: gains[column].tolist() for column in gains.columns}
+
+
+def extract_net_worth(etoro_statement_file: Path, time_unit: str = "D") -> dict[str, list[str]]:
+    """Extract net worth over time from Account Activity sheet."""
+    excel = pd.read_excel(etoro_statement_file, sheet_name=None)
+    account_activity_df = excel["Account Activity"]
+    
+    # Convert date column to datetime
+    account_activity_df["Date"] = column_date_to_timestamp(account_activity_df["Date"])
+    
+    # Sort by date to ensure chronological order
+    account_activity_df = account_activity_df.sort_values("Date")
+    
+    # Group by time period and take the last balance of each period
+    # This gives us the net worth at the end of each time period
+    net_worth_df = (
+        account_activity_df.groupby(account_activity_df["Date"].dt.to_period(time_unit))
+        .agg(
+            net_worth=("Balance", "last"),  # Take the last balance for each period
+        )
+        .reset_index()
+    )
+    
+    # Convert period back to timestamp and format as string
+    net_worth_df["Date"] = net_worth_df["Date"].dt.to_timestamp()
+    net_worth_df["date"] = net_worth_df["Date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
+    
+    return {
+        "date": net_worth_df["date"].tolist(),
+        "net_worth": net_worth_df["net_worth"].tolist(),
+    }

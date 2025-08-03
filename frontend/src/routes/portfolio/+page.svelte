@@ -2,11 +2,16 @@
 	import { client } from '../../lib/typed-fetch-client';
 	import type { components } from '../../generated/api.js';
 	import BarChart from '$lib/components/BarChart.svelte';
+	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import { onMount } from 'svelte'; // Import onMount
 
 	type EtoroData = components['schemas']['EtoroAnalysisResponse'];
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
+	type NetWorthData = {
+		date: string[];
+		net_worth: number[];
+	};
 
 	const precision_values: Array<[string, Precision]> = [
 		['Year', 'Y'],
@@ -17,6 +22,7 @@
 	let files: FileList | undefined = $state(undefined);
 	let error: string | undefined = $state(undefined);
 	let data: EtoroData | undefined = $state(undefined);
+	let netWorthData: NetWorthData | undefined = $state(undefined);
 	let precision_index: number = $state(1); // 'M'
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
@@ -42,6 +48,49 @@
 		fetchUploadedReports();
 	});
 
+	// Function to fetch net worth data for uploaded file
+	async function fetchNetWorth(file: File, precision: Precision) {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('precision', precision);
+		
+		try {
+			const response = await fetch('/api/etoro_net_worth', {
+				method: 'POST',
+				body: formData
+			});
+			
+			if (response.ok) {
+				return await response.json();
+			} else {
+				console.error('Failed to fetch net worth data');
+				return null;
+			}
+		} catch (err) {
+			console.error('Error fetching net worth data:', err);
+			return null;
+		}
+	}
+
+	// Function to fetch net worth data by filename
+	async function fetchNetWorthByName(filename: string, precision: Precision) {
+		try {
+			const response = await fetch(`/api/etoro_net_worth_by_name?filename=${encodeURIComponent(filename)}&precision=${precision}`, {
+				method: 'GET'
+			});
+			
+			if (response.ok) {
+				return await response.json();
+			} else {
+				console.error('Failed to fetch net worth data by name');
+				return null;
+			}
+		} catch (err) {
+			console.error('Error fetching net worth data by name:', err);
+			return null;
+		}
+	}
+
 	$effect(() => {
 		(async () => {
 			if (files) {
@@ -58,6 +107,12 @@
 					error = undefined;
 					// After successful upload, refresh the list of reports
 					await fetchUploadedReports();
+					
+					// Also fetch net worth data
+					const netWorth = await fetchNetWorth(files[0], precision_values[precision_index][1]);
+					if (netWorth) {
+						netWorthData = netWorth;
+					}
 				} else {
 					error = 'Failed to refetch data';
 				}
@@ -83,22 +138,80 @@
 		} else if (res.data) {
 			data = res.data;
 			error = undefined;
+			
+			// Also fetch net worth data for the selected report
+			const netWorth = await fetchNetWorthByName(reportName, precision_values[precision_index][1]);
+			if (netWorth) {
+				netWorthData = netWorth;
+			}
 		}
 		loading = false;
+	}
+
+	// Watch for precision changes and update both charts
+	let lastSelectedReport: string | null = null;
+	$effect(() => {
+		(async () => {
+			if (data && precision_index !== undefined) {
+				// If we have a file uploaded or selected report, re-fetch data with new precision
+				if (files && files[0]) {
+					const formData = new FormData();
+					formData.append('file', files[0]);
+					formData.append('precision', precision_values[precision_index][1]);
+					
+					const res = await client.POST('/api/etoro_analysis', {
+						body: formData as unknown as EtoroForm
+					});
+					
+					if (res.data) {
+						data = res.data;
+						const netWorth = await fetchNetWorth(files[0], precision_values[precision_index][1]);
+						if (netWorth) {
+							netWorthData = netWorth;
+						}
+					}
+				} else if (lastSelectedReport) {
+					// Re-analyze the last selected report with new precision
+					reAnalyzeReport(lastSelectedReport);
+				}
+			}
+		})();
+	});
+
+	// Update last selected report tracker
+	function selectReport(reportName: string) {
+		lastSelectedReport = reportName;
+		reAnalyzeReport(reportName);
 	}
 </script>
 
 <div class="p-8">
 	{#if data !== undefined}
-		<div class="flex justify-center">
-			<BarChart
-				dataset={new Map([
-					['profit (USD)', new Array(...data.profit_usd)],
-					['closed trades', new Array(...data.closed_trades)]
-				])}
-				dates={data.close_date}
-			/>
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+			<!-- Net Worth Chart -->
+			{#if netWorthData !== undefined}
+				<div class="flex justify-center">
+					<HistoryChart
+						title="Net Worth Over Time"
+						dataset={{ 'Net Worth ($)': netWorthData.net_worth }}
+						dates={netWorthData.date}
+						color="#00ff88"
+					/>
+				</div>
+			{/if}
+			
+			<!-- Profit Chart -->
+			<div class="flex justify-center">
+				<BarChart
+					dataset={new Map([
+						['profit (USD)', new Array(...data.profit_usd)],
+						['closed trades', new Array(...data.closed_trades)]
+					])}
+					dates={data.close_date}
+				/>
+			</div>
 		</div>
+		
 		<div class="mt-4 flex flex-col items-center">
 			<label for="precision-range" class="mb-2 block text-white"
 				>{precision_values[precision_index][0]}</label
@@ -154,7 +267,7 @@
 			<ul class="list-inside list-disc text-white">
 				{#each uploadedReports as report (report)}
 					<li>
-						<button onclick={() => reAnalyzeReport(report)} class="text-blue-400 hover:underline">
+						<button onclick={() => selectReport(report)} class="text-blue-400 hover:underline">
 							{report}
 						</button>
 					</li>

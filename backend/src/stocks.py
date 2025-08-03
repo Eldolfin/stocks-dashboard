@@ -10,7 +10,7 @@ from flask_openapi3 import APIBlueprint, Tag
 from werkzeug.utils import secure_filename
 
 from . import models
-from .etoro_data import extract_closed_position
+from .etoro_data import extract_closed_position, extract_net_worth
 from .intervals import duration_to_interval, interval_to_duration, now
 from .models import (
     CompareGrowthQuery,
@@ -21,6 +21,7 @@ from .models import (
     KPIQuery,
     KPIResponse,
     MainKPIs,
+    NetWorthResponse,
     NotFoundResponse,
     Quote,
     RawQuote,
@@ -206,3 +207,35 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
         return NotFoundResponse().dict(), 404
 
     return extract_closed_position(file_path, time_unit=query.precision)
+
+
+@stocks_bp.post("/etoro_net_worth", tags=[stocks_tag], responses={200: models.NetWorthResponse})
+@login_required
+def analyze_etoro_net_worth(form: EtoroForm):
+    """Extract net worth over time from Account Activity sheet."""
+    if isinstance(form.file, str) or form.file.filename is None:
+        return {"error": "Sheet has no filename (this happened on page reload right?)"}, 401
+    etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    etoro_upload_folder.mkdir(exist_ok=True, parents=True)
+    filename = secure_filename(form.file.filename)
+    file_path = Path(etoro_upload_folder) / filename
+    form.file.save(file_path)
+
+    return extract_net_worth(file_path, time_unit=form.precision)
+
+
+@stocks_bp.get(
+    "/etoro_net_worth_by_name",
+    tags=[stocks_tag],
+    responses={200: models.NetWorthResponse, 404: models.NotFoundResponse},
+)
+@login_required
+def analyze_etoro_net_worth_by_name(query: models.EtoroAnalysisByNameQuery):
+    """Extract net worth over time from saved Excel file."""
+    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / current_user.email
+    file_path = Path(user_etoro_folder) / query.filename
+
+    if not Path.exists(file_path):
+        return NotFoundResponse().dict(), 404
+
+    return extract_net_worth(file_path, time_unit=query.precision)

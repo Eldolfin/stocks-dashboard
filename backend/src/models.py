@@ -363,6 +363,11 @@ class EtoroReportsResponse(BaseModel):
     reports: list[str]
 
 
+class NetWorthResponse(BaseModel):
+    date: list[str]
+    net_worth: list[float]
+
+
 #################
 #  AUTH MODELS  #
 #################
