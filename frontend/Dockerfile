@@ -21,3 +21,5 @@ EXPOSE 3000
 ENV NODE_ENV=production
 
 CMD [ "node", "build/" ]
+
+HEALTHCHECK CMD curl -o /dev/null localhost:5173
