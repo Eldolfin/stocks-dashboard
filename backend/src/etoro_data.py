@@ -1,5 +1,4 @@
 import pandas as pd
-from io import BytesIO
 
 
 def column_date_to_timestamp(column: pd.Series) -> pd.Series:
@@ -10,10 +9,10 @@ def extract_closed_position(etoro_statement_file: str, time_unit="m"):
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
     closed_positions_df = excel["Closed Positions"]
     closed_positions_df["Close Date"] = column_date_to_timestamp(
-        closed_positions_df["Close Date"]
+        closed_positions_df["Close Date"],
     )
     closed_positions_df["Open Date"] = column_date_to_timestamp(
-        closed_positions_df["Open Date"]
+        closed_positions_df["Open Date"],
     )
     gains_graphs_columns = {
         "Close Date": "close_date",

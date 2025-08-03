@@ -1,34 +1,36 @@
-from flask_openapi3 import APIBlueprint, Tag
-from flask_login import login_required, current_user
-from flask_caching import Cache
-from flask import current_app
 import os
-from werkzeug.utils import secure_filename
-import yfinance as yf
+from datetime import datetime
 from typing import List
+
+import yfinance as yf
+from flask import current_app
+from flask_caching import Cache
+from flask_login import current_user, login_required
+from flask_openapi3 import APIBlueprint, Tag
+from werkzeug.utils import secure_filename
+
 from src import models
+from src.etoro_data import extract_closed_position
+from src.intervals import duration_to_interval, interval_to_duration
 from src.models import (
-    TickerResponse,
-    TickerQuery,
-    SearchResponse,
-    SearchQuery,
-    KPIResponse,
-    KPIQuery,
-    Quote,
-    RawQuote,
-    MainKPIs,
-    NotFoundResponse,
     CompareGrowthQuery,
     CompareGrowthResponse,
     EtoroForm,
     EtoroReportsResponse,
-    Info
+    Info,
+    KPIQuery,
+    KPIResponse,
+    MainKPIs,
+    NotFoundResponse,
+    Quote,
+    RawQuote,
+    SearchQuery,
+    SearchResponse,
+    TickerQuery,
+    TickerResponse,
 )
-from src.intervals import interval_to_duration, duration_to_interval
-from datetime import datetime
-from src.etoro_data import extract_closed_position
 
-stocks_bp = APIBlueprint('stocks', __name__, url_prefix='/api')
+stocks_bp = APIBlueprint("stocks", __name__, url_prefix="/api")
 cache = Cache()
 
 stocks_tag = Tag(name="stocks", description="Stocks data endpoints")
@@ -53,11 +55,11 @@ def get_ticker(query: TickerQuery):
         dat = yf.Ticker(query.ticker_name)
         if query.period == "max":
             history = dat.history(
-                period="max", interval=query.interval
+                period="max", interval=query.interval,
             ).reset_index()
         else:
             history = dat.history(
-                start=start, interval=query.interval
+                start=start, interval=query.interval,
             ).reset_index()
     except Exception:
         return NotFoundResponse().dict(), 404
@@ -90,7 +92,7 @@ def get_ticker(query: TickerQuery):
 
     return (
         TickerResponse(
-            dates=dates, candles=candles, query=query, delta=delta, smas=smas
+            dates=dates, candles=candles, query=query, delta=delta, smas=smas,
         ).dict(),
         200,
     )
@@ -152,7 +154,7 @@ def get_kpis(query: KPIQuery):
 @cache.memoize()
 def search_ticker(query: SearchQuery):
     raw_quotes: List[RawQuote] = list(
-        map(RawQuote.model_validate, yf.Search(query.query).quotes)
+        map(RawQuote.model_validate, yf.Search(query.query).quotes),
     )
     quotes_names = list(quote.symbol for quote in raw_quotes)
     tickers = yf.Tickers(quotes_names).tickers
@@ -204,7 +206,7 @@ def list_etoro_reports():
     user_etoro_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], current_user.email)
     if not os.path.exists(user_etoro_folder):
         return EtoroReportsResponse(reports=[]).dict(), 200
-    
+
     reports = [f for f in os.listdir(user_etoro_folder) if os.path.isfile(os.path.join(user_etoro_folder, f))]
     return EtoroReportsResponse(reports=reports).dict(), 200
 

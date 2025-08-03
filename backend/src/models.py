@@ -1,7 +1,8 @@
-from typing import List, Optional, Dict, Union, Literal
-from pydantic import BaseModel, Field
-from flask_openapi3.models import FileStorage
 from enum import Enum
+from typing import Dict, List, Optional
+
+from flask_openapi3.models import FileStorage
+from pydantic import BaseModel, Field
 
 ###############
 #  KPI QUERY  #

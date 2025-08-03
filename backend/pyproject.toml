@@ -12,3 +12,8 @@ dependencies = [
     "flask-caching>=2.3.1",
     "flask-login>=0.6.3",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.7",
+]
