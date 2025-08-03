@@ -23,7 +23,7 @@ dev-docker:
         -f docker-compose.yml     \
         -f docker-compose.dev.yml \
         up -d --build --wait
-    echo 'You can now open the website at http://127.0.0.1:8085/'
+    echo 'You can now open the website at http://localhost:8085/'
     docker compose logs -f
 
 dev:
