@@ -3,6 +3,8 @@ ENV FLASK_APP=src
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 RUN pip install waitress
 
 COPY pyproject.toml .

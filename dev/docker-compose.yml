@@ -12,17 +12,29 @@ services:
       - ./backend-db:/database
     environment:
       BACKEND_AUTH_SECRET_KEY: ${BACKEND_AUTH_SECRET_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/openapi/openapi.json"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
   frontend:
     image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
     build: ../frontend
     container_name: frontend
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
   caddy:
     image: caddy:2.9-alpine
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     ports:
       - 8085:80
     volumes:
