@@ -10,4 +10,5 @@ dependencies = [
     "flask_cors",
     "openpyxl",
     "flask-caching>=2.3.1",
+    "flask-login>=0.6.3",
 ]
