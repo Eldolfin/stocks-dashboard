@@ -12,4 +12,4 @@ COPY . .
 
 CMD [ "waitress-serve", "--host", "0.0.0.0", "--port", "5000", "--call", "src.app:create_app" ]
 
-HEALTHCHECK CMD curl -o /dev/null http://localhost:5000/openapi/openapi.json
+HEALTHCHECK CMD curl -f -o /dev/null http://localhost:5000/openapi/openapi.json

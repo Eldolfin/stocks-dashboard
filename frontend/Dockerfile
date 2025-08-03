@@ -21,4 +21,4 @@ ENV NODE_ENV=production
 
 CMD [ "node", "build/" ]
 
-HEALTHCHECK CMD curl -o /dev/null localhost:3000
+HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
