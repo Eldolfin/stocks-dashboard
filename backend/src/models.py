@@ -285,6 +285,14 @@ class SearchResponse(BaseModel):
     query: SearchQuery
 
 
+class Quote(BaseModel):
+    raw: RawQuote
+    info: Info
+    icon_url: Optional[str] = None
+    # Change % for since open
+    today_change: Optional[float] = None
+
+
 ##########################
 #  COMPARE GROWTH QUERY  #
 ##########################
@@ -378,6 +386,12 @@ class RegisterForm(BaseModel):
     profile_picture: Optional[FileStorage] = None
 
 
+class RegisterResponse(BaseModel):
+    id: int
+    email: str
+    profile_picture: Optional[str] = None
+
+
 ####################
 #  PROFILE PICTURE #
 ####################
@@ -389,6 +403,16 @@ class ProfilePicturePath(BaseModel):
     filename: str
 
 
+class ProfilePictureResponse(BaseModel):
+    message: str
+    profile_picture: str
+
+
 class ProfilePicturePathParams(BaseModel):
     user_email: str
     filename: str
+
+
+class UserResponse(BaseModel):
+    email: str
+    profile_picture: Optional[str] = None

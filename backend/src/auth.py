@@ -57,24 +57,24 @@ def login(body: models.LoginBody):
         if user and check_password_hash(user[2], body.password):
             user_obj = User(id=user[0], email=user[1], profile_picture=user[3])
             login_user(user_obj)
-            return {}, 200
-        return {'error': 'Invalid credentials'}, 401
+            return models.LoginResponse(email=user_obj.email, profile_picture=user_obj.profile_picture).dict(), 200
+        return models.NotFoundResponse(message='Invalid credentials').dict(), 401
 
 
-@auth_bp.get('/user', tags=[auth_tag])
+@auth_bp.get('/user', tags=[auth_tag], responses={200: models.UserResponse})
 @login_required
 def get_user():
-    return {'email': current_user.email, 'profile_picture': current_user.profile_picture}
+    return models.UserResponse(email=current_user.email, profile_picture=current_user.profile_picture).dict(), 200
 
 
-@auth_bp.post('/logout', tags=[auth_tag])
+@auth_bp.post('/logout', tags=[auth_tag], responses={200: None})
 @login_required
 def logout():
     logout_user()
     return {}, 200
 
 
-@auth_bp.post('/profile/picture', tags=[auth_tag])
+@auth_bp.post('/profile/picture', tags=[auth_tag], responses={200: models.ProfilePictureResponse, 400: models.NotFoundResponse, 500: models.NotFoundResponse})
 @login_required
 def upload_profile_picture(form: models.ProfilePictureForm):
     file = form.profile_picture
@@ -93,8 +93,8 @@ def upload_profile_picture(form: models.ProfilePictureForm):
             cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?",
                            (profile_picture_path, current_user.id))
             conn.commit()
-        return {'message': 'Profile picture updated successfully', 'profile_picture': profile_picture_path}, 200
-    return {'error': 'Something went wrong'}, 500
+        return models.ProfilePictureResponse(message='Profile picture updated successfully', profile_picture=profile_picture_path).dict(), 200
+    return models.NotFoundResponse(message='Something went wrong').dict(), 500
 
 
 @auth_bp.get('/profile/pictures/<user_email>/<filename>', tags=[auth_tag])
