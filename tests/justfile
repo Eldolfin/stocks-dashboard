@@ -2,7 +2,7 @@ help:
     just --list
 
 # Restart frontend & backend with a clean DB
-test-prepare:
+prepare:
     docker compose -f ../dev/docker-compose.yml -f ../dev/docker-compose.dev.yml -f docker-compose.yml down
     docker volume rm wsb-test-backend-db || true
     docker volume create wsb-test-backend-db
@@ -21,4 +21,4 @@ update-snapshots:
     npx playwright test --update-snapshots
 
 # Ran by github actions
-ci: run
+ci: prepare run
