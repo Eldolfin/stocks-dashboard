@@ -10,3 +10,4 @@ dev/backend-db/database.db
 dev/backend-db/profile_pictures
 dev/backend-db/etoro_sheets
 .env
+backend/tests/__pycache__

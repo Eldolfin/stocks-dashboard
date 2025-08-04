@@ -213,8 +213,6 @@ dependencies = [
     { name = "openpyxl" },
     { name = "pandas" },
     { name = "pydantic" },
-    { name = "pytest" },
-    { name = "requests" },
     { name = "yfinance" },
 ]
 
@@ -225,7 +223,9 @@ dev = [
     { name = "pandas-stubs" },
     { name = "pyarrow" },
     { name = "pylsp-mypy" },
+    { name = "pytest" },
     { name = "python-lsp-server" },
+    { name = "requests" },
     { name = "ruff" },
     { name = "types-flask-cors" },
 ]
@@ -240,8 +240,6 @@ requires-dist = [
     { name = "openpyxl" },
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "pydantic", specifier = "==2.11.2" },
-    { name = "pytest", specifier = ">=8.4.1" },
-    { name = "requests", specifier = ">=2.32.4" },
     { name = "yfinance" },
 ]
 
@@ -252,7 +250,9 @@ dev = [
     { name = "pandas-stubs", specifier = ">=2.3.0.250703" },
     { name = "pyarrow", specifier = ">=21.0.0" },
     { name = "pylsp-mypy", specifier = ">=0.7.0" },
+    { name = "pytest", specifier = ">=8.4.1" },
     { name = "python-lsp-server", specifier = ">=1.13.0" },
+    { name = "requests", specifier = ">=2.32.4" },
     { name = "ruff", specifier = ">=0.12.7" },
     { name = "types-flask-cors", specifier = ">=6.0.0.20250520" },
 ]

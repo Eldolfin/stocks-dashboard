@@ -1,4 +1,4 @@
-# ruff: noqa: ANN201,BLE001
+# ruff: noqa: ANN201
 
 from pathlib import Path
 
@@ -50,19 +50,18 @@ def get_ticker(query: TickerQuery):
 
     start = now() - duration
     start = start.strftime("%Y-%m-%d")
-    try:
-        dat = yf.Ticker(query.ticker_name)
-        if query.period == "max":
-            history = dat.history(
-                period="max",
-                interval=query.interval,
-            ).reset_index()
-        else:
-            history = dat.history(
-                start=start,
-                interval=query.interval,
-            ).reset_index()
-    except Exception:
+    dat = yf.Ticker(query.ticker_name)
+    if query.period == "max":
+        history = dat.history(
+            period="max",
+            interval=query.interval,
+        ).reset_index()
+    else:
+        history = dat.history(
+            start=start,
+            interval=query.interval,
+        ).reset_index()
+    if history.empty:
         return NotFoundResponse().dict(), 404
 
     if "Datetime" in history:
@@ -120,9 +119,8 @@ def get_compare_growth(query: CompareGrowthQuery):
 
 @stocks_bp.get("/kpis/", tags=[stocks_tag], responses={200: KPIResponse, 404: NotFoundResponse})
 def get_kpis(query: KPIQuery):
-    try:
-        dat = yf.Ticker(query.ticker_name)
-    except Exception:
+    dat = yf.Ticker(query.ticker_name)
+    if not dat.info or dat.info.get("marketCap") is None:
         return NotFoundResponse().dict(), 404
 
     if "marketCap" in dat.info:

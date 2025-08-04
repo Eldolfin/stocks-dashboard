@@ -4,7 +4,7 @@
 
 ### Auth
 - [x] register + login
-- [ ] logout
+- [x] logout
 
 ### Portfolio
 (hover first/last value and check value)

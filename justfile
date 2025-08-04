@@ -33,3 +33,7 @@ build-push-images:
     # TODO: move to github
     docker build --push -t gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest frontend
     docker build --push -t gitea.eldolfin.top/eldolfin/finance-plots-backend:latest -f backend/Dockerfile.prod backend
+
+lint:
+    just backend lint
+    just frontend lint

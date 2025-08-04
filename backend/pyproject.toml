@@ -13,8 +13,6 @@ dependencies = [
     "flask-caching>=2.3.1",
     "flask-login>=0.6.3",
     "pandas>=2.3.1",
-    "pytest>=8.4.1",
-    "requests>=2.32.4",
 ]
 
 [dependency-groups]
@@ -27,6 +25,8 @@ dev = [
     "python-lsp-server>=1.13.0",
     "ruff>=0.12.7",
     "types-flask-cors>=6.0.0.20250520",
+    "pytest>=8.4.1",
+    "requests>=2.32.4",
 ]
 
 [tool.pylsp-mypy]
