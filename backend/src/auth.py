@@ -42,7 +42,7 @@ def register(form: models.RegisterForm):
                     user_upload_folder = UPLOAD_FOLDER / email
                     user_upload_folder.mkdir(exist_ok=True)
                     filename = secure_filename(file.filename)
-                    profile_picture_path = user_upload_folder / filename
+                    profile_picture_path = Path(user_upload_folder) / filename
                     file.save(profile_picture_path)
                     # Store relative path in DB
                     profile_picture_path = Path(email) / filename
@@ -102,7 +102,7 @@ def upload_profile_picture(form: models.ProfilePictureForm):
         profile_picture_path = user_upload_folder / filename
         file.save(profile_picture_path)
         # Store relative path in DB
-        profile_picture_path = current_user.email / filename
+        profile_picture_path = str((Path(current_user.email) / filename).resolve())
         with sqlite3.connect("/database/database.db") as conn:
             cursor = conn.cursor()
             cursor.execute("UPDATE users SET profile_picture = ? WHERE id = ?", (profile_picture_path, current_user.id))
