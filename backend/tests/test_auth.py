@@ -1,3 +1,4 @@
+# ruff: noqa: ANN201,S105
 import io
 import time
 
@@ -13,7 +14,6 @@ def registered_user():
     password = "test_password"
     data = {"email": unique_email, "password": password}
     response = requests.post(f"{BASE_URL}/register", data=data)
-    print(f"Register response status: {response.status_code}, text: {response.text}")  # Added print
     assert response.status_code == 201
     return {"email": unique_email, "password": password}
 
@@ -24,7 +24,6 @@ def logged_in_session(registered_user):
     data = {"email": registered_user["email"], "password": registered_user["password"]}
     response = session.post(f"{BASE_URL}/login", json=data)
     assert response.status_code == 200, f"Login failed: {response.text}"
-    # Verify session is authenticated
     verify_response = session.get(f"{BASE_URL}/user")
     assert verify_response.status_code == 200, f"Session not authenticated after login: {verify_response.text}"
     return session
