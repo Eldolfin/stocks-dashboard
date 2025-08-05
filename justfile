@@ -4,11 +4,11 @@ mod tests
 mod backend
 mod frontend
 
-generate-api-types:
-	cd frontend && just generate-api-types
-
 help:
     just --list
+
+generate-api-types:
+	cd frontend && just generate-api-types
 
 dev-docker:
     #!/bin/sh
