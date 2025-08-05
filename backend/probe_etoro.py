@@ -11,17 +11,18 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
-    import marimo as mo
     import pandas as pd
     import src.etoro_data as etoro
     import matplotlib.pyplot as plt
-
     return etoro, pd, plt
 
 
 @app.cell
 def _(pd):
-    excel = pd.read_excel("~/Downloads/etoro-account-statement-12-31-2014-7-5-2025.xlsx", sheet_name=None)
+    excel = pd.read_excel(
+        "~/Downloads/etoro-account-statement-12-31-2014-7-5-2025.xlsx",
+        sheet_name=None,
+    )
     return (excel,)
 
 
@@ -72,7 +73,12 @@ def _(excel, pd, plt):
     activity = activity.set_index("Date")
 
     # Resample to daily frequency, filling missing values with 0
-    daily_deposits = activity[activity["Type"] == "Deposit"]["Amount"].resample("D").sum().fillna(0)
+    daily_deposits = (
+        activity[activity["Type"] == "Deposit"]["Amount"]
+        .resample("D")
+        .sum()
+        .fillna(0)
+    )
 
     # Calculate cumulative deposits
     cumulative_deposits = daily_deposits.cumsum()
@@ -94,6 +100,36 @@ def _(excel, pd, plt):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.gca()
+    return (activity,)
+
+
+@app.cell
+def _(activity):
+    activity
+    return
+
+
+@app.cell
+def _(activity):
+    open_positions = activity[activity["Type"] == "Open Position"]
+    closed_positions = activity[activity["Type"] == "Position closed"]
+
+    open_position_ids = open_positions["Position ID"].dropna().astype(str)
+    closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
+
+    still_open_ids = open_positions[
+        ~open_positions["Position ID"].isin(closed_position_ids)
+    ]
+    still_open_ids
+    return (still_open_ids,)
+
+
+@app.cell
+def _(still_open_ids):
+    still_open_ids["Details"] = still_open_ids["Details"].str.replace(
+        r"/(.+)$", "", regex=True
+    )
+    still_open_ids
     return
 
 
