@@ -20,7 +20,7 @@ jobs:
     - name: Run tests
       run: |
         echo "REPORT_FILE=backend/${REPORT_OUTPUT}" >> "$GITHUB_ENV"
-        just report_output=${REPORT_OUTPUT} backend ci
+        just backend ci ${REPORT_OUTPUT}
     - name: Show logs on failure
       if: failure()
       run: docker compose -f dev/docker-compose.yml logs
