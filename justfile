@@ -10,21 +10,27 @@ help:
 generate-api-types:
 	cd frontend && just generate-api-types
 
-dev-docker:
+_docker-compose-dev *args:
     #!/bin/sh
-    set -xe
-
     cd dev
     docker compose                \
         -f docker-compose.yml     \
         -f docker-compose.dev.yml \
-        down
+        {{args}}
+
+_docker-compose-prod *args:
+    #!/bin/sh
+    cd dev
     docker compose                \
         -f docker-compose.yml     \
-        -f docker-compose.dev.yml \
-        up -d --build --wait
-    echo 'You can now open the website at http://localhost:8085/'
-    docker compose logs -f
+        {{args}}
+
+
+dev-docker:
+    just _docker-compose-dev down
+    just _docker-compose-dev up -d --build --wait
+    echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/'
+    just _docker-compose-dev logs -f
 
 dev:
     kitty -e just dev-docker >/dev/null 2>&1 &
