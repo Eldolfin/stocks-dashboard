@@ -1,10 +1,11 @@
+
 from pathlib import Path
 
 from flask_login import login_required
-from flask_openapi3 import APIBlueprint, Tag
+from flask_openapi3 import APIBlueprint, Tag  # type: ignore
 
-from . import models
-from .services.auth_service import AuthService, UPLOAD_FOLDER
+from src import models
+from src.services.auth_service import AuthService
 
 auth_bp = APIBlueprint("auth", __name__, url_prefix="/api")
 

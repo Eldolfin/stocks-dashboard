@@ -1,21 +1,16 @@
-# /// script
-# [tool.marimo.runtime]
-# auto_instantiate = false
-# ///
+# ruff: noqa: ANN001, FBT003, ERA001
 
-import marimo
+import marimo as mo
+import matplotlib.pyplot as plt
+import pandas as pd
 
-__generated_with = "0.14.16"
-app = marimo.App(width="medium")
+import src.etoro_data as etoro
+
+app = mo.App()
 
 
 @app.cell
 def _():
-    import matplotlib.pyplot as plt
-    import pandas as pd
-
-    import src.etoro_data as etoro
-
     return etoro, pd, plt
 
 
@@ -26,7 +21,7 @@ def _(pd):
 
 
 @app.cell
-def _():
+def _() -> None:
     # cumulative_profit = closed["Profit(USD)"].cumsum()
 
     # plt.plot(cumulative_profit)
@@ -39,61 +34,51 @@ def _():
 
 
 @app.cell
-def _(etoro, excel, plt):
+def _(etoro, excel, plt) -> None:
     closed = excel["Closed Positions"]
     # Convert 'Close Date' to datetime objects
     closed["Close Date"] = etoro.column_date_to_timestamp(closed["Close Date"])
 
-    # Sort the DataFrame by 'Close Date'
-    closed = closed.sort_values(by="Close Date")
+    # Calculate daily profit
+    daily_profit = closed.groupby(closed["Close Date"].dt.date)["Profit(USD)"].sum()
 
     # Calculate cumulative profit
-    cumulative_profit = closed["Profit(USD)"].cumsum()
+    cumulative_profit = daily_profit.cumsum()
 
     # Plotting
-    plt.plot(closed["Close Date"], cumulative_profit)
-    plt.xlabel("Close Date")
+    plt.figure(figsize=(12, 6))
+    plt.plot(cumulative_profit.index, cumulative_profit.values, marker="o", linestyle="-")
+    plt.xlabel("Date")
     plt.ylabel("Cumulative Profit (USD)")
     plt.title("Cumulative Profit of Closed Trades Over Time")
     plt.grid(True)
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
-    plt.gca()
+    plt.show()
 
 
 @app.cell
-def _(excel, pd, plt):
+def _(excel, pd, plt) -> None:
     activity = excel["Account Activity"]
     # Ensure 'Date' is datetime objects
     activity["Date"] = pd.to_datetime(activity["Date"])
 
-    # Set 'Date' as index for resampling
-    activity = activity.set_index("Date")
+    # Filter for 'Deposit' operations
+    deposits = activity[deposits["Type"] == "Deposit"]
 
-    # Resample to daily frequency, filling missing values with 0
-    daily_deposits = activity[activity["Type"] == "Deposit"]["Amount"].resample("D").sum().fillna(0)
+    # Group by date and sum the amounts
+    daily_deposits = deposits.groupby(deposits["Date"].dt.date)["Amount"].sum()
 
     # Calculate cumulative deposits
     cumulative_deposits = daily_deposits.cumsum()
 
-    # Create a date range for the x-axis
-    start_date = daily_deposits.index.min()
-    end_date = daily_deposits.index.max()
-    date_range = pd.date_range(start=start_date, end=end_date, freq="D")
-
-    # Reindex the cumulative deposits to ensure all dates are present
-    cumulative_deposits = cumulative_deposits.reindex(date_range, fill_value=0)
-
     # Plotting
-    plt.plot(cumulative_deposits.index, cumulative_deposits)
+    plt.figure(figsize=(12, 6))
+    plt.plot(cumulative_deposits.index, cumulative_deposits.values, marker="o", linestyle="-", color="green")
     plt.xlabel("Date")
     plt.ylabel("Cumulative Deposits (USD)")
     plt.title("Cumulative Deposits Over Time (Daily)")
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.gca()
-
-
-if __name__ == "__main__":
-    app.run()
+    plt.show()

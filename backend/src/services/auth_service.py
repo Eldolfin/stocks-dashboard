@@ -1,22 +1,21 @@
 import sqlite3
 from pathlib import Path
 
-from flask import send_from_directory
+from flask import send_from_directory  # type: ignore
 from flask_login import current_user, login_user, logout_user
-from werkzeug.security import check_password_hash, generate_password_hash
-from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
+from werkzeug.utils import secure_filename  # type: ignore
 
-from .. import models
-from ..database.auth_repository import AuthRepository
+from src import models
+from src.database.auth_repository import AuthRepository
 
 UPLOAD_FOLDER = Path("/database/profile_pictures")
 
-
 class AuthService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.auth_repository = AuthRepository()
 
-    def register_user(self, form: models.RegisterForm):
+    def register_user(self, form: models.RegisterForm) -> tuple[dict, int]:
         email = form.email
         password = form.password
 
@@ -46,7 +45,7 @@ class AuthService:
             return {"error": "email already exists"}, 409
         return {}, 201
 
-    def login_user(self, body: models.LoginBody):
+    def login_user(self, body: models.LoginBody) -> tuple[dict, int]:
         user = self.auth_repository.get_user_by_email(body.email)
         if user and check_password_hash(user[2], body.password):
             user_obj = models.User(id=user[0], email=user[1], profile_picture=user[3])
@@ -54,14 +53,14 @@ class AuthService:
             return {"result": "OK"}, 200
         return models.NotFoundResponse(message="Invalid credentials").dict(), 401
 
-    def get_current_user_info(self):
+    def get_current_user_info(self) -> tuple[dict, int]:
         return models.UserResponse(email=current_user.email, profile_picture=current_user.profile_picture).dict(), 200
 
-    def logout_current_user(self):
+    def logout_current_user(self) -> tuple[dict, int]:
         logout_user()
         return {}, 200
 
-    def upload_profile_picture(self, form: models.ProfilePictureForm):
+    def upload_profile_picture(self, form: models.ProfilePictureForm) -> tuple[dict, int]:
         file = form.profile_picture
         if file.filename == "":
             return {"error": "No selected file"}, 400
@@ -82,5 +81,5 @@ class AuthService:
             ).dict(), 200
         return models.NotFoundResponse(message="Something went wrong").dict(), 500
 
-    def get_profile_picture_file(self, path: models.ProfilePicturePathParams):
+    def get_profile_picture_file(self, path: models.ProfilePicturePathParams) -> Path:
         return send_from_directory(UPLOAD_FOLDER / path.user_email, path.filename)

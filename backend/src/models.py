@@ -1,8 +1,8 @@
 from enum import Enum
 
 from flask_login import UserMixin
-from flask_openapi3.models import FileStorage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field  # type: ignore
+from werkzeug.datastructures import FileStorage  # type: ignore
 
 
 class User(UserMixin):

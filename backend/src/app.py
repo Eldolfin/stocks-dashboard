@@ -6,11 +6,11 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_openapi3 import Info, OpenAPI
 
-from .auth import auth_bp
 from .database.auth_repository import AuthRepository
+from .endpoints.auth import auth_bp
+from .endpoints.stocks import cache, stocks_bp
 from .models import User
 from .services.auth_service import UPLOAD_FOLDER
-from .stocks import cache, stocks_bp
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)

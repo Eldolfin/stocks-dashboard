@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 
 def column_date_to_timestamp(column: pd.Series) -> pd.Series:

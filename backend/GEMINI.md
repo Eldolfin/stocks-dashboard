@@ -41,6 +41,7 @@ The application uses a SQLite database. When running inside the Docker container
 
 *   **Linting:** `just lint`
 *   **Formatting:** `just format`
+*   **Auto-fix Linting:** `uv run ruff check --fix --unsafe-fixes`
 *   **Testing:** `just test`
 *   **CI:** `just ci` (never run this you don't need it)
 
@@ -53,4 +54,3 @@ The project uses `pytest` for testing. The tests are located in the `tests/` dir
 To run the tests, use the `just test` command. The tests make live requests to the application, so it's assumed the backend is already running during development. The backend is configured with hot-reload, so it does not need to be manually restarted for changes to take effect before testing.
 
 When adding a new feature, new tests should be added to ensure the feature works as expected and that existing functionality is not broken. The tests should cover both success and error cases.
----
