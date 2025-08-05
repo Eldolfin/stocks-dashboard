@@ -11,10 +11,10 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
-    import marimo as mo
-    import pandas as pd
-    import src.etoro_data as etoro
     import matplotlib.pyplot as plt
+    import pandas as pd
+
+    import src.etoro_data as etoro
 
     return etoro, pd, plt
 
@@ -59,7 +59,6 @@ def _(etoro, excel, plt):
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
     plt.gca()
-    return
 
 
 @app.cell
@@ -94,7 +93,6 @@ def _(excel, pd, plt):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.gca()
-    return
 
 
 if __name__ == "__main__":

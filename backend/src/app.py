@@ -6,9 +6,11 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_openapi3 import Info, OpenAPI
 
-from .auth import UPLOAD_FOLDER, auth_bp
+from .auth import auth_bp
+from .database.auth_repository import AuthRepository
+from .models import User
+from .services.auth_service import UPLOAD_FOLDER
 from .stocks import cache, stocks_bp
-from .user import User
 
 info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
@@ -28,6 +30,7 @@ login_manager.init_app(app)
 app.register_api(auth_bp)
 app.register_api(stocks_bp)
 
+auth_repository = AuthRepository()
 
 print("Initializing database...")
 with sqlite3.connect("/database/database.db") as conn:
@@ -46,13 +49,10 @@ UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 
 @login_manager.user_loader
 def load_user(user_id: str) -> User | None:
-    with sqlite3.connect("/database/database.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-        user = cursor.fetchone()
-        if user:
-            return User(id=user[0], email=user[1], profile_picture=user[3])
-        return None
+    user = auth_repository.get_user_by_id(int(user_id))
+    if user:
+        return User(id=user[0], email=user[1], profile_picture=user[3])
+    return None
 
 
 def create_app() -> flask.Flask:
