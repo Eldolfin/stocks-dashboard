@@ -17,3 +17,6 @@ watch-test:
 ci report_output="pytest-report.md":
     just --justfile ../justfile _docker-compose-prod up --build -d --wait backend
     just test -v --md-report --md-report-flavor gfm --md-report-exclude-outcomes passed skipped xpassed --md-report-output {{report_output}}
+
+jupyter:
+    uv run marimo edit ./probe_etoro.py
