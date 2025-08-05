@@ -13,6 +13,8 @@ dependencies = [
     "flask-caching>=2.3.1",
     "flask-login>=0.6.3",
     "pandas>=2.3.1",
+    "google-genai>=1.28.0",
+    "matplotlib>=3.10.5",
 ]
 
 [dependency-groups]
@@ -27,6 +29,7 @@ dev = [
     "types-flask-cors>=6.0.0.20250520",
     "pytest>=8.4.1",
     "requests>=2.32.4",
+    "pytest-md-report>=0.7.0",
 ]
 
 [tool.pylsp-mypy]

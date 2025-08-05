@@ -1,3 +1,5 @@
+report_output := "pytest-report.md"
+
 lint:
     uv run ruff check src
     uv run mypy src
@@ -5,8 +7,11 @@ lint:
 format:
     uv run ruff format
 
-test:
-    uv run pytest
+test *args:
+    uv run pytest {{args}}
 
 watch-test:
     git ls-files | entr -c just test
+
+ci:
+    just test -v --md-report --md-report-flavor gfm --md-report-exclude-outcomes passed skipped xpassed --md-report-output {{report_output}}
