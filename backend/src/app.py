@@ -16,7 +16,12 @@ info = Info(title="stocks API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(
     app,
-    origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:8085"],
+    origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8085",
+        "https://wsb.eldolfin.top",
+    ],
     supports_credentials=True,
 )
 app.config["UPLOAD_FOLDER"] = "/database/etoro_sheets"

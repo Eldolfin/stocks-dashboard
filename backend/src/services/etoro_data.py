@@ -111,7 +111,11 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     _all_data = _all_data.ffill().fillna(0)
     _all_data["total"] = _all_data.sum(axis=1)
     _all_data.index = pd.to_datetime(_all_data.index).strftime("%Y-%m-%d")
+    parts = {
+        str(k): [float(x) for x in v]
+        for k, v in _all_data.reset_index().drop(columns=["index"]).to_dict("list").items()
+    }
     return models.EtoroEvolutionInner(
         dates=_all_data.index.astype(str).to_list(),
-        parts=_all_data.reset_index().drop(columns=["index"]).to_dict("list"),
+        parts=parts,
     )
