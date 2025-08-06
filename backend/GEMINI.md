@@ -26,12 +26,30 @@ This project is the backend API for a financial dashboard. It is built with Pyth
 
 ## Main Files and Their Functions
 
-*   `src/app.py`: The main Flask application file. It initializes the app, database, and registers the API blueprints.
-*   `src/auth.py`: Defines authentication-related endpoints.
-*   `src/stocks.py`: Defines endpoints for retrieving stock data.
+The backend is structured in a layered architecture: `endpoints`, `services`, and `database`.
+
+*   `src/app.py`: The main Flask application file. It initializes the app, database, and registers the API blueprints from the `endpoints` layer.
 *   `src/models.py`: Defines Pydantic models for API request and response schemas.
-*   `src/etoro_data.py`: Contains functions for processing eToro Excel statements.
-*   `src/intervals.py`: Provides utility functions for time intervals.
+
+### Endpoints Layer (`src/endpoints/`)
+Exposes the API to the outside world. It handles HTTP requests and responses.
+
+*   `src/endpoints/auth.py`: Defines authentication-related API endpoints and maps them to the `AuthService`.
+*   `src/endpoints/stocks.py`: Defines API endpoints for retrieving stock data and maps them to the `StocksService`.
+
+### Services Layer (`src/services/`)
+Contains the core business logic of the application.
+
+*   `src/services/auth_service.py`: Handles the logic for user registration, login, and profile management. Interacts with the `AuthRepository`.
+*   `src/services/stocks_service.py`: Implements the logic for fetching and processing financial data (tickers, KPIs, comparisons). Interacts with the `stocks_repository` and uses helper services.
+*   `src/services/etoro_data.py`: A helper service for processing and analyzing uploaded eToro Excel statements.
+*   `src/services/intervals.py`: A helper service providing utility functions for time interval conversions.
+
+### Data Access Layer (`src/database/`)
+Responsible for all interactions with data sources.
+
+*   `src/database/auth_repository.py`: Manages all database operations related to users (creation, retrieval, updates) in the SQLite database.
+*   `src/database/stocks_repository.py`: Acts as a data source for financial information by wrapping the `yfinance` library.
 
 ## Database
 
