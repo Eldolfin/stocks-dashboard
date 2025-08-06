@@ -16,11 +16,12 @@ with app.setup:
     import numpy as np
     import marimo as mo
     import yfinance as yf
+    import logging as log
 
 
 @app.cell(hide_code=True)
 def _():
-    mo.md("# Etoro networth analysis")
+    mo.md("""# Etoro networth analysis""")
     return
 
 
@@ -47,6 +48,14 @@ def _(excel):
 
     # Sort the DataFrame by 'Close Date'
     closed = closed.sort_values(by="Close Date")
+    closed = closed.set_index(closed["Close Date"])
+    closed["Profit(USD)"] = closed["Profit(USD)"].astype(np.float32)
+    closed = (
+        closed.resample("D")
+        .agg({"Profit(USD)": "sum"})
+        .fillna(0)
+    )
+    closed
     return (closed,)
 
 
@@ -58,11 +67,15 @@ def _():
 
 @app.cell
 def _(closed):
+
+
     # Calculate cumulative profit
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
 
+
+
     # Plotting
-    plt.plot(closed["Close Date"], closed["Cumulative Profit"])
+    plt.plot(closed.index, closed["Cumulative Profit"])
     plt.xlabel("Close Date")
     plt.ylabel("Cumulative Profit (USD)")
     plt.title("Cumulative Profit of Closed Trades Over Time")
@@ -139,17 +152,17 @@ def _(activity):
     still_open = open_positions[
         ~open_positions["Position ID"].isin(closed_position_ids)
     ].copy()
-    still_open["Details"] = still_open["Details"].str.replace(
-        r"/(.+)$", "", regex=True
-    )
+    # still_open["Details"] = still_open["Details"].str.replace(
+    #     r"/(.+)$", "", regex=True
+    # )
     still_open
     return (still_open,)
 
 
 @app.cell
-def _(still_open, tickers):
+def _(still_open):
     shares_per_ticker = {}
-    for tick in tickers:
+    for tick in still_open["Details"].unique():
         _ticker_positions = still_open[still_open["Details"] == tick].copy()
         _ticker_positions = _ticker_positions.sort_values(by="Date")
         _ticker_positions["Units / Contracts"] = _ticker_positions[
@@ -207,16 +220,18 @@ def _():
 
 @app.cell
 def _(still_open):
-    tickers = still_open["Details"].unique()
-
     yahoo_data = {}
-    for ticker in tickers:
+    for _details in still_open["Details"].unique():
         try:
             # Find the first open date for the ticker
             first_open_date = still_open[
-                still_open["Details"] == ticker
+                still_open["Details"] == _details
             ].index.min()
 
+            [ticker, market] = _details.split("/")
+            if market != "USD":
+                log.warning("SKIPPING {ticker} because market={market} != \"USD\"")
+                continue
             ticker_data = yf.Ticker(ticker)
             # Fetch historical data since the company's IPO or listing date
             history = ticker_data.history(
@@ -224,13 +239,13 @@ def _(still_open):
                 end=pd.Timestamp.now().strftime("%Y-%m-%d"),
             )
             if not history.empty:
-                yahoo_data[ticker] = history
+                yahoo_data[_details] = history
             else:
                 print(f"No data found for {ticker}")
         except Exception as e:
             print(f"Could not fetch data for {ticker}: {e}")
         print(ticker, "OK!")
-    return tickers, yahoo_data
+    return (yahoo_data,)
 
 
 @app.cell(hide_code=True)
@@ -247,6 +262,8 @@ def _():
 
 @app.cell
 def _(shares_per_ticker, yahoo_data):
+    all_combined_data = {}
+
     for _ticker in shares_per_ticker:
         if _ticker in shares_per_ticker and _ticker in yahoo_data:
             _shares_data = shares_per_ticker[_ticker]
@@ -264,9 +281,6 @@ def _(shares_per_ticker, yahoo_data):
             # Calculate net value and add it to the combined DataFrame
             combined["net_value"] = combined["Close"] * combined["shares_sum"]
 
-            # Optionally store the combined DataFrame in a dictionary
-            if "all_combined_data" not in locals():
-                all_combined_data = {}
             all_combined_data[_ticker] = combined
         else:
             print(f"Data not available for {_ticker} in both datasets.")
@@ -288,7 +302,7 @@ def _():
 
 @app.cell
 def _(all_combined_data):
-    all_combined_data["RR.l"]
+    all_combined_data["GOOG/USD"]
     return
 
 
@@ -331,23 +345,29 @@ def _(all_combined_data_filled, ax, name, table):
 
 
 @app.cell
-def _():
-    # closed.reindex(closed["Close Date"])
-    # cumulative_deposits
+def _(closed):
+    closed.rename(columns={"Cumulative Profit":"net_value"})
+    # closed.reindex(closed["Close Date"]).rename({"Cumulative Profit":"net_value"})
+    # print(cumulative_deposits)
     return
 
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(r"""# Total net-value of *still open* trades""")
+    mo.md(r"""# Total net-value""")
     return
 
 
 @app.cell
-def _(all_combined_data_filled):
+def _(all_combined_data_filled, closed):
     _all_data = pd.DataFrame()
 
-    for _stock, _df in all_combined_data_filled.items():
+    all_profits = dict(all_combined_data_filled)
+
+    all_profits["Closed Positions"] = closed.rename(columns={"Cumulative Profit":"net_value"})
+    # all_profits["Deposits"] = pd.DataFrame({"net_value": cumulative_deposits})
+    print(all_profits["Closed Positions"])
+    for _stock, _df in all_profits.items():
         _all_data = _all_data.join(
             _df[["net_value"]].rename(columns={"net_value": _stock}), how="outer"
         )
@@ -355,11 +375,22 @@ def _(all_combined_data_filled):
     _all_data = _all_data.ffill()
     _all_data["total"] = _all_data.sum(axis=1)
 
-    _all_data["total"].plot(
-        title='Total net value of "still open " postitions over time',
+    _fig, _ax = plt.subplots(figsize=(16, 12))  # Double the default size
+
+    _all_data["Closed Positions"].plot(
+        title='Total net value of portfolio over time',
         xlabel="Date",
         ylabel="Total Net Value",
+        label="Closed Positions",
+        ax=_ax
     )
+    _all_data["total"].plot(ax=_ax, label="Total")
+
+    for col in _all_data.columns:
+        if col not in ["Closed Positions", "total"]:
+            _all_data[col].plot(ax=_ax, label=col)
+
+    _ax.legend(loc='best')  # Let matplotlib decide the best location
     plt.gca()
     return
 
