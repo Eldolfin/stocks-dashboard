@@ -30,6 +30,7 @@ dev = [
     "pytest>=8.4.1",
     "requests>=2.32.4",
     "pytest-md-report>=0.7.0",
+    "bpython>=0.25",
 ]
 
 [tool.pylsp-mypy]

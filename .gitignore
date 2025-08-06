@@ -1,15 +1,13 @@
 backend/venv
-backend/finance_dashboard_api/__pycache__
 backend/finance_dashboard_api.egg-info
 backend/finance_dashboard_api/src/finance_dashboard_api.egg-info
 backend/src/finance_dashboard_api.egg-info
-backend/__pycache__
-backend/src/__pycache__
 backend/*.xlsx
 dev/backend-db/database.db
 dev/backend-db/profile_pictures
 dev/backend-db/etoro_sheets
 .env
-backend/tests/__pycache__
 backend/pytest-report.md
 backend/__marimo__/session
+backend/build/lib
+__pycache__/

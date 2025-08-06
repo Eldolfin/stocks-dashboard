@@ -11,7 +11,7 @@ app = marimo.App(width="medium")
 with app.setup:
     # Initialization code that runs before all other cells
     import pandas as pd
-    import src.etoro_data as etoro
+    import src.services.etoro_data as etoro
     import matplotlib.pyplot as plt
     import numpy as np
     import marimo as mo
@@ -392,6 +392,7 @@ def _(all_combined_data_filled, closed):
 
     _ax.legend(loc='best')  # Let matplotlib decide the best location
     plt.gca()
+    print(_all_data)
     return
 
 
