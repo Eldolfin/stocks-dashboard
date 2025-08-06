@@ -33,11 +33,10 @@ export default defineConfig({
   },
 
   // Each test is given 60 seconds.
-  timeout: 60000,
+  // timeout: 60000,
   expect: {
     // Maximum time expect() should wait for the condition to be met.
-    timeout: 10000,
-
+    // timeout: 10000,
   },
 
   /* Configure projects for major browsers */

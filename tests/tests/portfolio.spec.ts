@@ -12,9 +12,11 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   const filePath = path.resolve(__dirname, '../data/etoro-account-statement-12-31-2014-7-5-2025_TEST.xlsx');
   await loggedInPage.setInputFiles('input[type="file"]', filePath);
 
+  await loggedInPage.getByRole('button', { name: 'etoro-account-statement-12-31-2014-7-5-2025_TEST.xlsx' }).click();
+
   await loggedInPage.waitForLoadState("networkidle");
 
-  await loggedInPage.locator('canvas').hover({
+  await loggedInPage.locator('canvas').first().hover({
     position: { x: 140, y: 320 },
   });
   await loggedInPage.waitForTimeout(2000);
