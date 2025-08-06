@@ -40,14 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
     - uses: taiki-e/install-action@just
-    - name: Install tests dependencies
-      run: cd tests && npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
     - name: Setup environement
       run: cp .env.example .env
     - name: Run Playwright tests
