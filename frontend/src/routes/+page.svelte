@@ -2,6 +2,7 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
+	import { SvelteSet } from 'svelte/reactivity';
 	type Ticker = components['schemas']['Quote'];
 
 	let searchResult = $state<Ticker[] | undefined>(undefined);
@@ -10,7 +11,7 @@
 	let pendingRequest = $state(0);
 
 	// Store selected ticker symbols
-	let comparedTickers = $state(new Set<string>());
+	let comparedTickers = $state(new SvelteSet<string>());
 	// Cache all loaded ticker objects to retrieve details later
 	let tickerCache = $state(new Map<string, Ticker>());
 
