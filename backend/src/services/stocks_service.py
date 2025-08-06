@@ -124,16 +124,13 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     return models.SearchResponse(quotes=quotes, query=query)
 
 
-def analyze_etoro_excel(form: models.EtoroForm, user_email: str) -> dict | None:
-    if isinstance(form.file, str) or form.file.filename is None:
-        return None
+def create_etoro_excel(form: models.EtoroForm, user_email: str) -> None:
     etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     etoro_upload_folder.mkdir(exist_ok=True, parents=True)
+    assert form.file.filename is not None
     filename = secure_filename(form.file.filename)
     file_path = Path(etoro_upload_folder) / filename
     form.file.save(str(file_path))
-
-    return extract_closed_position(file_path, time_unit=form.precision)
 
 
 def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:

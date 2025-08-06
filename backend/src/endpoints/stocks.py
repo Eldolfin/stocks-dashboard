@@ -42,13 +42,13 @@ def search_ticker(query: models.SearchQuery):
     return result.dict(), 200
 
 
-@stocks_bp.post("/etoro_analysis", tags=[stocks_tag], responses={200: models.EtoroAnalysisResponse})
+@stocks_bp.post("/etoro/upload_report", tags=[stocks_tag])
 @login_required
-def analyze_etoro_excel(form: models.EtoroForm):
-    result = stocks_service.analyze_etoro_excel(form, current_user.email)
-    if result is None:
-        return {"error": "No selected file"}, 400
-    return result, 200
+def upload_etoro_report(form: models.EtoroForm) -> tuple[dict, int]:
+    if isinstance(form.file, str) or form.file.filename is None:
+        return {"error": "Invalid file"}, 400
+    stocks_service.create_etoro_excel(form, current_user.email)
+    return {"result": "OK"}, 200
 
 
 @stocks_bp.get("/etoro/reports", tags=[stocks_tag], responses={200: models.EtoroReportsResponse})
@@ -63,6 +63,7 @@ def list_etoro_reports():
     tags=[stocks_tag],
     responses={200: models.EtoroAnalysisResponse, 404: models.NotFoundResponse},
 )
+@cache.memoize() # FIXME: is this a good idea?
 @login_required
 def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     result = stocks_service.analyze_etoro_excel_by_name(query, current_user.email)

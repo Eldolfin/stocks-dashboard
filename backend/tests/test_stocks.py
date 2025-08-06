@@ -80,7 +80,7 @@ def test_search_ticker() -> None:
     assert any(q["raw"]["symbol"] == "AAPL" for q in data["quotes"])
 
 
-def test_analyze_etoro_excel(logged_in_session, etoro_excel_file) -> None:
+def test_upload_etoro_report(logged_in_session, etoro_excel_file) -> None:
     files = {
         "file": (
             "eToro_account_statement.xlsx",
@@ -89,20 +89,17 @@ def test_analyze_etoro_excel(logged_in_session, etoro_excel_file) -> None:
         )
     }
     data = {"precision": "D"}
-    response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
+    response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
     response_data = response.json()
-    assert "close_date" in response_data
-    assert "closed_trades" in response_data
-    assert "profit_usd" in response_data
-    assert len(response_data["close_date"]) > 0
+    assert response_data["result"] == "OK"
 
 
 def test_list_etoro_reports(logged_in_session, etoro_excel_file) -> None:
     filename = "my_report_for_listing.xlsx"
     files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
     data = {"precision": "D"}
-    response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
+    response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
 
     response = logged_in_session.get(f"{BASE_URL}/etoro/reports")
@@ -114,7 +111,7 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
     filename = "my_named_report.xlsx"
     files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
     data = {"precision": "D"}
-    response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
+    response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
 
     params = {"filename": filename, "precision": "D"}
@@ -137,7 +134,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     filename = "my_evolution_report.xlsx"
     files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
     data = {"precision": "D"}
-    response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
+    response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
 
     params = {"filename": filename, "precision": "D"}
