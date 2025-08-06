@@ -43,3 +43,7 @@ build-push-images:
 lint:
     just backend lint
     just frontend lint
+
+prod:
+    git pull
+    cd dev && docker compose up -d --build --wait
