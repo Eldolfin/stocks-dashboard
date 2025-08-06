@@ -104,8 +104,20 @@
 		<div class="flex justify-center">
 			<HistoryChart
 				color="green"
-				title={"Total profits evolution overtime"}
-				dataset={evolution_data["evolution"]["parts"]}
+				title="Total profits evolution overtime"
+				dataset={(() => {
+					const filteredDataset: { [key: string]: number[] } = {};
+					if (evolution_data && evolution_data["evolution"] && evolution_data["evolution"]["parts"]) {
+						const parts = evolution_data["evolution"]["parts"];
+						if (parts["Closed Positions"]) {
+							filteredDataset["Closed Positions"] = parts["Closed Positions"];
+						}
+						if (parts["total"]) {
+							filteredDataset["total"] = parts["total"];
+						}
+					}
+					return filteredDataset;
+				})()}
 				dates={evolution_data["evolution"]["dates"]}
 			/>
 		</div>

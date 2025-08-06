@@ -11,7 +11,7 @@
 	}
 	const { title, dataset, dates, color }: Props = $props();
 	let chartElt;
-	let chartInstance: Chart | undefined;
+	let chartInstance: Chart | undefined | null;
 
 	const createChart = () => {
 		const data = {
@@ -21,7 +21,7 @@
 				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
 				return {
 					label,
-					data,
+					data: [...data],
 					borderColor: lineColor,
 					backgroundColor: transparentize(lineColor, 0.5),
 					yAxisID: 'y'
@@ -70,9 +70,10 @@
 			}
 		} satisfies ChartConfiguration;
 
-		if (chartInstance) {
-			chartInstance.destroy(); // Destroy old chart before creating a new one
-		}
+		    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null; // Explicitly set to null after destroying
+    }
 		chartInstance = new Chart(chartElt! as HTMLCanvasElement, config);
 	};
 
@@ -82,13 +83,32 @@
 		createChart();
 	});
 
-	$effect(() => {
-		createChart();
+
+
+	  $effect(() => {
+		if (chartInstance) {
+			chartInstance.data.labels = dates;
+			chartInstance.data.datasets = Object.entries(dataset).map(([label, data], index) => {
+				const isMainLine = label === 'price';
+				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
+				return {
+					label,
+					data: [...data],
+					borderColor: lineColor,
+					backgroundColor: transparentize(lineColor, 0.5),
+					yAxisID: 'y'
+				};
+			});
+			chartInstance.update();
+		}
 	});
 
-	onDestroy(() => {
-		if (chartInstance) chartInstance.destroy();
-	});
+	  onDestroy(() => {
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null; // Explicitly set to null after destroying
+    }
+  });
 </script>
 
 <div class="flex h-full w-full items-center justify-center">
