@@ -1,7 +1,25 @@
 from enum import Enum
 
-from flask_openapi3.models import FileStorage
+from flask_login import UserMixin
+from flask_openapi3 import FileStorage
 from pydantic import BaseModel, Field
+
+
+class User(UserMixin):
+    def __init__(self, id: int, email: str, profile_picture: str | None = None) -> None:
+        self.id = id
+        self.email = email
+        self.profile_picture = profile_picture
+
+    def get_id(self) -> str:
+        return str(self.id)
+
+    def __repr__(self) -> str:
+        return f"<User {self.email}>"
+
+    def to_dict(self) -> dict:
+        return {"id": self.id, "email": self.email, "profile_picture": self.profile_picture}
+
 
 ###############
 #  KPI QUERY  #
@@ -196,7 +214,7 @@ class Info(BaseModel):
     trailingAnnualDividendYield: float | None = None
     trailingEps: float | None = None
     trailingPE: float | None = None
-    trailingPegRatio: float | None
+    trailingPegRatio: float | None = None
     triggerable: bool | None = None
     twoHundredDayAverage: float | None = None
     twoHundredDayAverageChange: float | None = None
@@ -347,6 +365,9 @@ class EtoroForm(BaseModel):
     precision: PrecisionEnum
     file: FileStorage
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class EtoroAnalysisResponse(BaseModel):
     close_date: list[str]
@@ -378,6 +399,9 @@ class RegisterForm(BaseModel):
     password: str
     profile_picture: FileStorage | None = None
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class RegisterResponse(BaseModel):
     id: int
@@ -390,6 +414,9 @@ class RegisterResponse(BaseModel):
 ####################
 class ProfilePictureForm(BaseModel):
     profile_picture: FileStorage
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class ProfilePicturePath(BaseModel):
