@@ -3,7 +3,6 @@ import time
 
 import pytest
 import requests
-from openpyxl import Workbook
 
 BASE_URL = "http://localhost:5000/api"
 
@@ -27,47 +26,10 @@ def logged_in_session(registered_user):
     return session
 
 
-def create_dummy_etoro_excel():
-    workbook = Workbook()
-    sheet = workbook.active
-    sheet.title = "Closed Positions"
-    header = [
-        "Position ID",
-        "Action",
-        "Amount",
-        "Units",
-        "Open Rate",
-        "Close Rate",
-        "Spread",
-        "Profit(USD)",
-        "Open Date",
-        "Close Date",
-        "Leverage",
-        "ISIN",
-        "Notes",
-    ]
-    sheet.append(header)
-    sample_row = [
-        "12345",
-        "Buy",
-        "100",
-        "1",
-        "100",
-        "110",
-        "0.01",
-        "10",
-        "01/01/2023 10:00:00",
-        "02/01/2023 10:00:00",
-        "1",
-        "US0378331005",
-        "",
-    ]
-    sheet.append(sample_row)
-
-    file_io = io.BytesIO()
-    workbook.save(file_io)
-    file_io.seek(0)
-    return file_io
+@pytest.fixture
+def etoro_excel_file():
+    with open("tests/data/etoro-account-statement-12-31-2014-7-5-2025_TEST.xlsx", "rb") as f:
+        return io.BytesIO(f.read())
 
 
 def test_get_ticker_success() -> None:
@@ -118,12 +80,11 @@ def test_search_ticker() -> None:
     assert any(q["raw"]["symbol"] == "AAPL" for q in data["quotes"])
 
 
-def test_analyze_etoro_excel(logged_in_session) -> None:
-    dummy_excel = create_dummy_etoro_excel()
+def test_analyze_etoro_excel(logged_in_session, etoro_excel_file) -> None:
     files = {
         "file": (
             "eToro_account_statement.xlsx",
-            dummy_excel,
+            etoro_excel_file,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
     }
@@ -137,10 +98,9 @@ def test_analyze_etoro_excel(logged_in_session) -> None:
     assert len(response_data["close_date"]) > 0
 
 
-def test_list_etoro_reports(logged_in_session) -> None:
-    dummy_excel = create_dummy_etoro_excel()
+def test_list_etoro_reports(logged_in_session, etoro_excel_file) -> None:
     filename = "my_report_for_listing.xlsx"
-    files = {"file": (filename, dummy_excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+    files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
     data = {"precision": "D"}
     response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
     assert response.status_code == 200
@@ -150,10 +110,9 @@ def test_list_etoro_reports(logged_in_session) -> None:
     assert filename in response.json()["reports"]
 
 
-def test_analyze_etoro_excel_by_name(logged_in_session) -> None:
-    dummy_excel = create_dummy_etoro_excel()
+def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> None:
     filename = "my_named_report.xlsx"
-    files = {"file": (filename, dummy_excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+    files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
     data = {"precision": "D"}
     response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
     assert response.status_code == 200
@@ -172,3 +131,19 @@ def test_analyze_etoro_excel_by_name_not_found(logged_in_session) -> None:
     params = {"filename": "non_existent_report.xlsx", "precision": "D"}
     response = logged_in_session.get(f"{BASE_URL}/etoro_analysis_by_name", params=params)
     assert response.status_code == 404
+
+
+def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) -> None:
+    filename = "my_evolution_report.xlsx"
+    files = {"file": (filename, etoro_excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+    data = {"precision": "D"}
+    response = logged_in_session.post(f"{BASE_URL}/etoro_analysis", files=files, data=data)
+    assert response.status_code == 200
+
+    params = {"filename": filename, "precision": "D"}
+    response = logged_in_session.get(f"{BASE_URL}/etoro_evolution_by_name", params=params)
+    assert response.status_code == 200
+    response_data = response.json()
+    assert "evolution" in response_data
+    assert isinstance(response_data["evolution"], dict)
+    assert round(response_data["evolution"]["2025-08-06"]["total"]) == 3024

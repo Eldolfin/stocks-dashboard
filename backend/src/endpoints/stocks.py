@@ -69,3 +69,17 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     if result is None:
         return models.NotFoundResponse().dict(), 404
     return result, 200
+
+
+@stocks_bp.get(
+    "/etoro_evolution_by_name",
+    tags=[stocks_tag],
+    responses={200: models.EtoroEvolutionResponse, 404: models.NotFoundResponse},
+)
+@cache.memoize() # FIXME: is this a good idea?
+@login_required
+def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery):
+    result = stocks_service.analyze_etoro_evolution_by_name(query, current_user.email)
+    if result is None:
+        return models.NotFoundResponse().dict(), 404
+    return result, 200

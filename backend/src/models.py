@@ -384,6 +384,10 @@ class EtoroReportsResponse(BaseModel):
     reports: list[str]
 
 
+class EtoroEvolutionResponse(BaseModel):
+    evolution: dict[str, dict[str, float | None]]
+
+
 #################
 #  AUTH MODELS  #
 #################

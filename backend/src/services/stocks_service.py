@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from src import models
 from src.database import stocks_repository
 
-from .etoro_data import extract_closed_position
+from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
 
 
@@ -153,3 +153,15 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_ema
         return None
 
     return extract_closed_position(file_path, time_unit=query.precision)
+
+
+def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery, user_email: str) -> dict | None:
+    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
+    file_path = Path(user_etoro_folder) / query.filename
+
+    if not Path.exists(file_path):
+        return None
+
+    return {
+        "evolution": extract_portfolio_evolution(file_path).to_dict("index"),
+    }
