@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { client } from '../../lib/typed-fetch-client';
 	import type { components } from '../../generated/api.js';
-	import BarChart from '$lib/components/BarChart.svelte';
 	import { onMount } from 'svelte'; // Import onMount
+	import { goto } from '$app/navigation';
 
-	type EtoroData = components['schemas']['EtoroAnalysisResponse'];
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
 
@@ -16,7 +15,6 @@
 
 	let files: FileList | undefined = $state(undefined);
 	let error: string | undefined = $state(undefined);
-	let data: EtoroData | undefined = $state(undefined);
 	let precision_index: number = $state(1); // 'M'
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
@@ -65,54 +63,18 @@
 		})();
 	});
 
-	// Function to handle re-analysis of a selected report (placeholder for now)
+	// Function to handle re-analysis of a selected report
 	async function reAnalyzeReport(reportName: string) {
-		loading = true;
-		const res = await client.GET('/api/etoro_analysis_by_name', {
-			params: {
-				query: {
-					filename: reportName,
-					precision: precision_values[precision_index][1]
-				}
-			}
-		});
-		loading = false;
-
-		if (res.error) {
-			error = (res.error as components['schemas']['NotFoundResponse']).message;
-		} else if (res.data) {
-			data = res.data;
-			error = undefined;
-		}
+		goto(`/portfolio/analysis/${reportName}`);
 	}
 </script>
 
 <div class="p-8">
-	{#if data !== undefined}
-		<div class="flex justify-center">
-			<BarChart
-				dataset={new Map([
-					['profit (USD)', new Array(...data.profit_usd)],
-					['closed trades', new Array(...data.closed_trades)]
-				])}
-				dates={data.close_date}
-			/>
-		</div>
-		<div class="mt-4 flex flex-col items-center">
-			<label for="precision-range" class="mb-2 block text-white"
-				>{precision_values[precision_index][0]}</label
-			>
-			<input
-				type="range"
-				id="precision-range"
-				min="0"
-				max={precision_values.length - 1}
-				step="1"
-				bind:value={precision_index}
-				class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
-			/>
-		</div>
-	{:else if error}
+	{#if error}
+		<div class="text-center text-red-500">{error}</div>
+	{:else}
+		<div class="p-8">
+	{#if error}
 		<div class="text-center text-red-500">{error}</div>
 	{:else}
 		<h2 class="mt-6 text-4xl font-bold text-white">Step 1:</h2>
@@ -135,7 +97,7 @@
 					stroke-width="2"
 					d="M17 8l4 4m0 0l-4 4m4-4H3"
 				></path></svg
-			>
+		>
 		</a>
 		<h2 class="mt-6 text-4xl font-bold text-white">Step 2:</h2>
 		<label for="etoro-excel" class="block pb-2 text-white">Upload file</label>
@@ -160,6 +122,14 @@
 				{/each}
 			</ul>
 		{/if}
+	{/if}
+
+	{#if loading}
+		<div class="mt-4 flex items-center justify-center">
+			<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
+		</div>
+	{/if}
+</div>
 	{/if}
 
 	{#if loading}

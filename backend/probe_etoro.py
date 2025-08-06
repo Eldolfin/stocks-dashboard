@@ -17,6 +17,7 @@ with app.setup:
     import marimo as mo
     import yfinance as yf
     import logging as log
+    import src.models as models
 
 
 @app.cell(hide_code=True)
@@ -393,6 +394,20 @@ def _(all_combined_data_filled, closed):
     _ax.legend(loc='best')  # Let matplotlib decide the best location
     plt.gca()
     print(_all_data)
+
+    all_data = _all_data
+    return (all_data,)
+
+
+@app.cell
+def _(all_data):
+    res = models.EtoroEvolutionInner(dates=all_data.index.astype(str).to_list(), parts=all_data.reset_index().drop(columns=['index']).to_dict('list'))
+    return (res,)
+
+
+@app.cell
+def _(res):
+    res
     return
 
 

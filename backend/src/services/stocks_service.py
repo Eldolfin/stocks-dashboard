@@ -152,13 +152,13 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_ema
     return extract_closed_position(file_path, time_unit=query.precision)
 
 
-def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery, user_email: str) -> dict | None:
+def analyze_etoro_evolution_by_name(
+    query: models.EtoroAnalysisByNameQuery, user_email: str
+) -> models.EtoroEvolutionResponse | None:
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
 
     if not Path.exists(file_path):
         return None
 
-    return {
-        "evolution": extract_portfolio_evolution(file_path).to_dict("index"),
-    }
+    return models.EtoroEvolutionResponse(evolution=extract_portfolio_evolution(file_path))

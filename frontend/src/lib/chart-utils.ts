@@ -1,4 +1,5 @@
 import colorLib, { Color, type RGBA } from '@kurkle/color';
+import { valueOrDefault } from 'chart.js/helpers';
 import 'chartjs-adapter-luxon';
 
 // Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
