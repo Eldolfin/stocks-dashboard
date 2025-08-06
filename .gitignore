@@ -11,3 +11,5 @@ backend/pytest-report.md
 backend/__marimo__/session
 backend/build/lib
 __pycache__/
+data-collector/target
+data-collector/snapshots.csv
