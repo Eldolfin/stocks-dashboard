@@ -103,6 +103,7 @@
 	{#if evolution_data !== undefined}
 		<div class="flex justify-center">
 			<HistoryChart
+				color="green"
 				title={"Total profits evolution overtime"}
 				dataset={evolution_data["evolution"]["parts"]}
 				dates={evolution_data["evolution"]["dates"]}

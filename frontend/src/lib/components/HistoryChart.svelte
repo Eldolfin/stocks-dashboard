@@ -92,5 +92,5 @@
 </script>
 
 <div class="flex h-full w-full items-center justify-center">
-	<canvas bind:this={chartElt}></canvas>
+	<canvas bind:this={chartElt} id="history-chart"></canvas>
 </div>

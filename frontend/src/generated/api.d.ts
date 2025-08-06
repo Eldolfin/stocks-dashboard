@@ -322,14 +322,18 @@ export interface components {
             /** Profit Usd */
             profit_usd: number[];
         };
+        /** EtoroEvolutionInner */
+        EtoroEvolutionInner: {
+            /** Dates */
+            dates: string[];
+            /** Parts */
+            parts: {
+                [key: string]: number[];
+            };
+        };
         /** EtoroEvolutionResponse */
         EtoroEvolutionResponse: {
-            /** Evolution */
-            evolution: {
-                [key: string]: {
-                    [key: string]: number | null;
-                };
-            };
+            evolution: components["schemas"]["EtoroEvolutionInner"];
         };
         /** EtoroForm */
         EtoroForm: {

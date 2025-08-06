@@ -83,4 +83,4 @@ def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery):
     result = stocks_service.analyze_etoro_evolution_by_name(query, current_user.email)
     if result is None:
         return models.NotFoundResponse().dict(), 404
-    return result, 200
+    return result.dict(), 200
