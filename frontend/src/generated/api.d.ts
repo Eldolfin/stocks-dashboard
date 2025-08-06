@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/etoro_analysis": {
+    "/api/etoro/upload_report": {
         parameters: {
             query?: never;
             header?: never;
@@ -45,7 +45,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["stocks_analyze_etoro_excel_etoro_analysis_post"];
+        post: operations["stocks_upload_etoro_report_etoro_upload_report_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -60,6 +60,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["stocks_analyze_etoro_excel_by_name_etoro_analysis_by_name_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/etoro_evolution_by_name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["stocks_analyze_etoro_evolution_by_name_etoro_evolution_by_name_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -305,6 +321,15 @@ export interface components {
             closed_trades: number[];
             /** Profit Usd */
             profit_usd: number[];
+        };
+        /** EtoroEvolutionResponse */
+        EtoroEvolutionResponse: {
+            /** Evolution */
+            evolution: {
+                [key: string]: {
+                    [key: string]: number | null;
+                };
+            };
         };
         /** EtoroForm */
         EtoroForm: {
@@ -1495,7 +1520,7 @@ export interface operations {
             };
         };
     };
-    stocks_analyze_etoro_excel_etoro_analysis_post: {
+    stocks_upload_etoro_report_etoro_upload_report_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1508,15 +1533,6 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EtoroAnalysisResponse"];
-                };
-            };
             /** @description Unprocessable Content */
             422: {
                 headers: {
@@ -1547,6 +1563,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EtoroAnalysisResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorModel"][];
+                };
+            };
+        };
+    };
+    stocks_analyze_etoro_evolution_by_name_etoro_evolution_by_name_get: {
+        parameters: {
+            query: {
+                filename: string;
+                precision: components["schemas"]["PrecisionEnum"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EtoroEvolutionResponse"];
                 };
             };
             /** @description Not Found */

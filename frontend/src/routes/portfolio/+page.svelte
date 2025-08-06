@@ -33,7 +33,7 @@
 				console.error('Failed to fetch uploaded reports');
 			}
 		} catch (err) {
-			console.error('An error occurred while fetching uploaded reports:', err);
+			error = `An error occurred while fetching uploaded reports: ${err}`;
 		}
 	}
 
@@ -49,19 +49,18 @@
 				const formData = new FormData();
 				formData.append('file', files[0]);
 				formData.append('precision', precision_values[precision_index][1]);
-				const res = await client.POST('/api/etoro_analysis', {
-					body: formData as unknown as EtoroForm // FIXME: ???
+				const res = await client.POST('/api/etoro/upload_report', {
+					body: formData as unknown as EtoroForm
 				});
-
-				if (res.data) {
-					data = res.data;
-					error = undefined;
-					// After successful upload, refresh the list of reports
-					await fetchUploadedReports();
-				} else {
-					error = 'Failed to refetch data';
-				}
 				loading = false;
+
+				if (res.error) {
+					error = res.data!["error"];
+				} else {
+					error = undefined;
+					// Always refresh the list of reports on successful upload
+					await fetchUploadedReports();
+				}
 			}
 		})();
 	});
@@ -77,6 +76,7 @@
 				}
 			}
 		});
+		loading = false;
 
 		if (res.error) {
 			error = (res.error as components['schemas']['NotFoundResponse']).message;
@@ -84,7 +84,6 @@
 			data = res.data;
 			error = undefined;
 		}
-		loading = false;
 	}
 </script>
 
