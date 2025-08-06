@@ -1,8 +1,8 @@
 from pathlib import Path
 
-import pandas as pd  # type: ignore
-from flask import current_app  # type: ignore
-from werkzeug.utils import secure_filename  # type: ignore
+import pandas as pd
+from flask import current_app
+from werkzeug.utils import secure_filename
 
 from src import models
 from src.database import stocks_repository
@@ -28,7 +28,9 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     if query.period == "max":
         history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", query.interval))
     else:
-        history = pd.DataFrame(stocks_repository.get_ticker_history_from_start(query.ticker_name, start, query.interval))
+        history = pd.DataFrame(
+            stocks_repository.get_ticker_history_from_start(query.ticker_name, start, query.interval)
+        )
     if history.empty:
         return None
 
@@ -60,6 +62,7 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
         smas=smas,
     )
 
+
 def get_compare_growth(query: models.CompareGrowthQuery) -> models.CompareGrowthResponse:
     if len(query.ticker_names) == 1:
         query.ticker_names = query.ticker_names[0].split(",")
@@ -70,10 +73,11 @@ def get_compare_growth(query: models.CompareGrowthQuery) -> models.CompareGrowth
     base_prices = close_df.iloc[0]
     ratios_df = close_df.divide(base_prices)
 
-    candles = {ticker: ratios_df[ticker].tolist() for ticker in query.ticker_names}
+    candles = {ticker: ratios_df.loc[:, ticker].tolist() for ticker in query.ticker_names}
     dates = [index.strftime("%Y-%m-%d") for index in ratios_df.index]
 
     return models.CompareGrowthResponse(query=query, candles=candles, dates=dates)
+
 
 def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
     info = stocks_repository.get_ticker_info(query.ticker_name)
@@ -97,6 +101,7 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
         main=main,
     )
 
+
 def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     raw_quotes: list[models.RawQuote] = list(
         map(models.RawQuote.model_validate, stocks_repository.search(query.query)),
@@ -118,16 +123,18 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     ]
     return models.SearchResponse(quotes=quotes, query=query)
 
-def analyze_etoro_excel(form: models.EtoroForm, user_email: str) -> dict:
+
+def analyze_etoro_excel(form: models.EtoroForm, user_email: str) -> dict | None:
     if isinstance(form.file, str) or form.file.filename is None:
         return None
     etoro_upload_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     etoro_upload_folder.mkdir(exist_ok=True, parents=True)
     filename = secure_filename(form.file.filename)
     file_path = Path(etoro_upload_folder) / filename
-    form.file.save(file_path)
+    form.file.save(str(file_path))
 
     return extract_closed_position(file_path, time_unit=form.precision)
+
 
 def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
@@ -136,6 +143,7 @@ def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
 
     reports = [f.name for f in user_etoro_folder.iterdir() if (Path(user_etoro_folder) / f).exists()]
     return models.EtoroReportsResponse(reports=reports)
+
 
 def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_email: str) -> dict | None:
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email

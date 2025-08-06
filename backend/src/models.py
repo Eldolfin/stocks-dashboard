@@ -1,8 +1,8 @@
 from enum import Enum
 
 from flask_login import UserMixin
-from pydantic import BaseModel, Field  # type: ignore
-from werkzeug.datastructures import FileStorage  # type: ignore
+from flask_openapi3 import FileStorage
+from pydantic import BaseModel, Field
 
 
 class User(UserMixin):
@@ -365,6 +365,9 @@ class EtoroForm(BaseModel):
     precision: PrecisionEnum
     file: FileStorage
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class EtoroAnalysisResponse(BaseModel):
     close_date: list[str]
@@ -396,6 +399,9 @@ class RegisterForm(BaseModel):
     password: str
     profile_picture: FileStorage | None = None
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class RegisterResponse(BaseModel):
     id: int
@@ -408,6 +414,9 @@ class RegisterResponse(BaseModel):
 ####################
 class ProfilePictureForm(BaseModel):
     profile_picture: FileStorage
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class ProfilePicturePath(BaseModel):

@@ -1,8 +1,6 @@
-
-from pathlib import Path
-
+from flask import Response
 from flask_login import login_required
-from flask_openapi3 import APIBlueprint, Tag  # type: ignore
+from flask_openapi3 import APIBlueprint, Tag
 
 from src import models
 from src.services.auth_service import AuthService
@@ -47,5 +45,5 @@ def upload_profile_picture(form: models.ProfilePictureForm) -> tuple[dict, int]:
 
 
 @auth_bp.get("/profile/pictures/<user_email>/<filename>", tags=[auth_tag])
-def get_profile_picture(path: models.ProfilePicturePathParams) -> Path:
+def get_profile_picture(path: models.ProfilePicturePathParams) -> Response:
     return auth_service.get_profile_picture_file(path)

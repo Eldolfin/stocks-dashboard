@@ -1,7 +1,8 @@
 # ruff: noqa: ANN201
 
-from flask_caching import Cache  # type: ignore
-from flask_openapi3 import APIBlueprint, Tag  # type: ignore
+from flask_caching import Cache
+from flask_login import current_user, login_required
+from flask_openapi3 import APIBlueprint, Tag
 
 from src import models
 from src.services import stocks_service

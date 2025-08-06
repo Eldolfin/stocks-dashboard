@@ -1,10 +1,10 @@
 import sqlite3
 from pathlib import Path
 
-from flask import send_from_directory  # type: ignore
+from flask import Response, send_from_directory
 from flask_login import current_user, login_user, logout_user
-from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
-from werkzeug.utils import secure_filename  # type: ignore
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from src import models
 from src.database.auth_repository import AuthRepository
@@ -36,7 +36,7 @@ class AuthService:
                     user_upload_folder.mkdir(exist_ok=True)
                     filename = secure_filename(file.filename)
                     profile_picture_path = Path(user_upload_folder) / filename
-                    file.save(profile_picture_path)
+                    file.save(str(profile_picture_path))
                     # Store relative path in DB
                     profile_picture_path = Path(email) / filename
 
@@ -81,5 +81,5 @@ class AuthService:
             ).dict(), 200
         return models.NotFoundResponse(message="Something went wrong").dict(), 500
 
-    def get_profile_picture_file(self, path: models.ProfilePicturePathParams) -> Path:
+    def get_profile_picture_file(self, path: models.ProfilePicturePathParams) -> Response:
         return send_from_directory(UPLOAD_FOLDER / path.user_email, path.filename)
