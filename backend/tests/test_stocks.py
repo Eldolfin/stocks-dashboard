@@ -143,4 +143,5 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     response_data = response.json()
     assert "evolution" in response_data
     assert isinstance(response_data["evolution"], dict)
-    assert round(response_data["evolution"]["2025-08-06"]["total"]) == 3024
+    assert "2025-08-06" in response_data["evolution"]["dates"]
+    assert round(response_data["evolution"]["parts"]["total"][-1]) == 3024
