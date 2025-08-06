@@ -1,8 +1,11 @@
 services:
-  backend:
+  tests-e2e:
+    build:
+      context: ../tests
+    depends_on:
+      caddy:
+        condition: service_started
+    network_mode: "host"
     volumes:
-      - wsb-test-backend-db:/database
-
-volumes:
-  wsb-test-backend-db:
-    external: true
+      - ../tests/playwright-report:/tests/playwright-report
+      - ../tests/tests:/tests/tests

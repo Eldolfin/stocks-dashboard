@@ -1,4 +1,4 @@
-import { test } from '../fixtures/auth';
+import { test } from './fixtures/auth';
 import { expect } from '@playwright/test';
 
 test('register + login', async ({ loggedInPage }) => {

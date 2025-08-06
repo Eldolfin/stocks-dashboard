@@ -1,4 +1,4 @@
-import { test } from '../fixtures/auth';
+import { test } from './fixtures/auth';
 import { expect } from '@playwright/test';
 import * as path from 'path';
 
@@ -21,7 +21,7 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   });
   await loggedInPage.waitForTimeout(2000);
 
-  // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png") // doesn't produce the same screenshot on CI TODO: debug this
+  await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png") // doesn't produce the same screenshot on CI TODO: debug this
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
