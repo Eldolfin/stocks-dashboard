@@ -13,7 +13,7 @@ from .models import User
 from .services.auth_service import UPLOAD_FOLDER
 
 info = Info(title="stocks API", version="1.0.0")
-app = OpenAPI(__name__, info=info)
+app = OpenAPI(__name__, info=info, doc_prefix="/api/openapi", doc_url="/api/openapi.json")
 CORS(
     app,
     origins=[
