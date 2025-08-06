@@ -15,7 +15,8 @@ with app.setup:
     import matplotlib.pyplot as plt
     import numpy as np
     import marimo as mo
-    import yfinance as yf
+    # import yfinance as yf
+    import yfinance_cache as yf
     import logging as log
     import src.models as models
 
@@ -133,6 +134,8 @@ def _(excel):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.gca()
+    activity
+
     return (activity,)
 
 
@@ -156,6 +159,12 @@ def _(activity):
     # still_open["Details"] = still_open["Details"].str.replace(
     #     r"/(.+)$", "", regex=True
     # )
+    still_open = activity[activity["Type"].isin(["Open Position", "Position closed"])].copy()
+    still_open["Units / Contracts"] = still_open["Units / Contracts"].astype(np.float32)
+    still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] = (
+        still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] * -1
+    )
+
     still_open
     return (still_open,)
 
@@ -168,7 +177,7 @@ def _(still_open):
         _ticker_positions = _ticker_positions.sort_values(by="Date")
         _ticker_positions["Units / Contracts"] = _ticker_positions[
             "Units / Contracts"
-        ].astype(np.float32)
+        ]
         _ticker_positions = (
             _ticker_positions.resample("D")
             .agg({"Units / Contracts": "sum"})
@@ -222,7 +231,9 @@ def _():
 @app.cell
 def _(still_open):
     yahoo_data = {}
+    unsupported_markets = set()
     for _details in still_open["Details"].unique():
+        print(_details, "...")
         try:
             # Find the first open date for the ticker
             first_open_date = still_open[
@@ -231,22 +242,44 @@ def _(still_open):
 
             [ticker, market] = _details.split("/")
             if market != "USD":
-                log.warning("SKIPPING {ticker} because market={market} != \"USD\"")
-                continue
+                # log.warning(f"SKIPPING {ticker} because market={market} != \"USD\"")
+                # unsupported_markets.add(market)
+                if market == "GBX":
+                    market = "GBP"
+                ticker = f"USD{market}=X"
+                ticker_data = yf.Ticker(ticker)
+                # log.error(f"####  {ticker} #####")
+                exchange_rate = ticker_data.history(
+                    start=first_open_date.strftime("%Y-%m-%d"),
+                    end=pd.Timestamp.now().strftime("%Y-%m-%d"),
+                )["Close"]
+                # print(exchange_rate)
+                # break
+
             ticker_data = yf.Ticker(ticker)
             # Fetch historical data since the company's IPO or listing date
             history = ticker_data.history(
                 start=first_open_date.strftime("%Y-%m-%d"),
                 end=pd.Timestamp.now().strftime("%Y-%m-%d"),
             )
+
+            if market != "USD":
+                history["Close"] *= exchange_rate
             if not history.empty:
                 yahoo_data[_details] = history
             else:
                 print(f"No data found for {ticker}")
         except Exception as e:
             print(f"Could not fetch data for {ticker}: {e}")
-        print(ticker, "OK!")
+
     return (yahoo_data,)
+
+
+@app.cell
+def _(yahoo_data):
+    yahoo_data["RR.l/GBX"]
+    # exchange_rate
+    return
 
 
 @app.cell(hide_code=True)
@@ -331,7 +364,7 @@ def _():
 
 @app.cell
 def _(all_combined_data_filled, ax, name, table):
-    for stock in list(all_combined_data_filled)[:5]:
+    for stock in list(all_combined_data_filled)[:30]:
         # for stock in list(all_combined_data_filled)[:5] + ["RR.l"]:
         all_combined_data_filled[stock]["net_value"].plot(
             title=f"{stock} Net Value Over Time", label=stock
@@ -408,6 +441,20 @@ def _(all_data):
 @app.cell
 def _(res):
     res
+    return
+
+
+@app.cell
+def _(all_data):
+    plt.plot(all_data.index, all_data["total"])
+    plt.xlabel("Date")
+    plt.ylabel("Total Net Value")
+    plt.title("Total Net Value Over Time")
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    plt.gca()
     return
 
 
