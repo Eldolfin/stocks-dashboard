@@ -19,4 +19,4 @@ ci report_output="pytest-report.md":
     just test -v --md-report --md-report-flavor gfm --md-report-exclude-outcomes passed skipped xpassed --md-report-output {{report_output}}
 
 jupyter:
-    uv run marimo edit ./probe_etoro.py
+    uv run marimo edit ./notebooks/probe_etoro.py

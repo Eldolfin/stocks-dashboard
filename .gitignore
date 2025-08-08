@@ -14,3 +14,4 @@ __pycache__/
 data-collector/target
 data-collector/snapshots.csv
 backend/historical-data
+backend/notebooks/__marimo__/session
