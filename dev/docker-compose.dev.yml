@@ -1,11 +1,13 @@
 name: 'finance-dashboard-dev'
 services:
   backend:
+    image: gitea.eldolfin.top/eldolfin/finance-plots-backend-dev:latest
     build:
       dockerfile: Dockerfile.dev
     volumes:
       - ../backend:/app:ro
   frontend:
+    image: gitea.eldolfin.top/eldolfin/finance-plots-frontend-dev:latest
     build:
       dockerfile: Dockerfile.dev
     volumes:

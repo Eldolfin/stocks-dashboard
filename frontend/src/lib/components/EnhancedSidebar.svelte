@@ -19,7 +19,7 @@
 		isSidebarCollapsed.update((collapsed) => !collapsed);
 	}
 
-	let initialLoad = true;
+	let initialLoad = $state(true);
 	$effect(() => {
 		// After the first render, set initialLoad to false
 		// This ensures the transition class is only applied after the initial render
