@@ -7,7 +7,7 @@ dependencies = [
     "yfinance",
     "flask",
     "flask-openapi3[swagger,redoc,rapidoc]",
-    "pydantic==2.11.2",
+    "pydantic==2.11.7",
     "flask_cors",
     "openpyxl",
     "flask-caching>=2.3.1",
