@@ -4,7 +4,7 @@ import * as path from 'path';
 
 test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   // Navigate to portfolio page
-  await loggedInPage.getByRole('link', { name: '📊' }).click();
+  await loggedInPage.getByRole('link', { name: 'Portfolio' }).click();
   await loggedInPage.waitForURL('/portfolio');
   await expect(loggedInPage.getByRole('button', { name: 'Upload file' })).toBeVisible();
 
@@ -21,12 +21,12 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   });
   await loggedInPage.waitForTimeout(2000);
 
-  await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png") // doesn't produce the same screenshot on CI TODO: debug this
+  await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
 //   // Navigate to portfolio page
-//   await loggedInPage.getByRole('link', { name: '📊' }).click();
+//   await loggedInPage.getByRole('link', { name: 'Portfolio' }).click();
 //   await loggedInPage.waitForURL('/portfolio');
 //   await expect(loggedInPage.getByRole('button', { name: 'Upload file' })).toBeVisible();
 
