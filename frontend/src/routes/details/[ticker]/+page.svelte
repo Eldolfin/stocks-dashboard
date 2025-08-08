@@ -97,6 +97,7 @@
 
 	const history = data.history as components['schemas']['TickerResponse'];
 	const summary = data.summary as components['schemas']['KPIResponse'];
+	const historical_kpis = data.historical_kpis as components['schemas']['HistoricalKPIs'] | null;
 </script>
 
 <div class="flex flex-col items-center">
@@ -152,4 +153,33 @@
 			</div>
 		{/each}
 	</div>
+
+	{#if historical_kpis}
+		<h2 class="mt-8 text-2xl font-bold text-white">Historical KPIs</h2>
+		<div class="grid w-full max-w-screen-lg grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each Object.entries(historical_kpis.kpis) as [kpiName, kpiData] (kpiName)}
+				<div
+					class="rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-4 shadow-lg transition hover:scale-[1.02]"
+				>
+					<h3 class="mb-3 text-center font-semibold text-white">{kpiName}</h3>
+					{#if kpiData && kpiData.dates && kpiData.values}
+						<div class="h-48">
+							<HistoryChart
+								title=""
+								dataset={{ [kpiName]: kpiData.values }}
+								dates={kpiData.dates}
+								color="#8884d8"
+							/>
+						</div>
+					{:else}
+						<div class="flex h-48 items-center justify-center">
+							<p class="text-sm text-gray-400">Data not available for this KPI</p>
+						</div>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	{:else}
+		<p class="mt-8 text-lg text-gray-400">Historical data not available for this ticker.</p>
+	{/if}
 </div>
