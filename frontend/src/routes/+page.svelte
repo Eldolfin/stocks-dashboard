@@ -89,7 +89,14 @@
 				<div>
 					<a href="/details/{quote.raw.symbol}" class="flex flex-col items-center text-center">
 						{#if quote.icon_url}
-							<img src={quote.icon_url} alt="" class="mb-2 h-12 w-12 rounded-full" />
+							<img
+								src={quote.icon_url}
+								alt=""
+								class="mb-2 h-12 w-12 rounded-full"
+								onerror={(e) => {
+									(e.target as HTMLImageElement).style.display = 'none';
+								}}
+							/>
 						{/if}
 						<h2 class="text-lg font-semibold text-white">{quote.raw.longname}</h2>
 					</a>
