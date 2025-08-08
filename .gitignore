@@ -13,3 +13,11 @@ backend/build/lib
 __pycache__/
 data-collector/target
 data-collector/snapshots.csv
+
+# Just installation artifacts
+Cargo.lock
+Cargo.toml
+GRAMMAR.md
+LICENSE
+just.1
+completions/
