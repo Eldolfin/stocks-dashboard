@@ -1,0 +1,28 @@
+from pathlib import Path
+
+import pandas as pd
+
+from src.models import HistoricalKPI, HistoricalKPIs
+
+
+def load_historical_kpis(ticker: str) -> HistoricalKPIs | None:
+    file = Path(f"./historical-data/cleaned/{ticker}.csv")
+    if not file.is_file():
+        return None
+    df = pd.read_csv(file, header=0)
+    cols = df.columns[1:].to_numpy().reshape(-1, 2)
+
+    res = {}
+    for sub_cols in cols:
+        kpi = sub_cols[1]
+        date_value = df[sub_cols].rename(
+            columns={
+                sub_cols[0]: "dates",
+                sub_cols[1]: "values",
+            }
+        )
+
+        date_value = date_value.dropna()
+        date_value = date_value.to_dict("list")
+        res[kpi] = HistoricalKPI(dates=date_value["dates"], values=date_value["values"])
+    return HistoricalKPIs(kpis=res)
