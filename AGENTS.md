@@ -44,3 +44,9 @@ The project runs with hot reload enabled via Docker, so there's no need to manua
 - Write clear, concise commit messages
 - Use meaningful variable names
 - Add comments for complex logic
+
+## Special Instructions
+- NEVER cancel long-running commands (Docker builds, tests, etc.) - set appropriate timeouts
+- Always run `just lint` and `just test` before committing
+- When Docker fails due to network restrictions, use local development with `cd frontend && npm run dev` and `cd backend && uv run python -m flask run`
+- Fix the known ESLint issue in `frontend/src/routes/+page.svelte` about using `SvelteMap` instead of `Map`
