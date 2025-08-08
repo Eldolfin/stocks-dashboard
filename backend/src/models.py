@@ -343,6 +343,18 @@ class NotFoundResponse(BaseModel):
     message: str = "Resource not found!"
 
 
+#########################
+#  HISTORICALKPI QUERY  #
+#########################
+class HistoricalKPI(BaseModel):
+    dates: list[str]
+    values: list[float]
+
+
+class HistoricalKPIs(BaseModel):
+    kpis: dict[str, HistoricalKPI]
+
+
 ####################
 #  ETORO ANALYSIS  #
 ####################
@@ -387,6 +399,7 @@ class EtoroReportsResponse(BaseModel):
 class EtoroEvolutionInner(BaseModel):
     parts: dict[str, list[float]]
     dates: list[str]
+
 
 class EtoroEvolutionResponse(BaseModel):
     evolution: EtoroEvolutionInner

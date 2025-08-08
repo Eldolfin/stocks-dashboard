@@ -35,6 +35,16 @@ def get_kpis(query: models.KPIQuery):
     return result.dict(), 200
 
 
+@stocks_bp.get(
+    "/historical-kpis/", tags=[stocks_tag], responses={200: models.HistoricalKPIs, 404: models.NotFoundResponse}
+)
+def get_historical_kpis(query: models.KPIQuery):
+    result = stocks_service.get_historical_kpis(query)
+    if result is None:
+        return models.NotFoundResponse().dict(), 404
+    return result.dict(), 200
+
+
 @stocks_bp.get("/search/", tags=[stocks_tag], responses={200: models.SearchResponse})
 @cache.memoize()
 def search_ticker(query: models.SearchQuery):
@@ -63,7 +73,7 @@ def list_etoro_reports():
     tags=[stocks_tag],
     responses={200: models.EtoroAnalysisResponse, 404: models.NotFoundResponse},
 )
-@cache.memoize() # FIXME: is this a good idea?
+@cache.memoize()  # FIXME: is this a good idea?
 @login_required
 def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     result = stocks_service.analyze_etoro_excel_by_name(query, current_user.email)
@@ -77,7 +87,7 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     tags=[stocks_tag],
     responses={200: models.EtoroEvolutionResponse, 404: models.NotFoundResponse},
 )
-@cache.memoize() # FIXME: is this a good idea?
+@cache.memoize()  # FIXME: is this a good idea?
 @login_required
 def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery):
     result = stocks_service.analyze_etoro_evolution_by_name(query, current_user.email)

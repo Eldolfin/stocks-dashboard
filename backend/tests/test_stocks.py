@@ -70,6 +70,30 @@ def test_get_kpis_not_found() -> None:
     assert response.status_code == 404
 
 
+def test_get_historical_kpis_success() -> None:
+    response = requests.get(f"{BASE_URL}/historical-kpis/", params={"ticker_name": "AAPL"})
+    assert response.status_code == 200
+    data = response.json()
+    assert list(data["kpis"].keys()) == [
+        "Dividend",
+        "EPS",
+        "Earnings",
+        "Free CF",
+        "Market Cap",
+        "Outstanding Shares",
+        "PE ratio",
+        "Revenue",
+        "Volume",
+    ]
+    assert data["kpis"]["Revenue"]["values"][0] == 2343.0
+    assert data["kpis"]["Revenue"]["dates"][0] == "2000-01-07"
+
+
+def test_get_historical_kpis_not_found() -> None:
+    response = requests.get(f"{BASE_URL}/historical-kpis/", params={"ticker_name": "INVALIDTICKER"})
+    assert response.status_code == 404
+
+
 def test_search_ticker() -> None:
     response = requests.get(f"{BASE_URL}/search/", params={"query": "Apple"})
     assert response.status_code == 200

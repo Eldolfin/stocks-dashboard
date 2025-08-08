@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 from src import models
 from src.database import stocks_repository
+from src.database import bloomberg_repository
 
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
@@ -100,6 +101,10 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
         info=info,
         main=main,
     )
+
+
+def get_historical_kpis(query: models.KPIQuery) -> models.HistoricalKPIs | None:
+    return bloomberg_repository.load_historical_kpis(query.ticker_name)
 
 
 def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
