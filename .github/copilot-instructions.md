@@ -7,7 +7,7 @@ This is a full-stack finance dashboard application using Flask backend (Python) 
 ## Critical Setup Requirements
 
 ### Required Tools
-- **just** - Task runner (install (don't run this in repo root! to avoid pushing trash files): `wget -qO- 'https://github.com/casey/just/releases/download/1.42.4/just-1.42.4-x86_64-unknown-linux-musl.tar.gz' | tar -xzf- && sudo mv just /usr/local/bin/`)
+- **just** - Task runner (install: `wget -qO- 'https://github.com/casey/just/releases/download/1.42.4/just-1.42.4-x86_64-unknown-linux-musl.tar.gz' | tar -xzf- && sudo mv just /usr/local/bin/`)
 - **Docker & docker-compose** - For full development environment
 - **npm** - For frontend development (usually pre-installed)
 - **uv** - Python package manager for backend (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
