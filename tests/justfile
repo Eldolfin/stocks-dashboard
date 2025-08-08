@@ -28,5 +28,13 @@ run-ui:
 update-snapshots:
     just docker-playwright test --update-snapshots
 
+# Run comprehensive feature walkthrough test
+demo:
+    ./generate-demo.sh
+
+# Run comprehensive test with video recording for demo creation
+demo-with-video:
+    npx playwright test comprehensive-walkthrough.spec.ts --project=chromium --video=on --reporter=html
+
 # Ran by github actions
 ci: docker

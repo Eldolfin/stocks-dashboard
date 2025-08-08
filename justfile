@@ -17,6 +17,13 @@ lint:
     just backend lint
     just frontend lint
 
+# Generate demo materials and run comprehensive E2E test
+demo:
+    ./generate-demo-materials.sh
+    echo "To run the full demo test:"
+    echo "1. Start dev environment: just dev-docker"
+    echo "2. Run test: cd tests && just demo"
+
 # Pull from upstream and restart with new version
 restart-prod:
     git pull
