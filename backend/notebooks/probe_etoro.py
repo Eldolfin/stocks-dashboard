@@ -15,6 +15,7 @@ with app.setup:
     import matplotlib.pyplot as plt
     import numpy as np
     import marimo as mo
+
     # import yfinance as yf
     import yfinance_cache as yf
     import logging as log
@@ -52,11 +53,7 @@ def _(excel):
     closed = closed.sort_values(by="Close Date")
     closed = closed.set_index(closed["Close Date"])
     closed["Profit(USD)"] = closed["Profit(USD)"].astype(np.float32)
-    closed = (
-        closed.resample("D")
-        .agg({"Profit(USD)": "sum"})
-        .fillna(0)
-    )
+    closed = closed.resample("D").agg({"Profit(USD)": "sum"}).fillna(0)
     closed
     return (closed,)
 
@@ -69,12 +66,8 @@ def _():
 
 @app.cell
 def _(closed):
-
-
     # Calculate cumulative profit
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
-
-
 
     # Plotting
     plt.plot(closed.index, closed["Cumulative Profit"])
@@ -106,13 +99,7 @@ def _(excel):
     activity = activity.set_index("Date")
 
     # Resample to daily frequency, filling missing values with 0
-    daily_deposits = (
-        activity[activity["Type"] == "Deposit"]["Amount"]
-        .astype(np.float32)
-        .resample("D")
-        .sum()
-        .fillna(0)
-    )
+    daily_deposits = activity[activity["Type"] == "Deposit"]["Amount"].astype(np.float32).resample("D").sum().fillna(0)
 
     # Calculate cumulative deposits
     cumulative_deposits = daily_deposits.cumsum()
@@ -153,9 +140,7 @@ def _(activity):
     open_position_ids = open_positions["Position ID"].dropna().astype(str)
     closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
 
-    still_open = open_positions[
-        ~open_positions["Position ID"].isin(closed_position_ids)
-    ].copy()
+    still_open = open_positions[~open_positions["Position ID"].isin(closed_position_ids)].copy()
     # still_open["Details"] = still_open["Details"].str.replace(
     #     r"/(.+)$", "", regex=True
     # )
@@ -175,22 +160,14 @@ def _(still_open):
     for tick in still_open["Details"].unique():
         _ticker_positions = still_open[still_open["Details"] == tick].copy()
         _ticker_positions = _ticker_positions.sort_values(by="Date")
-        _ticker_positions["Units / Contracts"] = _ticker_positions[
-            "Units / Contracts"
-        ]
-        _ticker_positions = (
-            _ticker_positions.resample("D")
-            .agg({"Units / Contracts": "sum"})
-            .fillna(0)
-        )
+        _ticker_positions["Units / Contracts"] = _ticker_positions["Units / Contracts"]
+        _ticker_positions = _ticker_positions.resample("D").agg({"Units / Contracts": "sum"}).fillna(0)
         _ticker_positions = _ticker_positions.reindex(
             pd.date_range(_ticker_positions.index.min(), pd.Timestamp.today()),
             fill_value=0,
         )
         try:
-            _ticker_positions["shares_sum"] = _ticker_positions[
-                "Units / Contracts"
-            ].cumsum()
+            _ticker_positions["shares_sum"] = _ticker_positions["Units / Contracts"].cumsum()
         except Exception as e:
             print(f"FAILED FOR {tick}: {e}")
             continue
@@ -236,9 +213,7 @@ def _(still_open):
         print(_details, "...")
         try:
             # Find the first open date for the ticker
-            first_open_date = still_open[
-                still_open["Details"] == _details
-            ].index.min()
+            first_open_date = still_open[still_open["Details"] == _details].index.min()
 
             [ticker, market] = _details.split("/")
             if market != "USD":
@@ -304,9 +279,7 @@ def _(shares_per_ticker, yahoo_data):
             _yahoo_data = yahoo_data[_ticker]
 
             # Ensure both DataFrames have a datetime index and are timezone-naive
-            _shares_data.index = pd.to_datetime(_shares_data.index).tz_localize(
-                None
-            )
+            _shares_data.index = pd.to_datetime(_shares_data.index).tz_localize(None)
             _yahoo_data.index = pd.to_datetime(_yahoo_data.index).tz_localize(None)
 
             # Join the DataFrames on their indices using a left join
@@ -366,9 +339,7 @@ def _():
 def _(all_combined_data_filled, ax, name, table):
     for stock in list(all_combined_data_filled)[:30]:
         # for stock in list(all_combined_data_filled)[:5] + ["RR.l"]:
-        all_combined_data_filled[stock]["net_value"].plot(
-            title=f"{stock} Net Value Over Time", label=stock
-        )
+        all_combined_data_filled[stock]["net_value"].plot(title=f"{stock} Net Value Over Time", label=stock)
         ax.plot(table.index, table["shares_sum"], label=name)
 
     plt.xlabel("Date")
@@ -380,7 +351,7 @@ def _(all_combined_data_filled, ax, name, table):
 
 @app.cell
 def _(closed):
-    closed.rename(columns={"Cumulative Profit":"net_value"})
+    closed.rename(columns={"Cumulative Profit": "net_value"})
     # closed.reindex(closed["Close Date"]).rename({"Cumulative Profit":"net_value"})
     # print(cumulative_deposits)
     return
@@ -398,13 +369,11 @@ def _(all_combined_data_filled, closed):
 
     all_profits = dict(all_combined_data_filled)
 
-    all_profits["Closed Positions"] = closed.rename(columns={"Cumulative Profit":"net_value"})
+    all_profits["Closed Positions"] = closed.rename(columns={"Cumulative Profit": "net_value"})
     # all_profits["Deposits"] = pd.DataFrame({"net_value": cumulative_deposits})
     print(all_profits["Closed Positions"])
     for _stock, _df in all_profits.items():
-        _all_data = _all_data.join(
-            _df[["net_value"]].rename(columns={"net_value": _stock}), how="outer"
-        )
+        _all_data = _all_data.join(_df[["net_value"]].rename(columns={"net_value": _stock}), how="outer")
 
     _all_data = _all_data.ffill()
     _all_data["total"] = _all_data.sum(axis=1)
@@ -412,11 +381,11 @@ def _(all_combined_data_filled, closed):
     _fig, _ax = plt.subplots(figsize=(16, 12))  # Double the default size
 
     _all_data["Closed Positions"].plot(
-        title='Total net value of portfolio over time',
+        title="Total net value of portfolio over time",
         xlabel="Date",
         ylabel="Total Net Value",
         label="Closed Positions",
-        ax=_ax
+        ax=_ax,
     )
     _all_data["total"].plot(ax=_ax, label="Total")
 
@@ -424,7 +393,7 @@ def _(all_combined_data_filled, closed):
         if col not in ["Closed Positions", "total"]:
             _all_data[col].plot(ax=_ax, label=col)
 
-    _ax.legend(loc='best')  # Let matplotlib decide the best location
+    _ax.legend(loc="best")  # Let matplotlib decide the best location
     plt.gca()
     print(_all_data)
 
@@ -434,7 +403,9 @@ def _(all_combined_data_filled, closed):
 
 @app.cell
 def _(all_data):
-    res = models.EtoroEvolutionInner(dates=all_data.index.astype(str).to_list(), parts=all_data.reset_index().drop(columns=['index']).to_dict('list'))
+    res = models.EtoroEvolutionInner(
+        dates=all_data.index.astype(str).to_list(), parts=all_data.reset_index().drop(columns=["index"]).to_dict("list")
+    )
     return (res,)
 
 

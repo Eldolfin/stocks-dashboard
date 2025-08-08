@@ -13,3 +13,4 @@ backend/build/lib
 __pycache__/
 data-collector/target
 data-collector/snapshots.csv
+backend/historical-data
