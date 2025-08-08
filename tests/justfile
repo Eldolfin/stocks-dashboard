@@ -9,6 +9,8 @@ _dc *args:
 
 # Run playwright command in docker
 docker-playwright +args:
+    docker compose -f ../dev/docker-compose.yml down
+    docker compose -f ../dev/docker-compose.yml up -d --build
     just _dc run tests-e2e npx -y playwright {{args}}
 
 # Restart frontend & backend with a clean DB
