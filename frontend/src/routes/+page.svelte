@@ -11,9 +11,9 @@
 	let pendingRequest = $state(0);
 
 	// Store selected ticker symbols
-	let comparedTickers = $state(new SvelteSet<string>());
+	let comparedTickers = new SvelteSet<string>();
 	// Cache all loaded ticker objects to retrieve details later
-	let tickerCache = $state(new Map<string, Ticker>());
+	let tickerCache = new Map<string, Ticker>();
 
 	// Derived state for the full objects of selected tickers
 	let selectedTickerObjects = $derived(
@@ -28,7 +28,7 @@
 			return;
 		}
 		pendingRequest += 1;
-		const { data  } = await client
+		const { data } = await client
 			.GET('/api/search/', {
 				params: {
 					query: {

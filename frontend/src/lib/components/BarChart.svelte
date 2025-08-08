@@ -2,7 +2,7 @@
 	import 'chartjs-adapter-moment';
 	import Chart from 'chart.js/auto';
 	import { browser } from '$app/environment';
-	import {  onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	type Dataset = Map<string, number[]>;
 	interface Props {

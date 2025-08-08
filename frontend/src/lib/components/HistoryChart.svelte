@@ -70,10 +70,10 @@
 			}
 		} satisfies ChartConfiguration;
 
-		    if (chartInstance) {
-      chartInstance.destroy();
-      chartInstance = null; // Explicitly set to null after destroying
-    }
+		if (chartInstance) {
+			chartInstance.destroy();
+			chartInstance = null; // Explicitly set to null after destroying
+		}
 		chartInstance = new Chart(chartElt! as HTMLCanvasElement, config);
 	};
 
@@ -83,9 +83,7 @@
 		createChart();
 	});
 
-
-
-	  $effect(() => {
+	$effect(() => {
 		if (chartInstance) {
 			chartInstance.data.labels = dates;
 			chartInstance.data.datasets = Object.entries(dataset).map(([label, data], index) => {
@@ -103,12 +101,12 @@
 		}
 	});
 
-	  onDestroy(() => {
-    if (chartInstance) {
-      chartInstance.destroy();
-      chartInstance = null; // Explicitly set to null after destroying
-    }
-  });
+	onDestroy(() => {
+		if (chartInstance) {
+			chartInstance.destroy();
+			chartInstance = null; // Explicitly set to null after destroying
+		}
+	});
 </script>
 
 <div class="flex h-full w-full items-center justify-center">

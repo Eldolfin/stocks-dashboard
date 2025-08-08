@@ -2,7 +2,7 @@ import createClient from 'openapi-fetch';
 import type { paths } from '../generated/api';
 import { browser } from '$app/environment';
 
-export let baseUrl = browser ? '/' : 'http://backend:5000';
+export const baseUrl = browser ? '/' : 'http://backend:5000';
 
 export const client = createClient<paths>({
 	baseUrl,

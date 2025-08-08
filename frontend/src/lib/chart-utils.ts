@@ -5,7 +5,6 @@ import 'chartjs-adapter-luxon';
 // Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
 let _seed = Date.now();
 
-
 export function srand(seed: number) {
 	_seed = seed;
 }

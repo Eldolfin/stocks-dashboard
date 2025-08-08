@@ -1,4 +1,4 @@
-import type { Load } from "@sveltejs/kit"
+import type { Load } from '@sveltejs/kit';
 import { client } from '$lib/typed-fetch-client';
 
 export const load: Load = async ({ depends, fetch }) => {
