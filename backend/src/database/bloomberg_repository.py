@@ -10,7 +10,7 @@ def load_historical_kpis(ticker: str) -> HistoricalKPIs | None:
     if not file.is_file():
         return None
     df = pd.read_csv(file, header=0)
-    cols = df.columns[1:].to_numpy().reshape(-1, 2)
+    cols = df.columns.to_numpy().reshape(-1, 2)
 
     res = {}
     for sub_cols in cols:
