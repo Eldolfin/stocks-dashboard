@@ -469,3 +469,11 @@ class ProfilePicturePathParams(BaseModel):
 class UserResponse(BaseModel):
     email: str
     profile_picture: str | None = None
+
+
+class TaskResultResponse(BaseModel):
+    """Generic response for task results. Can contain various data types."""
+    result: dict | None = None
+    
+    class Config:
+        arbitrary_types_allowed = True
