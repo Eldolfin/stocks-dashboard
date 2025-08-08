@@ -12,8 +12,13 @@
 	} from '$lib/format-utils';
 	import type { components } from '../../../generated/api.js';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { client } from '$lib/typed-fetch-client';
 
 	let { data } = $props();
+
+	// State for current chart data and loading
+	let currentHistory = $state(data.history as components['schemas']['TickerResponse']);
+	let isLoadingHistory = $state(false);
 
 	const ranges = [
 		{ label: '1 Day', value: '1d' },
@@ -80,12 +85,40 @@
 			]
 		}
 	];
-	const changeRange = (newValue: string) => {
-		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
+	const changeRange = async (newValue: string) => {
+		const currentPeriod = $page.url.searchParams.get('period') || 'ytd';
 
+		// Don't fetch if it's the same period
+		if (currentPeriod === newValue) {
+			return;
+		}
+
+		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
 		query.set('period', newValue);
 
+		// Update URL first
 		goto(`?${query.toString()}`, { replaceState: true });
+
+		// Fetch new data
+		isLoadingHistory = true;
+		try {
+			const history_res = await client.GET('/api/ticker/', {
+				params: {
+					query: {
+						period: newValue,
+						ticker_name: data.ticker
+					}
+				}
+			});
+
+			if (history_res.response.ok && history_res.data) {
+				currentHistory = history_res.data;
+			}
+		} catch (error) {
+			console.error('Failed to fetch new history data:', error);
+		} finally {
+			isLoadingHistory = false;
+		}
 	};
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,7 +129,6 @@
 		return obj;
 	};
 
-	const history = data.history as components['schemas']['TickerResponse'];
 	const summary = data.summary as components['schemas']['KPIResponse'];
 	const historical_kpis = data.historical_kpis as components['schemas']['HistoricalKPIs'] | null;
 
@@ -137,27 +169,37 @@
 	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{data.ticker}</h1>
 	<p
 		class="text-brand animate-fade-in mt-2 text-lg sm:text-xl"
-		style={`color: ${ratioColor(history.delta)}`}
+		style={`color: ${ratioColor(currentHistory.delta)}`}
 	>
-		{formatPercent(history.delta!)}
+		{formatPercent(currentHistory.delta!)}
 	</p>
 	<p class="text-sm text-gray-400">Price / ∇</p>
 
 	<div
 		class="my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
 	>
-		<HistoryChart
-			title={`Price: ${history.query.period}`}
-			dataset={{ price: history.candles, ...history.smas }}
-			dates={history.dates}
-			color={ratioColor(history.delta)}
-		/>
+		{#if isLoadingHistory}
+			<div class="flex items-center space-x-2">
+				<div
+					class="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"
+				></div>
+				<span class="text-gray-400">Loading chart data...</span>
+			</div>
+		{:else}
+			<HistoryChart
+				title={`Price: ${currentHistory.query.period}`}
+				dataset={{ price: currentHistory.candles, ...currentHistory.smas }}
+				dates={currentHistory.dates}
+				color={ratioColor(currentHistory.delta)}
+			/>
+		{/if}
 	</div>
 
 	<div class="mb-8 flex flex-wrap justify-center gap-2">
 		{#each ranges as range (range.label)}
 			<button
-				class="rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
+				class="rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+				disabled={isLoadingHistory}
 				onclick={() => changeRange(range.value)}>{range.label}</button
 			>
 		{/each}
