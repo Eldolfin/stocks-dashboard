@@ -84,6 +84,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/historical-kpis/': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['stocks_get_historical_kpis_historical_kpis__get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/kpis/': {
 		parameters: {
 			query?: never;
@@ -348,6 +364,20 @@ export interface components {
 		EtoroReportsResponse: {
 			/** Reports */
 			reports: string[];
+		};
+		/** HistoricalKPI */
+		HistoricalKPI: {
+			/** Dates */
+			dates: string[];
+			/** Values */
+			values: number[];
+		};
+		/** HistoricalKPIs */
+		HistoricalKPIs: {
+			/** Kpis */
+			kpis: {
+				[key: string]: components['schemas']['HistoricalKPI'];
+			};
 		};
 		/** Info */
 		Info: {
@@ -1608,6 +1638,46 @@ export interface operations {
 				};
 				content: {
 					'application/json': components['schemas']['EtoroEvolutionResponse'];
+				};
+			};
+			/** @description Not Found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['NotFoundResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_get_historical_kpis_historical_kpis__get: {
+		parameters: {
+			query: {
+				ticker_name: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['HistoricalKPIs'];
 				};
 			};
 			/** @description Not Found */
