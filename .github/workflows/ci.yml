@@ -44,7 +44,7 @@ jobs:
     - name: Setup environement
       run: cp .env.example .env
     - name: Run Playwright tests
-      run: just tests ci
+      run: export CI=1; just tests ci
     - name: Show logs on failure
       if: failure()
       run: docker compose -f dev/docker-compose.yml logs
