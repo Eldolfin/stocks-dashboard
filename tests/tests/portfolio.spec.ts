@@ -4,7 +4,7 @@ import * as path from 'path';
 
 test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   // Navigate to portfolio page
-  await loggedInPage.getByRole('link', { name: '📊' }).click();
+  await loggedInPage.getByRole('link', { name: 'Portfolio' }).click();
   await loggedInPage.waitForURL('/portfolio');
   await expect(loggedInPage.getByRole('button', { name: 'Upload file' })).toBeVisible();
 
@@ -26,7 +26,7 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
 //   // Navigate to portfolio page
-//   await loggedInPage.getByRole('link', { name: '📊' }).click();
+//   await loggedInPage.getByRole('link', { name: 'Portfolio' }).click();
 //   await loggedInPage.waitForURL('/portfolio');
 //   await expect(loggedInPage.getByRole('button', { name: 'Upload file' })).toBeVisible();
 
