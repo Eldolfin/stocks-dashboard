@@ -9,14 +9,12 @@ _dc *args:
 
 # Run playwright command in docker
 docker-playwright +args:
-    docker compose -f ../dev/docker-compose.yml down
-    docker compose -f ../dev/docker-compose.yml up -d --build
     just _dc run tests-e2e npx -y playwright {{args}}
 
 # Restart frontend & backend with a clean DB
 docker:
     just _dc down tests-e2e
-    just _dc up --exit-code-from tests-e2e --build tests-e2e
+    just _dc up --build tests-e2e
 
 # run playwright tests outside of docker
 run:
@@ -29,14 +27,6 @@ run-ui:
 # Generate expected screenshots
 update-snapshots:
     just docker-playwright test --update-snapshots
-
-# Run comprehensive feature walkthrough test
-demo:
-    ./generate-demo.sh
-
-# Run comprehensive test with video recording for demo creation
-demo-with-video:
-    npx playwright test comprehensive-walkthrough.spec.ts --project=chromium --video=on --reporter=html
 
 # Ran by github actions
 ci: docker
