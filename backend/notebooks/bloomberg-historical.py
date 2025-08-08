@@ -50,7 +50,13 @@ def _(excels, mo, pd):
 
         for sub_cols in reshaped_columns:
             sub_df = multi[sub_cols]
-            ticker = sub_df.columns[0].split(" ")[0].replace("/", "-")
+            ticker = sub_df.columns[0]
+            [ticker, exchange, _] = ticker.split(" ")
+            suffix = ""
+            match exchange:
+                case "FP":
+                    suffix = ".PA"
+            ticker = ticker.replace("/", "-")
             sub_df = sub_df.iloc[:, 1:]
             assert len(sub_df.columns[:-1]) % 3 == 0, f"{ticker}: column grouping failed"
             _cols = sub_df.columns[:-1].to_numpy().reshape(-1, 3)
@@ -67,13 +73,25 @@ def _(excels, mo, pd):
                     rename[col1] = f"date_{col2}"
                 sub_df[col2] = pd.to_numeric(sub_df[col2], errors="coerce")
                 sub_df = sub_df[sub_df[col1].notna()]
-                sub_df[col1] = pd.to_datetime(sub_df[col1]).dt.strftime("%Y-%m-%d")
+                is_number = sub_df[col1].astype(str).str.isnumeric()
+                if is_number.any():
+                    numeric_dates = sub_df.loc[is_number, col1].astype(int)
+                    sub_df.loc[is_number, col1] = pd.to_datetime("1899-12-30") + pd.to_timedelta(
+                        numeric_dates, unit="D"
+                    )
+                print("#####################################")
+                print(sub_df[col1])
+                # sub_df[col1] = pd.to_datetime(sub_df[col1])
+                sub_df[col1] = sub_df[col1].dt.strftime("%Y-%m-%d")
+
+                print(sub_df[col1])
+                print("#####################################")
 
             # Select the columns
             sub_df_cleaned = sub_df[selected_cols].rename(columns=rename)
             sub_df_cleaned = sub_df_cleaned.rename(columns=lambda x: x.split(".")[0])
 
-            sub_df_cleaned.to_csv(f"./historical-data/cleaned/{ticker}.csv", index=False)
+            sub_df_cleaned.to_csv(f"./historical-data/cleaned/{ticker}{suffix}.csv", index=False)
             print(ticker)
             if ticker == "TSLA":
                 tsla = sub_df_cleaned
