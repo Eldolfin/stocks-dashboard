@@ -6,26 +6,25 @@ app = marimo.App(width="full")
 
 @app.cell
 def _():
-    import pandas as pd
-    import numpy as np
     from glob import glob
+
     import marimo as mo
+    import pandas as pd
     from pydantic import BaseModel
 
     return BaseModel, glob, mo, pd
 
 
 @app.cell
-def _(mo):
+def _(mo) -> None:
     mo.md(r"""## Clean data (split into one csv file per ticker)""")
-    return
 
 
 @app.cell
 def _(glob):
     all_files = glob("./historical-data/history*.xlsx")
     files_multi = glob("./historical-data/history*10 stocks*.xlsx")
-    files_single = list(set(all_files) - set(files_multi))
+    list(set(all_files) - set(files_multi))
     return (files_multi,)
 
 
@@ -65,19 +64,17 @@ def _(files_multi, mo, pd):
 
 
 @app.cell
-def _(ticker):
+def _(ticker) -> None:
     ticker
-    return
 
 
 @app.cell
-def _(mo):
+def _(mo) -> None:
     mo.md(r"""## Retrieve a ticker historical KPIs""")
-    return
 
 
 @app.cell
-def _(BaseModel, pd):
+def _(BaseModel, pd) -> None:
     class HistoricalKPI(BaseModel):
         dates: list[str]
         values: list[float]
@@ -107,7 +104,6 @@ def _(BaseModel, pd):
     # load_historical_kpis("DUOL")
     # load_historical_kpis("GOOG")
     load_historical_kpis("BAS")
-    return
 
 
 if __name__ == "__main__":

@@ -23,6 +23,5 @@ def load_historical_kpis(ticker: str) -> HistoricalKPIs | None:
         )
 
         date_value = date_value.dropna()
-        date_value = date_value.to_dict("list")
-        res[kpi] = HistoricalKPI(dates=date_value["dates"], values=date_value["values"])
+        res[kpi] = HistoricalKPI(dates=date_value["dates"].to_list(), values=date_value["values"].to_list())
     return HistoricalKPIs(kpis=res)

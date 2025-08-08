@@ -10,28 +10,27 @@ app = marimo.App(width="medium")
 
 with app.setup:
     # Initialization code that runs before all other cells
-    import pandas as pd
-    import src.services.etoro_data as etoro
+
+    import marimo as mo
     import matplotlib.pyplot as plt
     import numpy as np
-    import marimo as mo
+    import pandas as pd
 
     # import yfinance as yf
     import yfinance_cache as yf
-    import logging as log
-    import src.models as models
+
+    import src.services.etoro_data as etoro
+    from src import models
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""# Etoro networth analysis""")
-    return
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""## Data Import and Preparation""")
-    return
 
 
 @app.cell
@@ -59,13 +58,12 @@ def _(excel):
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""## Cumulative profit of closed trades""")
-    return
 
 
 @app.cell
-def _(closed):
+def _(closed) -> None:
     # Calculate cumulative profit
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
 
@@ -78,13 +76,11 @@ def _(closed):
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
     plt.gca()
-    return
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""## Cumulative deposits""")
-    return
 
 
 @app.cell
@@ -127,9 +123,8 @@ def _(excel):
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""## Open positions price estimation""")
-    return
 
 
 @app.cell
@@ -137,7 +132,7 @@ def _(activity):
     open_positions = activity[activity["Type"] == "Open Position"]
     closed_positions = activity[activity["Type"] == "Position closed"]
 
-    open_position_ids = open_positions["Position ID"].dropna().astype(str)
+    open_positions["Position ID"].dropna().astype(str)
     closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
 
     still_open = open_positions[~open_positions["Position ID"].isin(closed_position_ids)].copy()
@@ -178,8 +173,6 @@ def _(still_open):
 
 @app.cell
 def _(shares_per_ticker):
-    reel = shares_per_ticker
-
     # Plotting the cumulative sum for all tickers on the same plot
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -200,15 +193,13 @@ def _(shares_per_ticker):
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md("""## Yahoo Finance Data Retrieval""")
-    return
 
 
 @app.cell
 def _(still_open):
     yahoo_data = {}
-    unsupported_markets = set()
     for _details in still_open["Details"].unique():
         print(_details, "...")
         try:
@@ -251,14 +242,13 @@ def _(still_open):
 
 
 @app.cell
-def _(yahoo_data):
+def _(yahoo_data) -> None:
     yahoo_data["RR.l/GBX"]
     # exchange_rate
-    return
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md(
         """
     ## Combine yahoo data with etoro data
@@ -266,7 +256,6 @@ def _():
     *(this is where it starts to get weird)*
     """
     )
-    return
 
 
 @app.cell
@@ -295,7 +284,7 @@ def _(shares_per_ticker, yahoo_data):
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md(
         r"""
     # **WTF** 🤯
@@ -304,13 +293,11 @@ def _():
     -> C'est parceque **RRL.l** est en fait **RRL.l/GBX** sur etoro donc les "Units/Contracts" sont peut être pas equivalents
     """
     )
-    return
 
 
 @app.cell
-def _(all_combined_data):
+def _(all_combined_data) -> None:
     all_combined_data["GOOG/USD"]
-    return
 
 
 @app.cell
@@ -322,7 +309,7 @@ def _(all_combined_data):
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md(
         r"""
     ## Test ici le poids le **RR.l**
@@ -332,11 +319,10 @@ def _():
     *Mais si on ajoute **RR.L** ☠️
     """
     )
-    return
 
 
 @app.cell
-def _(all_combined_data_filled, ax, name, table):
+def _(all_combined_data_filled, ax, name, table) -> None:
     for stock in list(all_combined_data_filled)[:30]:
         # for stock in list(all_combined_data_filled)[:5] + ["RR.l"]:
         all_combined_data_filled[stock]["net_value"].plot(title=f"{stock} Net Value Over Time", label=stock)
@@ -346,21 +332,18 @@ def _(all_combined_data_filled, ax, name, table):
     plt.ylabel("Net Value")
     plt.legend()
     plt.gca()
-    return
 
 
 @app.cell
-def _(closed):
+def _(closed) -> None:
     closed.rename(columns={"Cumulative Profit": "net_value"})
     # closed.reindex(closed["Close Date"]).rename({"Cumulative Profit":"net_value"})
     # print(cumulative_deposits)
-    return
 
 
 @app.cell(hide_code=True)
-def _():
+def _() -> None:
     mo.md(r"""# Total net-value""")
-    return
 
 
 @app.cell
@@ -410,13 +393,12 @@ def _(all_data):
 
 
 @app.cell
-def _(res):
+def _(res) -> None:
     res
-    return
 
 
 @app.cell
-def _(all_data):
+def _(all_data) -> None:
     plt.plot(all_data.index, all_data["total"])
     plt.xlabel("Date")
     plt.ylabel("Total Net Value")
@@ -426,7 +408,6 @@ def _(all_data):
     plt.tight_layout()
 
     plt.gca()
-    return
 
 
 if __name__ == "__main__":
