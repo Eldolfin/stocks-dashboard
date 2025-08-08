@@ -6,6 +6,7 @@ from flask_openapi3 import APIBlueprint, Tag
 
 from src import models
 from src.services import stocks_service
+from src.services.search_cache import search_cache
 
 stocks_bp = APIBlueprint("stocks", __name__, url_prefix="/api")
 cache = Cache()
@@ -46,10 +47,16 @@ def get_historical_kpis(query: models.KPIQuery):
 
 
 @stocks_bp.get("/search/", tags=[stocks_tag], responses={200: models.SearchResponse})
-@cache.memoize()
+@cache.memoize(timeout=600)  # Cache search results for 10 minutes
 def search_ticker(query: models.SearchQuery):
     result = stocks_service.search_ticker(query)
     return result.dict(), 200
+
+
+@stocks_bp.get("/cache/stats", tags=[stocks_tag])
+def get_cache_stats():
+    """Get cache statistics for monitoring and debugging."""
+    return {"search_cache": search_cache.get_stats()}, 200
 
 
 @stocks_bp.post("/etoro/upload_report", tags=[stocks_tag])

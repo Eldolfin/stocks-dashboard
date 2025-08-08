@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 from src import models
 from src.database import bloomberg_repository, stocks_repository
+from src.services.search_cache import search_cache
 
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
@@ -113,6 +114,12 @@ def get_historical_kpis(query: models.KPIQuery) -> models.HistoricalKPIs | None:
 
 
 def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
+    # Check advanced cache first
+    cached_result = search_cache.get(query.query)
+    if cached_result:
+        return cached_result
+    
+    # Fetch from API if not cached
     raw_quotes: list[models.RawQuote] = list(
         map(models.RawQuote.model_validate, stocks_repository.search(query.query)),
     )
@@ -131,7 +138,13 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas, strict=True)
         if info.currentPrice is not None
     ]
-    return models.SearchResponse(quotes=quotes, query=query)
+    
+    result = models.SearchResponse(quotes=quotes, query=query)
+    
+    # Cache the result in advanced cache
+    search_cache.set(query.query, result)
+    
+    return result
 
 
 def create_etoro_excel(form: models.EtoroForm, user_email: str) -> None:

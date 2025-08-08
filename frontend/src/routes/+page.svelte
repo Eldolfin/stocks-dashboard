@@ -2,7 +2,7 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 	type Ticker = components['schemas']['Quote'];
 
 	let searchResult = $state<Ticker[] | undefined>(undefined);
@@ -10,10 +10,14 @@
 	let searchText = $state(defaultSearch);
 	let pendingRequest = $state(0);
 
+	// Debouncing variables
+	let searchTimeout: number | undefined;
+	const DEBOUNCE_MS = 300; // Wait 300ms after user stops typing
+
 	// Store selected ticker symbols
 	let comparedTickers = new SvelteSet<string>();
 	// Cache all loaded ticker objects to retrieve details later
-	let tickerCache = new Map<string, Ticker>();
+	let tickerCache = new SvelteMap<string, Ticker>();
 
 	// Derived state for the full objects of selected tickers
 	let selectedTickerObjects = $derived(
@@ -22,32 +26,57 @@
 			.filter(Boolean) as Ticker[]
 	);
 
-	const onSearch = async () => {
-		if (!searchText) {
+	const performSearch = async (query: string) => {
+		if (!query.trim()) {
 			searchResult = undefined;
 			return;
 		}
 		pendingRequest += 1;
-		const { data } = await client
-			.GET('/api/search/', {
+		try {
+			const { data } = await client.GET('/api/search/', {
 				params: {
 					query: {
-						query: searchText
+						query: query.trim()
 					}
 				}
-			})
-			.finally(() => (pendingRequest -= 1));
+			});
 
-		if (data) {
-			const newResults = data.quotes || [];
-			// Update cache with new results
-			newResults.forEach((ticker: Ticker) => tickerCache.set(ticker.raw.symbol, ticker));
-			searchResult = newResults;
+			if (data) {
+				const newResults = data.quotes || [];
+				// Update cache with new results
+				newResults.forEach((ticker: Ticker) => tickerCache.set(ticker.raw.symbol, ticker));
+				searchResult = newResults;
+			}
+		} catch (error) {
+			console.error('Search failed:', error);
+		} finally {
+			pendingRequest -= 1;
 		}
 	};
 
+	const onSearch = () => {
+		// Clear existing timeout
+		if (searchTimeout) {
+			clearTimeout(searchTimeout);
+		}
+
+		// Set new timeout for debounced search
+		searchTimeout = setTimeout(() => {
+			performSearch(searchText);
+		}, DEBOUNCE_MS);
+	};
+
+	// Cleanup timeout on component destroy
+	$effect(() => {
+		return () => {
+			if (searchTimeout) {
+				clearTimeout(searchTimeout);
+			}
+		};
+	});
+
 	if (import.meta.env.DEV) {
-		onSearch();
+		performSearch(defaultSearch);
 	}
 
 	const comparedTickersUrl = () => Array.from(comparedTickers).join(',');
@@ -68,15 +97,20 @@
 	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">WallStreet Bets 💸</h1>
 </div>
 
-<form class="my-8">
+<form class="relative my-8">
 	<input
 		oninput={onSearch}
 		bind:value={searchText}
 		id="search"
 		type="text"
 		placeholder="Apple, Microsoft, ..."
-		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:ring-2 focus:outline-none"
+		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 pr-12 text-white shadow focus:ring-2 focus:outline-none"
 	/>
+	{#if pendingRequest > 0}
+		<div class="absolute top-1/2 right-3 -translate-y-1/2 transform">
+			<div class="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
+		</div>
+	{/if}
 </form>
 
 <!-- Stat Cards -->
