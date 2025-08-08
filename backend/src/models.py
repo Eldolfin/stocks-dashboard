@@ -232,8 +232,8 @@ class KPIQuery(BaseModel):
 
 
 class MainKPIs(BaseModel):
-    ratioPE: float
-    freeCashflowYield: float
+    ratioPE: float | None
+    freeCashflowYield: float | None
 
 
 class KPIResponse(BaseModel):

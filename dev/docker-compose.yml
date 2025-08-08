@@ -18,6 +18,7 @@ services:
       retries: 3
       start_period: 40s
       start_interval: 2s
+    restart: unless-stopped
   frontend:
     image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
     build:
@@ -30,6 +31,7 @@ services:
       retries: 3
       start_period: 40s
       start_interval: 2s
+    restart: unless-stopped
   caddy:
     image: caddy:2.10-alpine
     depends_on:
@@ -41,3 +43,4 @@ services:
       - 8085:80
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
+    restart: unless-stopped

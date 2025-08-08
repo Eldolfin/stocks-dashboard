@@ -16,8 +16,9 @@ def _():
 
 
 @app.cell
-def _(mo) -> None:
+def _(mo):
     mo.md(r"""## Clean data (split into one csv file per ticker)""")
+    return
 
 
 @app.cell
@@ -30,17 +31,28 @@ def _(glob):
 
 @app.cell
 def _(files_multi, mo, pd):
-    for file in mo.status.progress_bar(files_multi, title="reading multi file"):
-        multi = pd.read_excel(
+    excels = [
+        pd.read_excel(
             file,
             header=1,
         )
+        for file in mo.status.progress_bar(files_multi, title="reading excel files")
+    ]
+    return (excels,)
+
+
+@app.cell
+def _(excels, mo, pd):
+    tsla = None
+    for multi in mo.status.progress_bar(excels, title="transforming"):
+        assert len(multi.columns[1:-27]) % 29 == 0, "Column reshaping will misalign"
         reshaped_columns = multi.columns[1:-27].to_numpy().reshape(-1, 29)
 
         for sub_cols in reshaped_columns:
             sub_df = multi[sub_cols]
             ticker = sub_df.columns[0].split(" ")[0].replace("/", "-")
             sub_df = sub_df.iloc[:, 1:]
+            assert len(sub_df.columns[:-1]) % 3 == 0, f"{ticker}: column grouping failed"
             _cols = sub_df.columns[:-1].to_numpy().reshape(-1, 3)
             selected_cols = []
             rename = {}
@@ -54,27 +66,34 @@ def _(files_multi, mo, pd):
                 else:
                     rename[col1] = f"date_{col2}"
                 sub_df[col2] = pd.to_numeric(sub_df[col2], errors="coerce")
+                sub_df = sub_df[sub_df[col1].notna()]
+                sub_df[col1] = pd.to_datetime(sub_df[col1]).dt.strftime("%Y-%m-%d")
 
             # Select the columns
             sub_df_cleaned = sub_df[selected_cols].rename(columns=rename)
             sub_df_cleaned = sub_df_cleaned.rename(columns=lambda x: x.split(".")[0])
 
-            sub_df_cleaned.to_csv(f"./historical-data/cleaned/{ticker}.csv")
-    return (ticker,)
+            sub_df_cleaned.to_csv(f"./historical-data/cleaned/{ticker}.csv", index=False)
+            print(ticker)
+            if ticker == "TSLA":
+                tsla = sub_df_cleaned
+    return (tsla,)
 
 
 @app.cell
-def _(ticker) -> None:
-    ticker
+def _(tsla):
+    tsla.iloc[-50:]
+    return
 
 
 @app.cell
-def _(mo) -> None:
+def _(mo):
     mo.md(r"""## Retrieve a ticker historical KPIs""")
+    return
 
 
 @app.cell
-def _(BaseModel, pd) -> None:
+def _(BaseModel, pd):
     class HistoricalKPI(BaseModel):
         dates: list[str]
         values: list[float]
@@ -104,6 +123,7 @@ def _(BaseModel, pd) -> None:
     # load_historical_kpis("DUOL")
     # load_historical_kpis("GOOG")
     load_historical_kpis("BAS")
+    return
 
 
 if __name__ == "__main__":

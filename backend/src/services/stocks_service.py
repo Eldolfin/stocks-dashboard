@@ -85,9 +85,15 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
         return None
 
     if "marketCap" in info:
+        ratioPE = None
+        freeCashflowYield = None
+        if "editda" in info:
+            ratioPE = info["marketCap"] / info["ebitda"]
+        if "freeCashflow" in info:
+            freeCashflowYield = info["freeCashflow"] / info["marketCap"]
         main = models.MainKPIs(
-            ratioPE=info["marketCap"] / info["ebitda"],
-            freeCashflowYield=info["freeCashflow"] / info["marketCap"],
+            ratioPE=ratioPE,
+            freeCashflowYield=freeCashflowYield,
         )
     else:
         main = None
