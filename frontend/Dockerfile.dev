@@ -2,8 +2,11 @@ FROM node:lts-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache curl
 
+# Enable corepack for better package manager performance
+RUN corepack enable
+
 EXPOSE 3000
 
-CMD [ "sh", "-c", "npm install && npm run dev -- --host" ]
+CMD [ "sh", "-c", "npm ci && npm run dev -- --host" ]
 
 HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000

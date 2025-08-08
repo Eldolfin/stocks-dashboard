@@ -13,6 +13,12 @@ dev-docker:
     echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/'
     just _dc-dev logs -f
 
+dev-docker-deno:
+    just _dc-deno-dev down
+    just _dc-deno-dev up -d --build --wait
+    echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/ (with Deno-enhanced frontend)'
+    just _dc-deno-dev logs -f
+
 lint:
     just backend lint
     just frontend lint
@@ -35,4 +41,12 @@ _dc-prod *args:
     cd dev
     docker compose                \
         -f docker-compose.yml     \
+        {{args}}
+
+_dc-deno-dev *args:
+    #!/bin/sh
+    cd dev
+    docker compose                       \
+        -f docker-compose.yml           \
+        -f docker-compose.deno-dev.yml  \
         {{args}}

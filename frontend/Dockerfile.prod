@@ -1,9 +1,12 @@
 FROM node:lts-alpine AS builder
 WORKDIR /app
 
+# Enable corepack for better package manager performance
+RUN corepack enable
+
 COPY package*.json .
 COPY svelte.config.js .
-RUN npm install
+RUN npm ci --prefer-offline
 RUN npm run prepare
 COPY . .
 RUN npm run build
@@ -13,9 +16,10 @@ FROM node:lts-alpine AS runner
 WORKDIR /app
 
 RUN apk add --no-cache curl
+RUN corepack enable
 
 COPY --from=builder /app/package*.json .
-RUN npm ci --omit dev
+RUN npm ci --omit dev --prefer-offline
 COPY --from=builder /app/build/ build/
 
 EXPOSE 3000

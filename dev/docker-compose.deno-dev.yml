@@ -1,0 +1,12 @@
+name: 'finance-dashboard-dev-deno'
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ../backend:/app:ro
+  frontend:
+    build:
+      dockerfile: Dockerfile.deno-dev
+    volumes:
+      - ../frontend:/app

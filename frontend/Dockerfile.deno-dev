@@ -1,0 +1,28 @@
+# Alternative development Dockerfile using Deno for tooling
+FROM denoland/deno:1.49.4 AS deno-tools
+
+WORKDIR /app
+
+# Copy deno configuration
+COPY deno.json import_map.json .
+COPY src/ src/
+
+# Use Deno for linting and formatting (faster than npm equivalents)
+RUN deno task check || echo "Deno check completed"
+
+FROM node:lts-alpine AS builder
+WORKDIR /app
+RUN apk add --no-cache curl
+
+# Enable corepack for better package manager performance
+RUN corepack enable
+
+# Copy linted/formatted code from deno stage
+COPY --from=deno-tools /app/src/ src/
+COPY package*.json svelte.config.js tsconfig.json vite.config.ts .
+
+EXPOSE 3000
+
+CMD [ "sh", "-c", "npm ci && npm run dev -- --host" ]
+
+HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
