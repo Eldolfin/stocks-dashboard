@@ -47,6 +47,21 @@
 					},
 					legend: {
 						display: false
+					},
+					zoom: {
+						pan: {
+							enabled: true,
+							mode: 'x'
+						},
+						zoom: {
+							wheel: {
+								enabled: true
+							},
+							pinch: {
+								enabled: true
+							},
+							mode: 'x'
+						}
 					}
 				},
 				scales: {
@@ -109,6 +124,10 @@
 	});
 </script>
 
-<div class="flex h-full w-full items-center justify-center">
+<div class="flex h-full w-full flex-col items-center justify-center">
 	<canvas bind:this={chartElt} id="history-chart"></canvas>
+	<button
+		class="mt-4 rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
+		onclick={() => chartInstance?.resetZoom()}>Reset zoom</button
+	>
 </div>
