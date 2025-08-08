@@ -11,6 +11,7 @@ from src.database.auth_repository import AuthRepository
 
 UPLOAD_FOLDER = Path("/database/profile_pictures")
 
+
 class AuthService:
     def __init__(self) -> None:
         self.auth_repository = AuthRepository()
