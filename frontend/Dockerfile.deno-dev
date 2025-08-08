@@ -1,5 +1,5 @@
 # Alternative development Dockerfile using Deno for tooling
-FROM denoland/deno:1.49.4 AS deno-tools
+FROM denoland/deno:latest AS deno-tools
 
 WORKDIR /app
 
