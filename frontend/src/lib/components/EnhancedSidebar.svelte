@@ -7,7 +7,8 @@
 		ArrowLeftToBracketOutline,
 		UserAddOutline,
 		ArrowLeftOutline,
-		ArrowRightOutline
+		ArrowRightOutline,
+		CodeOutline
 	} from 'flowbite-svelte-icons';
 	import { isSidebarCollapsed } from '../stores/sidebarStore';
 
@@ -74,6 +75,20 @@
 			<ChartOutline class="h-6 w-6 flex-shrink-0" />
 			{#if !$isSidebarCollapsed}
 				<span class="ml-3 text-base font-medium">Portfolio</span>
+			{/if}
+		</a>
+
+		<!-- API Documentation link -->
+		<a
+			href="/api/openapi/swagger"
+			class="flex items-center rounded-lg p-3 text-gray-300 transition-colors duration-200 hover:bg-gray-700 hover:text-white"
+			class:justify-center={$isSidebarCollapsed}
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			<CodeOutline class="h-6 w-6 flex-shrink-0" />
+			{#if !$isSidebarCollapsed}
+				<span class="ml-3 text-base font-medium">API Docs</span>
 			{/if}
 		</a>
 
