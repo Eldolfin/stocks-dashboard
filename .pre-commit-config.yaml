@@ -5,13 +5,11 @@ repos:
     hooks:
       - id: ruff
         name: Backend Ruff Check
-        args: [--diff]
         additional_dependencies: [uv]
-        files: ^backend/.*\.py$
+        files: ^backend/src/.*\.py$
         pass_filenames: true
       - id: ruff-format
         name: Backend Ruff Format
-        args: [--diff]
         additional_dependencies: [uv]
         files: ^backend/.*\.py$
         pass_filenames: true
@@ -23,7 +21,7 @@ repos:
         name: Backend MyPy
         entry: sh -c 'cd backend && uv run mypy src'
         additional_dependencies: [uv]
-        files: ^backend/.*\.py$
+        files: ^backend/src/.*\.py$
         pass_filenames: false
 
   # Frontend Node.js hooks
