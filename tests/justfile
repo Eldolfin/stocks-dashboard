@@ -11,7 +11,7 @@ _dc *args:
 docker-playwright +args:
     docker compose -f ../dev/docker-compose.yml down
     docker compose -f ../dev/docker-compose.yml up -d --build
-    just _dc run tests-e2e npx -y playwright {{args}}
+    just _dc run tests-e2e deno run -A npm:playwright {{args}}
 
 # Restart frontend & backend with a clean DB
 docker:
@@ -20,11 +20,11 @@ docker:
 
 # run playwright tests outside of docker
 run:
-    npx playwright test --reporter=line
+    deno task test
 
 # Same as `test` but with the --ui argument passed to playwright for debugging
 run-ui:
-    npx playwright test --ui
+    deno task test-ui
 
 # Generate expected screenshots
 update-snapshots:

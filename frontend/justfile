@@ -2,7 +2,13 @@ help:
     just --list
 
 lint:
+	deno task lint
+
+check:
 	deno task check
+
+format:
+	deno task format
 
 generate-api-types:
 	deno task generate-api-types

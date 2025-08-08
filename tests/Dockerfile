@@ -1,12 +1,18 @@
-FROM mcr.microsoft.com/playwright:v1.54.2-noble
+FROM denoland/deno:alpine
+
+# Install required tools for Playwright
+USER root
+RUN apk add --no-cache nodejs
 
 WORKDIR /tests
 
-COPY package*.json .
-RUN npm i
+# Copy deno configuration
+COPY deno.json .
+
+# Install Playwright browsers
+RUN deno run -A npm:playwright install chromium
 
 COPY playwright.config.ts .
 COPY data/ data/
 
-
-CMD ["npx", "-y", "playwright", "test"]
+CMD ["deno", "task", "test"]
