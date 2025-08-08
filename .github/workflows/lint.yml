@@ -14,7 +14,7 @@ jobs:
       with:
         python-version: '3.13'
     - name: Install uv
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v6
     - uses: taiki-e/install-action@just
     - name: Setup environment
       run: cp .env.example .env
