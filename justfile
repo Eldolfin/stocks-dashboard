@@ -10,7 +10,7 @@ help:
 dev-docker:
     just _dc-dev down
     just _dc-dev up -d --build --wait
-    echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/'
+    echo 'You can now open the website at http://localhost:8085/'
     just _dc-dev logs -f
 
 lint:
