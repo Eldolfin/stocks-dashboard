@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -11,15 +12,33 @@ def column_date_to_timestamp(column: pd.Series) -> pd.Series:
     return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
-def extract_closed_position(etoro_statement_file: Path, time_unit: str = "m") -> dict[str, list[str]]:
+def extract_closed_position(
+    etoro_statement_file: Path,
+    time_unit: str = "m",
+    progress_callback: Callable[[str, int, int], None] | None = None
+) -> dict[str, list[str]]:
+    """Extract closed positions with optional progress reporting."""
+    total_steps = 4
+
+    if progress_callback:
+        progress_callback("Reading Excel file", 1, total_steps)
+
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
     closed_positions_df = excel["Closed Positions"]
+
+    if progress_callback:
+        progress_callback("Processing dates", 2, total_steps)
+
     closed_positions_df["Close Date"] = column_date_to_timestamp(
         closed_positions_df["Close Date"],
     )
     closed_positions_df["Open Date"] = column_date_to_timestamp(
         closed_positions_df["Open Date"],
     )
+
+    if progress_callback:
+        progress_callback("Calculating gains", 3, total_steps)
+
     gains_graphs_columns = {
         "Close Date": "close_date",
         "Profit(USD)": "profit_usd",
@@ -37,11 +56,27 @@ def extract_closed_position(etoro_statement_file: Path, time_unit: str = "m") ->
     gains["close_date"] = gains["close_date"].dt.to_timestamp()
     gains["close_date"] = gains["close_date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
 
+    if progress_callback:
+        progress_callback("Finalizing results", 4, total_steps)
+
     return {column: gains[column].tolist() for column in gains.columns}
 
 
-def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolutionInner:
+def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
+    etoro_statement_file: Path,
+    progress_callback: Callable[[str, int, int], None] | None = None
+) -> models.EtoroEvolutionInner:
+    """Extract portfolio evolution with optional progress reporting."""
+    total_steps = 6
+
+    if progress_callback:
+        progress_callback("Reading Excel file", 1, total_steps)
+
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
+
+    if progress_callback:
+        progress_callback("Processing closed positions", 2, total_steps)
+
     closed = excel["Closed Positions"]
     closed["Close Date"] = column_date_to_timestamp(closed["Close Date"])
     closed = closed.sort_values(by="Close Date")
@@ -49,6 +84,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     closed["Profit(USD)"] = closed["Profit(USD)"].astype(np.float32)
     closed = closed.resample("D").agg({"Profit(USD)": "sum"}).fillna(0)
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
+
+    if progress_callback:
+        progress_callback("Processing open positions", 3, total_steps)
 
     activity = excel["Account Activity"]
     activity = activity[activity["Asset type"] != "Crypto"].copy()
@@ -73,6 +111,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         _ticker_positions["shares_sum"] = _ticker_positions["Units / Contracts"].cumsum()
         shares_per_ticker[tick] = _ticker_positions
 
+    if progress_callback:
+        progress_callback("Fetching market data", 4, total_steps)
+
     yahoo_data = {}
     for _details in still_open["Details"].unique():
         first_open_date = still_open[still_open["Details"] == _details].index.min()
@@ -85,6 +126,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
             end=pd.Timestamp.now().strftime("%Y-%m-%d"),
         )
         yahoo_data[_details] = history
+
+    if progress_callback:
+        progress_callback("Combining portfolio data", 5, total_steps)
 
     all_combined_data = {}
     for _ticker_name, _ticker in shares_per_ticker.items():
@@ -99,6 +143,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     all_combined_data_filled = {}
     for _stock, _df in all_combined_data.items():
         all_combined_data_filled[_stock] = _df.ffill()
+
+    if progress_callback:
+        progress_callback("Finalizing evolution", 6, total_steps)
 
     _all_data = pd.DataFrame()
     all_profits = dict(all_combined_data_filled)

@@ -392,6 +392,31 @@ class EtoroEvolutionResponse(BaseModel):
     evolution: EtoroEvolutionInner
 
 
+######################
+#  PROGRESS MODELS   #
+######################
+
+
+class TaskProgressResponse(BaseModel):
+    step_name: str
+    step_number: int
+    step_count: int
+
+
+class TaskStatusResponse(BaseModel):
+    status: str  # pending, running, completed, failed
+    progress: TaskProgressResponse | None = None
+    error: str | None = None
+
+
+class TaskStartResponse(BaseModel):
+    task_id: str
+
+
+class TaskIdPath(BaseModel):
+    task_id: str
+
+
 #################
 #  AUTH MODELS  #
 #################
@@ -444,3 +469,11 @@ class ProfilePicturePathParams(BaseModel):
 class UserResponse(BaseModel):
     email: str
     profile_picture: str | None = None
+
+
+class TaskResultResponse(BaseModel):
+    """Generic response for task results. Can contain various data types."""
+    result: dict | None = None
+    
+    class Config:
+        arbitrary_types_allowed = True
