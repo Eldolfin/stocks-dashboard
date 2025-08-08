@@ -9,12 +9,14 @@ _dc *args:
 
 # Run playwright command in docker
 docker-playwright +args:
+    docker compose -f ../dev/docker-compose.yml down # restart in prod mode
+    docker compose -f ../dev/docker-compose.yml up -d --build
     just _dc run tests-e2e npx -y playwright {{args}}
 
-# Restart frontend & backend with a clean DB
+# Restart frontend & backend with a clean DB, exit code from tests for CI failure detection
 docker:
     just _dc down tests-e2e
-    just _dc up --build tests-e2e
+    just _dc up --exit-code-from tests-e2e --build tests-e2e
 
 # run playwright tests outside of docker
 run:
