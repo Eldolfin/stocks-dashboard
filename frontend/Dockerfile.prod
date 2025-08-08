@@ -1,31 +1,22 @@
-FROM node:lts-alpine AS builder
+FROM denoland/deno:alpine AS builder
 WORKDIR /app
 
-# Enable corepack for better package manager performance
-RUN corepack enable
-
-COPY package*.json .
+COPY deno.json deno.lock* .
 COPY svelte.config.js .
-RUN npm ci --prefer-offline
-RUN npm run prepare
+RUN deno install
+RUN deno task prepare
 COPY . .
-RUN npm run build
+RUN deno task build
 
-FROM node:lts-alpine AS runner
+FROM denoland/deno:alpine AS runner
 
 WORKDIR /app
 
-RUN apk add --no-cache curl
-RUN corepack enable
-
-COPY --from=builder /app/package*.json .
-RUN npm ci --omit dev --prefer-offline
+COPY --from=builder /app/deno.json .
 COPY --from=builder /app/build/ build/
 
 EXPOSE 3000
 
 ENV NODE_ENV=production
 
-CMD [ "node", "build/" ]
-
-HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
+CMD [ "deno", "run", "-A", "build/" ]

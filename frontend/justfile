@@ -2,7 +2,7 @@ help:
     just --list
 
 lint:
-	npm run check
+	deno task check
 
 generate-api-types:
-	npm run generate-api-types
+	deno task generate-api-types
