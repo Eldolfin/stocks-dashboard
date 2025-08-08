@@ -74,11 +74,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: denoland/setup-deno@v2
       with:
-        node-version: lts/*
+        deno-version: v2.x
     - uses: taiki-e/install-action@just
     - name: Install frontend dependencies
-      run: cd frontend && npm ci
+      run: cd frontend && deno install
     - name: Run frontend lint
       run: just frontend lint

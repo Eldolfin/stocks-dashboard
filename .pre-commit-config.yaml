@@ -61,7 +61,7 @@ repos:
     hooks:
       - id: svelte-check
         name: Frontend Svelte Check
-        entry: bash -c 'cd frontend && npm run check'
+        entry: bash -c 'cd frontend && deno task check'
         language: system
         files: ^frontend/.*\.(ts|js|svelte)$
         pass_filenames: false

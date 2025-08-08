@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "moduleDetection": "force",
+    "strict": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "imports": {
+    "@playwright/test": "npm:@playwright/test@^1.54.2",
+    "@types/node": "npm:@types/node@^24.1.0",
+    "typescript": "npm:typescript@^5.9.2"
+  },
+  "tasks": {
+    "test": "deno run -A npm:playwright test --reporter=line",
+    "test-ui": "deno run -A npm:playwright test --ui",
+    "install": "deno run -A npm:playwright install"
+  },
+  "nodeModulesDir": true
+}

@@ -6,13 +6,18 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-RUN pip install waitress
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
+# Copy Python project files
 COPY pyproject.toml .
-RUN pip install .
+
+# Install dependencies with uv (fallback to pip on network issues)
+RUN uv pip install --system . || pip install .
+RUN uv pip install --system waitress || pip install waitress
 
 COPY . .
 
-CMD [ "waitress-serve", "--host", "0.0.0.0", "--port", "5000", "--call", "src.app:create_app" ]
+CMD [ "uv", "run", "waitress-serve", "--host", "0.0.0.0", "--port", "5000", "--call", "src.app:create_app" ]
 
 HEALTHCHECK CMD curl -f -o /dev/null http://localhost:5000/api/openapi/openapi.json
