@@ -2,8 +2,6 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
 COPY pyproject.toml .
 RUN pip install .
 RUN pip install ipython
@@ -11,5 +9,3 @@ RUN pip install ipython
 ENV FLASK_APP=src.app:create_app
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--debug"]
-
-HEALTHCHECK CMD curl -f -o /dev/null http://localhost:5000/api/openapi/openapi.json
