@@ -12,17 +12,31 @@ services:
       - ./backend-db:/database
     environment:
       BACKEND_AUTH_SECRET_KEY: ${BACKEND_AUTH_SECRET_KEY}
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 2s
   frontend:
     image: gitea.eldolfin.top/eldolfin/finance-plots-frontend:latest
     build:
       context: ../frontend
       dockerfile: Dockerfile.prod
     container_name: frontend
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 2s
   caddy:
     image: caddy:2.10-alpine
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     ports:
       - 8085:80
     volumes:
