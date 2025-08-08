@@ -11,7 +11,7 @@ export const test = base.extend<MyFixtures>({
     const password = "test";
 
     await page.goto('/');
-    await page.getByRole('link', { name: '📝' }).click();
+    await page.getByRole('link', { name: 'Register' }).click();
 
     // /register
     await page.getByRole('textbox', { name: 'Your email' }).fill(email);
@@ -27,7 +27,7 @@ export const test = base.extend<MyFixtures>({
 
     // After login, wait for the home page elements
     await expect(page.getByRole('heading', { name: 'WallStreet Bets 💸' })).toBeVisible();
-    await expect(page.getByRole('button', { name: '🔓' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
 
     await use(page);
   },
