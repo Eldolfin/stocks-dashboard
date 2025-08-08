@@ -4,12 +4,5 @@ help:
 lint:
 	npm run check
 
-# Use deno for fast linting and formatting (if available)
-lint-deno:
-	deno task lint || echo "Deno not available, falling back to npm"
-
-format-deno:
-	deno task format || echo "Deno not available, falling back to npm"
-
 generate-api-types:
 	npm run generate-api-types

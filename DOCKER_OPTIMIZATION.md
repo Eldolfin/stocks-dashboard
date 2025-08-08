@@ -23,48 +23,28 @@ RUN uv pip install --system . || pip install .
 CMD [ "uv", "run", "flask", "run", "--host=0.0.0.0", "--debug"]
 ```
 
-## Frontend: Enhanced with Deno Support
+## Frontend: Enhanced Node.js Build
 
-The frontend provides two build options:
+The frontend uses optimized Node.js configurations for improved performance:
 
-### Standard Build (Node.js Enhanced)
-- Uses improved npm configurations with caching optimizations
-- `docker-compose.dev.yml` - Uses `Dockerfile.dev`
-- Command: `just dev-docker`
-- Features:
+- **Dockerfiles updated**: `frontend/Dockerfile.dev` and `frontend/Dockerfile.prod`
+- **Command**: `just dev-docker`
+- **Features**:
   - `corepack enable` for better package manager performance
-  - `npm ci --prefer-offline` for faster installs
-  - Multi-stage builds for production
-
-### Deno-Enhanced Build  
-- Incorporates Deno for faster linting and type checking
-- `docker-compose.deno-dev.yml` - Uses `Dockerfile.deno-dev`  
-- Command: `just dev-docker-deno`
-- Benefits: 
-  - Faster TypeScript checking with built-in tools
-  - No need for separate TypeScript compiler installation
-  - Built-in formatting and linting tools
-
-### Frontend Configuration Files Added:
-- `frontend/deno.json` - Deno runtime and task configuration
-- `frontend/import_map.json` - ES module import mapping
-- `frontend/Dockerfile.deno-dev` - Multi-stage build with Deno tooling
+  - `npm ci --prefer-offline` for faster installs with better caching
+  - Multi-stage builds for production with layer optimization
 
 ## Usage
 
 ```bash
-# Standard development mode (npm optimized)
+# Development mode (optimized with uv and enhanced npm)
 just dev-docker
-
-# Deno-enhanced development mode (faster linting/checking)
-just dev-docker-deno
 
 # Production build (uses optimized Node.js + uv)
 just restart-prod
 
-# Frontend-only deno tasks (when deno is available locally)
-just frontend lint-deno      # Fast linting with deno
-just frontend format-deno    # Fast formatting with deno
+# Linting (uses existing npm-based tools)
+just lint
 ```
 
 ## Performance Improvements
@@ -76,7 +56,6 @@ just frontend format-deno    # Fast formatting with deno
 - **Fallback safety**: Graceful degradation to pip if uv is unavailable
 
 ### Frontend (JavaScript/TypeScript)
-- **Deno tooling**: Faster TypeScript checking and linting compared to npm tools
 - **npm optimizations**: `--prefer-offline` flag for better caching
 - **corepack**: Modern package manager with improved performance
 - **Multi-stage builds**: Smaller production images with layer optimization
@@ -94,8 +73,8 @@ just frontend format-deno    # Fast formatting with deno
 3. Runtime commands use `uv run` for better performance
 
 ### For Frontend Development:
-1. **Standard**: Enhanced npm with better caching
-2. **Deno-enhanced**: Uses Deno for TypeScript tooling + npm for build process
+1. Enhanced npm with better caching and `corepack enable`
+2. Uses `npm ci --prefer-offline` for faster, more reliable installs
 3. Production builds use multi-stage optimization
 
 ## Backward Compatibility
@@ -110,16 +89,12 @@ All changes maintain full backward compatibility:
 To measure the improvements:
 
 ```bash
-# Time standard build
+# Time optimized build
 time just dev-docker
-
-# Time deno-enhanced build  
-time just dev-docker-deno
 
 # Compare with original pip-based approach (revert Dockerfiles to test)
 ```
 
 Expected improvements:
 - **Backend builds**: 50-90% faster dependency installation
-- **Frontend builds**: 20-40% faster TypeScript checking and linting
 - **Overall**: More reliable builds with better caching

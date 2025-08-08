@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "@/": "./src/",
-    "svelte": "https://esm.sh/svelte@5.0.0",
-    "svelte/": "https://esm.sh/svelte@5.0.0/",
-    "@sveltejs/kit": "https://esm.sh/@sveltejs/kit@2.16.0"
-  }
-}
