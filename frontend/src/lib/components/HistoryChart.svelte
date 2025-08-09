@@ -43,7 +43,11 @@
 						text: title
 					},
 					tooltip: {
-						enabled: true
+						enabled: true,
+						itemSort: function (a, b) {
+							// Sort tooltip items by y-axis value (descending - highest first)
+							return b.parsed.y - a.parsed.y;
+						}
 					},
 					legend: {
 						display: false
