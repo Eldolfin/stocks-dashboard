@@ -27,18 +27,16 @@
 	// Ticker selection state - only used when showTickerSelector is true
 	let selectedTickers = $state(new SvelteSet<string>());
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
-	let availableTickers: string[] = $derived(showTickerSelector ? 
-		Object.keys(dataset).filter(ticker => 
-			ticker !== 'total' && 
-			ticker !== 'Closed Positions' && 
+	let availableTickers: string[] = $derived(showTickerSelector ?
+		Object.keys(dataset).filter(ticker =>
+			ticker !== 'total' &&
+			ticker !== 'Closed Positions' &&
 			ticker !== 'price'
 		) : []);
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
-		console.log('filteredDataset recalculating, selectedTickers size:', selectedTickers.size);
-		console.log('selectedTickersArray:', selectedTickersArray);
-		
+
 		if (!showTickerSelector) {
 			return dataset;
 		}
@@ -55,12 +53,10 @@
 		// Use the derived array to ensure proper reactivity tracking
 		for (const ticker of selectedTickersArray) {
 			if (dataset[ticker]) {
-				console.log('Adding ticker to chart:', ticker);
 				result[ticker] = dataset[ticker];
 			}
 		}
 
-		console.log('filteredDataset result keys:', Object.keys(result));
 		return result;
 	});
 
@@ -156,12 +152,10 @@
 	});
 
 	$effect(() => {
-		console.log('Chart effect triggered, filteredDataset keys:', Object.keys(filteredDataset()));
 		if (chartInstance) {
 			chartInstance.data.labels = dates;
 			chartInstance.data.datasets = Object.entries(filteredDataset()).map(
 				([label, data], index) => {
-					console.log('Creating dataset for:', label, 'with', data.length, 'data points');
 					const isMainLine = label === 'price';
 					const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
 					return {
@@ -173,7 +167,6 @@
 					};
 				}
 			);
-			console.log('Updating chart with', chartInstance.data.datasets.length, 'datasets');
 			chartInstance.update();
 		}
 	});
