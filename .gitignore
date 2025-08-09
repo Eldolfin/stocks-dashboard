@@ -17,3 +17,7 @@ backend/historical-data/*.xlsx
 backend/notebooks/__marimo__/session
 backend/historical-data/cleaned/*.csv#
 backend/historical-data/.~*#
+
+# Screenshot utility output
+screenshots/
+*.png
