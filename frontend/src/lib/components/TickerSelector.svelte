@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { SvelteSet } from 'svelte/reactivity';
+
 	interface Props {
 		availableTickers: string[];
-		selectedTickers: string[]; // Change from SvelteSet to array
+		selectedTickers: SvelteSet<string>; // required for binding
 	}
 
 	// Props (with binding capability)
@@ -17,20 +19,11 @@
 	);
 
 	function handleTickerSelect(ticker: string) {
-		const index = selectedTickers.indexOf(ticker);
-		if (index >= 0) {
-			// Remove ticker
-			selectedTickers.splice(index, 1);
+		if (selectedTickers.has(ticker)) {
+			selectedTickers.delete(ticker);
 		} else {
-			// Add ticker
-			selectedTickers.push(ticker);
+			selectedTickers.add(ticker);
 		}
-		// Trigger reactivity
-		selectedTickers = [...selectedTickers];
-	}
-
-	function isTickerSelected(ticker: string): boolean {
-		return selectedTickers.includes(ticker);
 	}
 </script>
 
@@ -52,7 +45,7 @@
 					class="block w-full px-4 py-2 text-left text-white transition hover:bg-gray-700"
 				>
 					{ticker}
-					{#if isTickerSelected(ticker)}
+					{#if selectedTickers.has(ticker)}
 						<span class="text-brand ml-2">✓</span>
 					{/if}
 				</button>
@@ -61,11 +54,11 @@
 	{/if}
 
 	<!-- Selected Tickers List -->
-	{#if selectedTickers.length > 0}
+	{#if selectedTickers.size > 0}
 		<div class="mt-4 rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-4 shadow-lg">
 			<h3 class="mb-2 font-semibold text-white">Selected Tickers:</h3>
 			<ul class="space-y-1 text-sm text-gray-300">
-				{#each selectedTickers as ticker (ticker)}
+				{#each Array.from(selectedTickers) as ticker (ticker)}
 					<li class="flex items-center justify-between">
 						<span>{ticker}</span>
 						<button
