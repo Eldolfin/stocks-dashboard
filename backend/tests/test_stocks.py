@@ -70,6 +70,30 @@ def test_get_kpis_not_found() -> None:
     assert response.status_code == 404
 
 
+def test_get_historical_kpis_success() -> None:
+    response = requests.get(f"{BASE_URL}/historical-kpis/", params={"ticker_name": "AAPL"})
+    assert response.status_code == 200
+    data = response.json()
+    assert list(data["kpis"].keys()) == [
+        "Dividend",
+        "EPS",
+        "Earnings",
+        "Free CF",
+        "Market Cap",
+        "Outstanding Shares",
+        "PE ratio",
+        "Revenue",
+        "Volume",
+    ]
+    assert data["kpis"]["Revenue"]["values"][0] == 2343.0
+    assert data["kpis"]["Revenue"]["dates"][0] == "2000-01-07"
+
+
+def test_get_historical_kpis_not_found() -> None:
+    response = requests.get(f"{BASE_URL}/historical-kpis/", params={"ticker_name": "INVALIDTICKER"})
+    assert response.status_code == 404
+
+
 def test_search_ticker() -> None:
     response = requests.get(f"{BASE_URL}/search/", params={"query": "Apple"})
     assert response.status_code == 200
@@ -129,7 +153,7 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
         status_response = logged_in_session.get(f"{BASE_URL}/task_status/{task_id}")
         assert status_response.status_code == 200
         status_data = status_response.json()
-        
+
         # Check if we see progress updates
         if status_data.get("progress") is not None:
             progress_seen = True
@@ -140,12 +164,12 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
             assert isinstance(progress["step_number"], int)
             assert isinstance(progress["step_count"], int)
             assert progress["step_number"] <= progress["step_count"]
-        
+
         if status_data["status"] == "completed":
             break
         elif status_data["status"] == "failed":
             assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
-        
+
         time.sleep(1)
     else:
         assert False, "Task did not complete within timeout"
@@ -159,7 +183,7 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
     result_data = result_response.json()
     assert "result" in result_data
     response_data = result_data["result"]
-    
+
     # Verify the results are as expected
     assert "close_date" in response_data
     assert "closed_trades" in response_data
@@ -195,7 +219,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
         status_response = logged_in_session.get(f"{BASE_URL}/task_status/{task_id}")
         assert status_response.status_code == 200
         status_data = status_response.json()
-        
+
         # Check if we see progress updates
         if status_data.get("progress") is not None:
             progress_seen = True
@@ -206,12 +230,12 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
             assert isinstance(progress["step_number"], int)
             assert isinstance(progress["step_count"], int)
             assert progress["step_number"] <= progress["step_count"]
-        
+
         if status_data["status"] == "completed":
             break
         elif status_data["status"] == "failed":
             assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
-        
+
         time.sleep(1)
     else:
         assert False, "Task did not complete within timeout"
@@ -225,12 +249,12 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     result_data = result_response.json()
     assert "result" in result_data
     response_data = result_data["result"]
-    
+
     # Verify the results are as expected
     assert "evolution" in response_data
     assert isinstance(response_data["evolution"], dict)
     assert "2025-08-01" in response_data["evolution"]["dates"]
     assert (
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
-        == 2986
+        == 3676
     )

@@ -36,6 +36,16 @@ def get_kpis(query: models.KPIQuery):
     return result.dict(), 200
 
 
+@stocks_bp.get(
+    "/historical-kpis/", tags=[stocks_tag], responses={200: models.HistoricalKPIs, 404: models.NotFoundResponse}
+)
+def get_historical_kpis(query: models.KPIQuery):
+    result = stocks_service.get_historical_kpis(query)
+    if result is None:
+        return models.NotFoundResponse().dict(), 404
+    return result.dict(), 200
+
+
 @stocks_bp.get("/search/", tags=[stocks_tag], responses={200: models.SearchResponse})
 @cache.memoize()
 def search_ticker(query: models.SearchQuery):
@@ -64,6 +74,7 @@ def list_etoro_reports():
     tags=[stocks_tag],
     responses={200: models.TaskStartResponse, 404: models.NotFoundResponse},
 )
+@cache.memoize()  # FIXME: is this a good idea?
 @login_required
 def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     try:
@@ -78,6 +89,7 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery):
     tags=[stocks_tag],
     responses={200: models.TaskStartResponse, 404: models.NotFoundResponse},
 )
+@cache.memoize()  # FIXME: is this a good idea?
 @login_required
 def analyze_etoro_evolution_by_name(query: models.EtoroAnalysisByNameQuery):
     try:
@@ -103,14 +115,10 @@ def get_task_status(path: models.TaskIdPath):
         progress = models.TaskProgressResponse(
             step_name=task.progress.step_name,
             step_number=task.progress.step_number,
-            step_count=task.progress.step_count
+            step_count=task.progress.step_count,
         )
 
-    status_response = models.TaskStatusResponse(
-        status=task.status.value,
-        progress=progress,
-        error=task.error
-    )
+    status_response = models.TaskStatusResponse(status=task.status.value, progress=progress, error=task.error)
     return status_response.dict(), 200
 
 
@@ -128,10 +136,7 @@ def get_task_result(path: models.TaskIdPath):
     if task.status.value != "completed":
         return {"error": "Task not completed"}, 400
 
-    if isinstance(task.result, models.EtoroEvolutionResponse):
-        result_data = task.result.dict()
-    else:
-        result_data = task.result
-        
+    result_data = task.result.dict() if isinstance(task.result, models.EtoroEvolutionResponse) else task.result
+
     response = models.TaskResultResponse(result=result_data)
     return response.dict(), 200

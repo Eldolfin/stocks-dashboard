@@ -5,7 +5,7 @@ from flask import current_app
 from werkzeug.utils import secure_filename
 
 from src import models
-from src.database import stocks_repository
+from src.database import bloomberg_repository, stocks_repository
 from src.services.task_manager import task_manager
 
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
@@ -86,9 +86,15 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
         return None
 
     if "marketCap" in info:
+        ratio_pe = None
+        free_cashflow_yield = None
+        if "editda" in info:
+            ratio_pe = info["marketCap"] / info["ebitda"]
+        if "freeCashflow" in info:
+            free_cashflow_yield = info["freeCashflow"] / info["marketCap"]
         main = models.MainKPIs(
-            ratioPE=info["marketCap"] / info["ebitda"],
-            freeCashflowYield=info["freeCashflow"] / info["marketCap"],
+            ratioPE=ratio_pe,
+            freeCashflowYield=free_cashflow_yield,
         )
     else:
         main = None
@@ -101,6 +107,10 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
         info=info,
         main=main,
     )
+
+
+def get_historical_kpis(query: models.KPIQuery) -> models.HistoricalKPIs | None:
+    return bloomberg_repository.load_historical_kpis(query.ticker_name)
 
 
 def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
@@ -186,9 +196,7 @@ def analyze_etoro_evolution_by_name(
     return models.EtoroEvolutionResponse(evolution=extract_portfolio_evolution(file_path))
 
 
-def analyze_etoro_evolution_by_name_async(
-    query: models.EtoroAnalysisByNameQuery, user_email: str
-) -> str:
+def analyze_etoro_evolution_by_name_async(query: models.EtoroAnalysisByNameQuery, user_email: str) -> str:
     """Start async evolution analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename

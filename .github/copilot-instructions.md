@@ -4,10 +4,12 @@
 
 This is a full-stack finance dashboard application using Flask backend (Python) and Svelte frontend (TypeScript). The project uses Docker for development with `just` as the task runner.
 
+When adding a new feature, create new tests to validate that it works, either backend tests or end-2-end tests with playwright in tests/
+
 ## Critical Setup Requirements
 
 ### Required Tools
-- **just** - Task runner (install: `wget -qO- 'https://github.com/casey/just/releases/download/1.42.4/just-1.42.4-x86_64-unknown-linux-musl.tar.gz' | tar -xzf- && sudo mv just /usr/local/bin/`)
+- **just** - Task runner (install  `curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin/`)
 - **Docker & docker-compose** - For full development environment
 - **npm** - For frontend development (usually pre-installed)
 - **uv** - Python package manager for backend (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
@@ -46,7 +48,7 @@ npm install          # Takes ~45 seconds. NEVER CANCEL. Set timeout to 5+ minute
 npm run dev          # Starts dev server at http://localhost:3000/
 ```
 
-#### Backend Development  
+#### Backend Development
 ```bash
 cd backend
 uv sync              # Install dependencies - Takes 1-3 minutes. NEVER CANCEL
@@ -61,11 +63,11 @@ uv run python -m flask run --debug --host=0.0.0.0  # Starts at http://localhost:
 just lint            # Runs both backend and frontend linting. Takes ~30 seconds
 ```
 
-#### Frontend Only  
+#### Frontend Only
 ```bash
 cd frontend
 npm run lint         # Takes ~10 seconds. Checks ESLint + Prettier
-npm run check        # Takes ~15 seconds. Type checking with svelte-check  
+npm run check        # Takes ~15 seconds. Type checking with svelte-check
 npm run test:ts      # Takes ~5 seconds. TypeScript compilation check
 ```
 
@@ -124,7 +126,7 @@ just restart-prod    # Takes 2-5 minutes. NEVER CANCEL. Set timeout to 10+ minut
 2. Test GET /api/stocks/search endpoint
 3. Verify authentication endpoints work
 
-### Frontend Validation  
+### Frontend Validation
 1. Check responsive design on mobile/desktop
 2. Test chart interactions (zoom, pan, hover)
 3. Verify navigation between pages works
@@ -150,7 +152,7 @@ just restart-prod    # Takes 2-5 minutes. NEVER CANCEL. Set timeout to 10+ minut
 
 ### Key Directories
 - `backend/` - Flask API (Python 3.13, uv package manager)
-- `frontend/` - Svelte app (TypeScript, npm)  
+- `frontend/` - Svelte app (TypeScript, npm)
 - `tests/` - E2E tests (Playwright)
 - `dev/` - Docker compose configurations
 - `.github/workflows/` - CI/CD pipelines
@@ -183,7 +185,7 @@ If `just dev-docker` fails with SSL/network errors:
 - Use `uv run python -c "import flask; print(flask.__version__)"` to verify setup
 - Backend API should be accessible at http://localhost:5000/
 
-### Frontend Issues  
+### Frontend Issues
 - Check browser console for errors
 - Verify API endpoints are reachable
 - Use `npm run dev` for hot reload during development
@@ -199,7 +201,7 @@ If `just dev-docker` fails with SSL/network errors:
 
 ```bash
 just lint            # Must pass - runs ruff, mypy, ESLint, prettier
-npm run format       # Auto-fix formatting issues  
+npm run format       # Auto-fix formatting issues
 just backend test    # Backend tests must pass
 ```
 

@@ -27,6 +27,7 @@ CORS(
 app.config["UPLOAD_FOLDER"] = "/database/etoro_sheets"
 app.config["SECRET_KEY"] = os.environ.get("BACKEND_AUTH_SECRET_KEY")
 app.config["CACHE_TYPE"] = "SimpleCache"
+app.config["CACHE_DEFAULT_TIMEOUT"] = 0
 
 cache.init_app(app)
 login_manager = LoginManager()

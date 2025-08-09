@@ -12,7 +12,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch && tsc --noEmit",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"generate-api-types": "npx openapi-typescript http://localhost:5000/openapi/openapi.json -o src/generated/api.d.ts",
+		"generate-api-types": "npx openapi-typescript http://localhost:5000/api/openapi/openapi.json -o src/generated/api.d.ts && npm run format",
 		"test:ts": "tsc --noEmit"
 	},
 	"devDependencies": {

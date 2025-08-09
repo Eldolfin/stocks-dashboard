@@ -232,8 +232,8 @@ class KPIQuery(BaseModel):
 
 
 class MainKPIs(BaseModel):
-    ratioPE: float
-    freeCashflowYield: float
+    ratioPE: float | None
+    freeCashflowYield: float | None
 
 
 class KPIResponse(BaseModel):
@@ -343,6 +343,18 @@ class NotFoundResponse(BaseModel):
     message: str = "Resource not found!"
 
 
+#########################
+#  HISTORICALKPI QUERY  #
+#########################
+class HistoricalKPI(BaseModel):
+    dates: list[str]
+    values: list[float]
+
+
+class HistoricalKPIs(BaseModel):
+    kpis: dict[str, HistoricalKPI]
+
+
 ####################
 #  ETORO ANALYSIS  #
 ####################
@@ -387,6 +399,7 @@ class EtoroReportsResponse(BaseModel):
 class EtoroEvolutionInner(BaseModel):
     parts: dict[str, list[float]]
     dates: list[str]
+
 
 class EtoroEvolutionResponse(BaseModel):
     evolution: EtoroEvolutionInner
@@ -473,7 +486,8 @@ class UserResponse(BaseModel):
 
 class TaskResultResponse(BaseModel):
     """Generic response for task results. Can contain various data types."""
+
     result: dict | None = None
-    
+
     class Config:
         arbitrary_types_allowed = True

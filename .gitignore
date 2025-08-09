@@ -13,3 +13,7 @@ backend/build/lib
 __pycache__/
 data-collector/target
 data-collector/snapshots.csv
+backend/historical-data/*.xlsx
+backend/notebooks/__marimo__/session
+backend/historical-data/cleaned/*.csv#
+backend/historical-data/.~*#
