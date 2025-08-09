@@ -24,16 +24,20 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
 });
 
-baseTest('portfolio page redirects to login when not logged in', async ({ page }) => {
+baseTest('portfolio page shows login message and redirects when not logged in', async ({ page }) => {
   // Navigate to portfolio page without logging in
   await page.goto('/portfolio');
   
-  // Should be redirected to login page
+  // Should see the login required message
+  await expect(page.getByText('Login Required')).toBeVisible();
+  await expect(page.getByText('You need to be logged in to access portfolio analysis features. Redirecting to login page...')).toBeVisible();
+  
+  // Should be redirected to login page after the delay
   await page.waitForURL('/login');
   await expect(page).toHaveURL('/login');
   
   // Should see the login form
-  await expect(page.getByText('Login to your account')).toBeVisible();
+  await expect(page.getByText('Login')).toBeVisible();
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
