@@ -93,14 +93,12 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                 
                 # Process splits in reverse chronological order to build cumulative factors
                 ticker_splits = ticker_splits.sort_index(ascending=False)
-                cumulative_factor = 1.0
                 
                 for split_date, split_row in ticker_splits.iterrows():
                     split_factor = split_row["Factor"]
-                    cumulative_factor *= split_factor
-                    # For dates before this split, apply the inverse cumulative factor
+                    # For dates before this split, divide by the split factor
                     mask = split_factors.index < split_date
-                    split_factors.loc[mask] = 1.0 / cumulative_factor
+                    split_factors.loc[mask] = split_factors.loc[mask] / split_factor
                 
                 # Apply split adjustments to shares
                 _ticker_positions["split_factor"] = split_factors
