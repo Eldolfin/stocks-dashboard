@@ -207,12 +207,12 @@ def test_split_factor_calculation():
     # Test the logic that would be applied in extract_portfolio_evolution
     split_factors = pd.Series(1.0, index=date_range, name="split_factor")
     
-    # Apply inverse cumulative factor for dates before split
+    # Apply cumulative factor for dates before split (multiply to get equivalent post-split shares)
     cumulative_factor = split_factor
     mask = split_factors.index < split_date
-    split_factors.loc[mask] = 1.0 / cumulative_factor
+    split_factors.loc[mask] = split_factors.loc[mask] * cumulative_factor
     
     # Verify the results
-    assert split_factors.loc[pd.Timestamp('2024-05-31')] == 0.5  # Before split: 1/2
+    assert split_factors.loc[pd.Timestamp('2024-05-31')] == 2.0  # Before split: multiply by 2
     assert split_factors.loc[pd.Timestamp('2024-06-01')] == 1.0  # From split: 1
     assert split_factors.loc[pd.Timestamp('2024-06-02')] == 1.0  # After split: 1

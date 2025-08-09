@@ -97,16 +97,13 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                 
                 for split_date, split_row in ticker_splits.iterrows():
                     split_factor = split_row["Factor"]
-                    # For dates before this split, divide by the split factor
+                    # For dates before this split, multiply by the split factor to get equivalent post-split shares
                     mask = split_factors.index < split_date
-                    split_factors.loc[mask] = split_factors.loc[mask] / split_factor
+                    split_factors.loc[mask] = split_factors.loc[mask] * split_factor
                 
                 # Apply split adjustments to shares
                 _ticker_positions["split_factor"] = split_factors
                 _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"] * _ticker_positions["split_factor"]
-                _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"]
-            elif tick == "NVDA/USD":
-                logging.error("TICKER_SPLITS is empty !!!")
         
         shares_per_ticker[tick] = _ticker_positions
 
@@ -307,12 +304,10 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     for _ticker_name, _ticker in shares_per_ticker.items():
         if _ticker_name in yahoo_data:
             _yahoo_data = yahoo_data[_ticker_name]
-            logging.error(_ticker.columns)
             _ticker.index = pd.to_datetime(_ticker.index).tz_localize(None)
             _yahoo_data.index = pd.to_datetime(_yahoo_data.index).tz_localize(None)
             combined = _ticker.join(_yahoo_data, how="left")
-            split_factor = combined.get("split_factor", 1)
-            combined["net_value"] = combined["Close"] * combined["shares_sum"] / split_factor
+            combined["net_value"] = combined["Close"] * combined["shares_sum"]
             all_combined_data[_ticker_name] = combined
 
     all_combined_data_filled = {}
