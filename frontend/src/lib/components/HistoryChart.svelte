@@ -94,7 +94,13 @@
 						text: title
 					},
 					tooltip: {
-						enabled: true
+						enabled: true,
+						itemSort: function (a, b) {
+							// Sort tooltip items by y-axis value (descending - highest first)
+							const aValue = a?.parsed?.y ?? 0;
+							const bValue = b?.parsed?.y ?? 0;
+							return bValue - aValue;
+						}
 					},
 					legend: {
 						display: false
