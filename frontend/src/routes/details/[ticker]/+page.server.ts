@@ -50,7 +50,7 @@ export async function load({
 				error(historical_kpis_res.response.status, historical_kpis_res.response.statusText);
 			}
 		}
-	} catch (e) {
+	} catch {
 		historical_kpis_res = null; // Handle network errors or other exceptions
 	}
 

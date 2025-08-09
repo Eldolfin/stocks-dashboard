@@ -19,7 +19,13 @@
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
 
-	const now = new Date();
+	// Calculate yesterday's date since we want a full day
+	const getYesterdayUrl = () => {
+		const now = new Date();
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		return `https://www.etoro.com/documents/accountstatement/2015-1-1/${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
+	};
 
 	// Function to fetch uploaded reports
 	async function fetchUploadedReports() {
@@ -80,7 +86,7 @@
 				<h2 class="mt-6 text-4xl font-bold text-white">Step 1:</h2>
 				<a
 					class="text-brand inline-flex items-center font-medium hover:underline"
-					href={`https://www.etoro.com/documents/accountstatement/2015-1-1/${now.getFullYear()}-${now.getMonth()}-${now.getDay()}`}
+					href={getYesterdayUrl()}
 					target="_blank"
 					rel="noopener noreferrer"
 				>
