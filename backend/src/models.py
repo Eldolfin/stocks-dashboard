@@ -343,6 +343,12 @@ class NotFoundResponse(BaseModel):
     message: str = "Resource not found!"
 
 
+class BadRequestResponse(BaseModel):
+    code: int = -2
+    message: str = "Bad request!"
+    error: str
+
+
 #########################
 #  HISTORICALKPI QUERY  #
 #########################

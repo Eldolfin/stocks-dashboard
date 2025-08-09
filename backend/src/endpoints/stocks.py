@@ -125,7 +125,7 @@ def get_task_status(path: models.TaskIdPath):
 @stocks_bp.get(
     "/task_result/<task_id>",
     tags=[stocks_tag],
-    responses={200: models.TaskResultResponse, 404: models.NotFoundResponse},
+    responses={200: models.TaskResultResponse, 400: models.BadRequestResponse, 404: models.NotFoundResponse},
 )
 @login_required
 def get_task_result(path: models.TaskIdPath):
@@ -134,9 +134,9 @@ def get_task_result(path: models.TaskIdPath):
         return models.NotFoundResponse().dict(), 404
 
     if task.status.value != "completed":
-        return {"error": "Task not completed"}, 400
+        return models.BadRequestResponse(error="Task not completed").model_dump(), 400
 
-    result_data = task.result.dict() if isinstance(task.result, models.EtoroEvolutionResponse) else task.result
+    result_data = task.result.model_dump() if isinstance(task.result, models.EtoroEvolutionResponse) else task.result
 
     response = models.TaskResultResponse(result=result_data)
-    return response.dict(), 200
+    return response.model_dump(), 200
