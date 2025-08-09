@@ -46,7 +46,9 @@
 						enabled: true,
 						itemSort: function (a, b) {
 							// Sort tooltip items by y-axis value (descending - highest first)
-							return b.parsed.y - a.parsed.y;
+							const aValue = a?.parsed?.y ?? 0;
+							const bValue = b?.parsed?.y ?? 0;
+							return bValue - aValue;
 						}
 					},
 					legend: {
