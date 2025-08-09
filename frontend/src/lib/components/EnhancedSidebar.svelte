@@ -20,6 +20,7 @@
 		isSidebarCollapsed.update((collapsed) => !collapsed);
 	}
 
+	// eslint-disable-next-line svelte/prefer-writable-derived
 	let initialLoad = $state(true);
 	$effect(() => {
 		// After the first render, set initialLoad to false

@@ -6,15 +6,16 @@ export async function load({
 	url
 }: {
 	params: {
-		tickers: [string];
+		tickers: string;
 	};
 	url: URL;
 }) {
 	const period = url.searchParams.get('period') || 'ytd';
+	const tickerArray = params.tickers.split(',').map((t) => t.trim());
 	const history_data = await client.GET('/api/compare_growth/', {
 		params: {
 			query: {
-				ticker_names: params.tickers,
+				ticker_names: tickerArray,
 				period
 			}
 		}
