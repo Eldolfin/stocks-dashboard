@@ -45,7 +45,10 @@
 	const openMainChartFullscreen = () => {
 		fullscreenChart = {
 			show: true,
-			title: `Growth Comparison: ${data.tickers.split(',').map(t => t.trim()).join(' vs ')}`,
+			title: `Growth Comparison: ${data.tickers
+				.split(',')
+				.map((t: string) => t.trim())
+				.join(' vs ')}`,
 			dataset: historyData.candles,
 			dates: historyData.dates,
 			color: 'var(--color-gray)'
