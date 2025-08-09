@@ -3,6 +3,9 @@
 	import type { components } from '../../generated/api.js';
 	import { onMount } from 'svelte'; // Import onMount
 	import { goto } from '$app/navigation';
+	import { SvelteDate } from 'svelte/reactivity';
+
+	let { data } = $props();
 
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
@@ -18,11 +21,12 @@
 	let precision_index: number = $state(1); // 'M'
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
+	let showLoginMessage = $state(false); // State for showing login required message
 
 	// Calculate yesterday's date since we want a full day
 	const getYesterdayUrl = () => {
-		const now = new Date();
-		const yesterday = new Date(now);
+		const now = new SvelteDate();
+		const yesterday = new SvelteDate(now);
 		yesterday.setDate(yesterday.getDate() - 1);
 		return `https://www.etoro.com/documents/accountstatement/2015-1-1/${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
 	};
@@ -43,6 +47,15 @@
 
 	// Fetch reports on component mount
 	onMount(() => {
+		// Check if user is logged in, show message and redirect to login if not
+		if (!data.isLoggedIn) {
+			showLoginMessage = true;
+			// Redirect after 3 seconds to allow user to read the message
+			setTimeout(() => {
+				goto('/login');
+			}, 3000);
+			return;
+		}
 		fetchUploadedReports();
 	});
 
@@ -76,9 +89,37 @@
 </script>
 
 <div class="p-8">
+	{#if showLoginMessage}
+		<div
+			class="mb-6 rounded-lg border-l-4 border-blue-500 bg-blue-100 p-4 text-blue-700 dark:border-blue-400 dark:bg-blue-900 dark:text-blue-200"
+		>
+			<div class="flex items-center">
+				<svg
+					class="mr-2 h-5 w-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						fill-rule="evenodd"
+						d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+						clip-rule="evenodd"
+					></path>
+				</svg>
+				<div>
+					<p class="font-medium">Login Required</p>
+					<p class="text-sm">
+						You need to be logged in to access portfolio analysis features. Redirecting to login
+						page...
+					</p>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	{#if error}
 		<div class="text-center text-red-500">{error}</div>
-	{:else}
+	{:else if !showLoginMessage}
 		<div class="p-8">
 			{#if error}
 				<div class="text-center text-red-500">{error}</div>
@@ -141,7 +182,7 @@
 		</div>
 	{/if}
 
-	{#if loading}
+	{#if loading && !showLoginMessage}
 		<div class="mt-4 flex items-center justify-center">
 			<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
 		</div>

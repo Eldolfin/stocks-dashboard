@@ -1,5 +1,5 @@
 import { test } from './fixtures/auth';
-import { expect } from '@playwright/test';
+import { test as baseTest, expect } from '@playwright/test';
 import * as path from 'path';
 
 test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
@@ -22,6 +22,22 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   await loggedInPage.waitForTimeout(2000);
 
   // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
+});
+
+baseTest('portfolio page shows login message and redirects when not logged in', async ({ page }) => {
+  // Navigate to portfolio page without logging in
+  await page.goto('/portfolio');
+
+  // Should see the login required message
+  await expect(page.getByText('Login Required')).toBeVisible();
+  await expect(page.getByText('You need to be logged in to access portfolio analysis features. Redirecting to login page...')).toBeVisible();
+
+  // Should be redirected to login page after the delay
+  await page.waitForURL('/login');
+  await expect(page).toHaveURL('/login');
+
+  // Should see the login form
+  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
