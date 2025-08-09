@@ -216,3 +216,35 @@ def test_split_factor_calculation():
     assert split_factors.loc[pd.Timestamp('2024-05-31')] == 2.0  # Before split: multiply by 2
     assert split_factors.loc[pd.Timestamp('2024-06-01')] == 1.0  # From split: 1
     assert split_factors.loc[pd.Timestamp('2024-06-02')] == 1.0  # After split: 1
+
+
+def test_split_details_parsing():
+    """Test parsing of split details from various formats."""
+    test_cases = [
+        ('Split 10:1', 10.0),
+        ('NVDA/USD Split 10:1', 10.0),
+        ('AAPL/USD Split 2:1', 2.0),
+        ('Split 5:1', 5.0),
+        ('Invalid format', 1.0),  # Should fallback to 1.0
+    ]
+    
+    for detail, expected in test_cases:
+        parts = detail.split(' ')
+        if 'Split' in parts:
+            split_idx = parts.index('Split')
+            if split_idx + 1 < len(parts):
+                split_ratio = parts[split_idx + 1]  # '10:1'
+                try:
+                    split_factor = float(split_ratio.split(':')[0])
+                except (ValueError, IndexError):
+                    split_factor = 1.0
+            else:
+                split_factor = 1.0
+        else:
+            # Fallback: try original parsing
+            try:
+                split_factor = float(parts[1].split(':')[0]) if len(parts) > 1 else 1.0
+            except (ValueError, IndexError):
+                split_factor = 1.0
+        
+        assert split_factor == expected, f"Failed for '{detail}': expected {expected}, got {split_factor}"

@@ -60,8 +60,28 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     splits = activity[activity["Type"] == "corp action: Split"].copy()
     if not splits.empty:
         splits = splits.groupby(["Date", "Details"]).last()
-        # Extract split factor from Details column (format like "Split 10:1")
-        splits["Factor"] = splits.index.get_level_values("Details").str.split(' ').str[1].str.split(':').str[0].astype(float)
+        # Extract split factor from Details column (format like "Split 10:1" or "NVDA/USD Split 10:1")
+        details_series = splits.index.get_level_values("Details")
+        split_factors = []
+        for detail in details_series:
+            parts = detail.split(' ')
+            if 'Split' in parts:
+                split_idx = parts.index('Split')
+                if split_idx + 1 < len(parts):
+                    split_ratio = parts[split_idx + 1]  # '10:1'
+                    split_factor = float(split_ratio.split(':')[0])
+                    split_factors.append(split_factor)
+                else:
+                    split_factors.append(1.0)
+            else:
+                # Fallback: try original parsing for "Split 10:1" format
+                try:
+                    split_factor = float(parts[1].split(':')[0]) if len(parts) > 1 else 1.0
+                    split_factors.append(split_factor)
+                except (ValueError, IndexError):
+                    split_factors.append(1.0)
+        
+        splits["Factor"] = split_factors
         splits = splits.reset_index().set_index("Date")
     else:
         splits = pd.DataFrame(columns=["Details", "Factor"]).set_index(pd.DatetimeIndex([], name="Date"))
