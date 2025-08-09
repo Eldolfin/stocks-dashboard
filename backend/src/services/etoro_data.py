@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
+import yfinance_cache as yf
 
 from src import models
 
@@ -40,7 +40,7 @@ def extract_closed_position(etoro_statement_file: Path, time_unit: str = "m") ->
     return {column: gains[column].tolist() for column in gains.columns}
 
 
-def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolutionInner:
+def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolutionInner:  # noqa: C901, PLR0912, PLR0915
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
     closed = excel["Closed Positions"]
     closed["Close Date"] = column_date_to_timestamp(closed["Close Date"])
@@ -77,14 +77,194 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     for _details in still_open["Details"].unique():
         first_open_date = still_open[still_open["Details"] == _details].index.min()
         [ticker, market] = _details.split("/")
+        ticker = ticker.removesuffix(".US").removesuffix(".EXT")
+        if ticker == "BRK.B":
+            ticker = "BRK-B"
+        elif ticker == "NSDQ100":
+            ticker = "^NDX"
+        elif ticker == "SPX500":
+            ticker = "^SPX"
+        scale = 1
         if market != "USD":
+            if market == "GBX":
+                scale = yf.Ticker("GBPUSD=X").fast_info["lastPrice"]
+
+            elif market == "EUR":
+                scale = yf.Ticker("EURUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "ACA" | "BNP" | "ENGI":
+                        ticker += ".PA"
+                    case "NN.NV" | "ASRNL.NV":
+                        ticker = ticker[:-3] + ".AS"
+                    case "STLAM.MI":
+                        ticker = "STLAM.MI"
+                    case "BKT":
+                        ticker = "BKT.MC"
+                    case "SAN.MC":
+                        ticker = "SAN.MC"
+                    case "PAH3.DE":
+                        ticker = "PAH3.DE"
+
+                    case "REP.MC":
+                        ticker = "REP.MC"
+                    case "DG":
+                        ticker = "DG.PA"  # Vinci SA
+                    case "AIR":
+                        ticker = "AIR.PA"  # Airbus
+                    case "AMUN.PA":
+                        ticker = "AMUN.PA"
+                    case "AZM":
+                        ticker = "AZM.MI"  # Azimut
+                    case "EDP.LSB":
+                        ticker = "EDP.LS"
+                    case "DTE.de":
+                        ticker = "DTE.DE"
+                    case "RWE.de":
+                        ticker = "RWE.DE"
+                    case "AC":
+                        ticker = "AC.PA"  # Accor
+                    case "SIE.de":
+                        ticker = "SIE.DE"
+                    case "AKZA.NV":
+                        ticker = "AKZA.AS"
+                    case "ABI.BR":
+                        ticker = "ABI.BR"
+                    case "VNA.DE":
+                        ticker = "VNA.DE"
+                    case "CLNX.MC":
+                        ticker = "CLNX.MC"
+                    case "CA":
+                        ticker = "CA.PA"  # Carrefour
+                    case "GFC.PA":
+                        ticker = "GFC.PA"
+                    case "ENEL":
+                        ticker = "ENEL.MI"
+                    case "SU":
+                        ticker = "SU.PA"  # Schneider Electric
+                    case "ORA":
+                        ticker = "ORA.PA"
+                    case "WCH.DE":
+                        ticker = "WCH.DE"
+                    case "AKE.PA":
+                        ticker = "AKE.PA"
+                    case "MRL.MC":
+                        ticker = "MRL.MC"
+                    case "TEP.PA":
+                        ticker = "TEP.PA"
+                    case "FGR.PA":
+                        ticker = "FGR.PA"
+                    case "SAN.PA":
+                        ticker = "SAN.PA"
+                    case "ES.PA":
+                        ticker = "ES.PA"
+                    case "INGA.NV":
+                        ticker = "INGA.AS"
+                    case "DAN.MI":
+                        ticker = "DAN.MI"
+                    case "AALB.NV":
+                        ticker = "AALB.AS"
+                    case "ELIS.PA":
+                        ticker = "ELIS.PA"
+                    case "RF.PA":
+                        ticker = "RF.PA"
+                    case "NEXI.MI":
+                        ticker = "NEXI.MI"
+                    case "SW.PA":
+                        ticker = "SW.PA"
+                    case "ISP":
+                        ticker = "ISP.MI"
+                    case _:
+                        continue
+
+            elif market == "HKD":
+                scale = yf.Ticker("HKDUSD=X").fast_info["lastPrice"]
+                ticker = ticker[-7:]  # remove eToro's prefix
+
+            elif market == "SEK":
+                scale = yf.Ticker("SEKUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "NDA_SE.ST":
+                        ticker = "0N4T.IL"  # Nordea Bank via LSE
+                    case "EVO.ST":
+                        ticker = "EVO.ST"
+                    case _:
+                        continue
+
+            elif market == "CHF":
+                scale = yf.Ticker("CHFUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "BAER":
+                        ticker = "BAER.SW"
+                    case "CLN.ZU":
+                        ticker = "CLN.SW"
+                    case "USD":
+                        ticker = "CHFUSD=X"
+                        scale = 1
+                    case _:
+                        continue
+
+            elif market == "AUD":
+                scale = yf.Ticker("AUDUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "CLW.ASX":
+                        ticker = "CLW.AX"
+                    case "PLS.ASX":
+                        ticker = "PLS.AX"
+                    case _:
+                        continue
+
+            elif market == "NOK":
+                scale = yf.Ticker("NOKUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "NAS":
+                        ticker = "NAS.OL"
+                    case "HAUTO.OL":
+                        ticker = "HAUTO.OL"
+                    case "WAWI.OL":
+                        ticker = "WAWI.OL"
+                    case _:
+                        continue
+
+            elif market == "DKK":
+                scale = yf.Ticker("DKKUSD=X").fast_info["lastPrice"]
+                match ticker:
+                    case "ISS":
+                        ticker = "ISS.CO"
+                    case "DANSKE":
+                        ticker = "DANSKE.CO"
+                    case _:
+                        continue
+
+            elif market == "JPY":
+                scale = yf.Ticker("JPYUSD=X").fast_info["lastPrice"]
+                # No JPY tickers in your list except CAD/USD placeholders
+
+            elif market == "SGD":
+                scale = yf.Ticker("SGDUSD=X").fast_info["lastPrice"]
+                if ticker == "USD":
+                    ticker = "SGDUSD=X"
+
+            else:
+                continue
+
+        history = None
+        try:
+            ticker_data = yf.Ticker(ticker)
+            # Fetch historical data since the company's IPO or listing date
+            history = ticker_data.history(
+                start=first_open_date.strftime("%Y-%m-%d"),
+                end=pd.Timestamp.now().strftime("%Y-%m-%d"),
+            )
+        except Exception as e:  # noqa: BLE001
+            print(f"Could not fetch data for {ticker}: {e}")
             continue
-        ticker_data = yf.Ticker(ticker)
-        history = ticker_data.history(
-            start=first_open_date.strftime("%Y-%m-%d"),
-            end=pd.Timestamp.now().strftime("%Y-%m-%d"),
-        )
-        yahoo_data[_details] = history
+        if not history.empty:
+            history = history[["Close"]]
+            history.loc[:, "Close"] = history.loc[:, "Close"] * scale
+
+            yahoo_data[_details] = history
+        else:
+            print(f"No data found for {ticker}")
 
     all_combined_data = {}
     for _ticker_name, _ticker in shares_per_ticker.items():
