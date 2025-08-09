@@ -4,6 +4,8 @@
 
 This is a full-stack finance dashboard application using Flask backend (Python) and Svelte frontend (TypeScript). The project uses Docker for development with `just` as the task runner.
 
+When adding a new feature, create new tests to validate that it works, either backend tests or end-2-end tests with playwright in tests/
+
 ## Critical Setup Requirements
 
 ### Required Tools
