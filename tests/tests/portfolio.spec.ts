@@ -24,27 +24,16 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
 });
 
-baseTest('portfolio page shows login modal when not logged in', async ({ page }) => {
+baseTest('portfolio page redirects to login when not logged in', async ({ page }) => {
   // Navigate to portfolio page without logging in
   await page.goto('/portfolio');
-  await page.waitForURL('/portfolio');
   
-  // Check that the login modal is visible
-  await expect(page.getByRole('dialog')).toBeVisible();
+  // Should be redirected to login page
+  await page.waitForURL('/login');
+  await expect(page).toHaveURL('/login');
+  
+  // Should see the login form
   await expect(page.getByText('Login to your account')).toBeVisible();
-  
-  // Check that we can switch to register tab
-  await page.getByRole('button', { name: 'Register' }).click();
-  await expect(page.getByText('Create new account')).toBeVisible();
-  
-  // Check that we can switch back to login tab
-  await page.getByRole('button', { name: 'Login' }).click();
-  await expect(page.getByText('Login to your account')).toBeVisible();
-  
-  // Check that cancel button works and redirects
-  await page.getByRole('button', { name: 'Cancel' }).click();
-  await page.waitForURL('/');
-  await expect(page).toHaveURL('/');
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
