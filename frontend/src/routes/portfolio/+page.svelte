@@ -3,6 +3,9 @@
 	import type { components } from '../../generated/api.js';
 	import { onMount } from 'svelte'; // Import onMount
 	import { goto } from '$app/navigation';
+	import LoginRegisterModal from '$lib/components/LoginRegisterModal.svelte';
+
+	let { data } = $props();
 
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
@@ -18,6 +21,7 @@
 	let precision_index: number = $state(1); // 'M'
 	let loading = $state(false);
 	let uploadedReports: string[] = $state([]); // New state for uploaded reports
+	let showLoginModal = $state(false); // State for login modal
 
 	// Calculate yesterday's date since we want a full day
 	const getYesterdayUrl = () => {
@@ -43,7 +47,12 @@
 
 	// Fetch reports on component mount
 	onMount(() => {
-		fetchUploadedReports();
+		// Check authentication status and show modal if not logged in
+		if (!data.isLoggedIn) {
+			showLoginModal = true;
+		} else {
+			fetchUploadedReports();
+		}
 	});
 
 	$effect(() => {
@@ -73,77 +82,98 @@
 	async function reAnalyzeReport(reportName: string) {
 		goto(`/portfolio/analysis/${reportName}`);
 	}
+
+	// Handle closing the login modal
+	function handleCloseLoginModal() {
+		showLoginModal = false;
+		// Redirect to home page if user cancels login
+		goto('/');
+	}
 </script>
 
-<div class="p-8">
-	{#if error}
-		<div class="text-center text-red-500">{error}</div>
-	{:else}
-		<div class="p-8">
-			{#if error}
-				<div class="text-center text-red-500">{error}</div>
-			{:else}
-				<h2 class="mt-6 text-4xl font-bold text-white">Step 1:</h2>
-				<a
-					class="text-brand inline-flex items-center font-medium hover:underline"
-					href={getYesterdayUrl()}
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Download excel report from Etoro
-					<svg
-						class="ms-2 h-6 w-6"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M17 8l4 4m0 0l-4 4m4-4H3"
-						></path></svg
+<!-- Login/Register Modal -->
+<LoginRegisterModal show={showLoginModal} onClose={handleCloseLoginModal} />
+
+<!-- Only show portfolio content if user is logged in -->
+{#if data.isLoggedIn}
+	<div class="p-8">
+		{#if error}
+			<div class="text-center text-red-500">{error}</div>
+		{:else}
+			<div class="p-8">
+				{#if error}
+					<div class="text-center text-red-500">{error}</div>
+				{:else}
+					<h2 class="mt-6 text-4xl font-bold text-white">Step 1:</h2>
+					<a
+						class="text-brand inline-flex items-center font-medium hover:underline"
+						href={getYesterdayUrl()}
+						target="_blank"
+						rel="noopener noreferrer"
 					>
-				</a>
-				<h2 class="mt-6 text-4xl font-bold text-white">Step 2:</h2>
-				<label for="etoro-excel" class="block pb-2 text-white">Upload file</label>
-				<input
-					type="file"
-					accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-					id="etoro-excel"
-					bind:files
-					class="file:bg-brand hover:file:bg-brand-dark block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
-				/>
+						Download excel report from Etoro
+						<svg
+							class="ms-2 h-6 w-6"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M17 8l4 4m0 0l-4 4m4-4H3"
+							></path></svg
+						>
+					</a>
+					<h2 class="mt-6 text-4xl font-bold text-white">Step 2:</h2>
+					<label for="etoro-excel" class="block pb-2 text-white">Upload file</label>
+					<input
+						type="file"
+						accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+						id="etoro-excel"
+						bind:files
+						class="file:bg-brand hover:file:bg-brand-dark block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+					/>
 
-				<!-- New section for previously uploaded reports -->
-				{#if uploadedReports.length > 0}
-					<h2 class="mt-6 text-4xl font-bold text-white">Previously Uploaded Reports:</h2>
-					<ul class="list-inside list-disc text-white">
-						{#each uploadedReports as report (report)}
-							<li>
-								<button
-									onclick={() => reAnalyzeReport(report)}
-									class="text-blue-400 hover:underline"
-								>
-									{report}
-								</button>
-							</li>
-						{/each}
-					</ul>
+					<!-- New section for previously uploaded reports -->
+					{#if uploadedReports.length > 0}
+						<h2 class="mt-6 text-4xl font-bold text-white">Previously Uploaded Reports:</h2>
+						<ul class="list-inside list-disc text-white">
+							{#each uploadedReports as report (report)}
+								<li>
+									<button
+										onclick={() => reAnalyzeReport(report)}
+										class="text-blue-400 hover:underline"
+									>
+										{report}
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 				{/if}
-			{/if}
 
-			{#if loading}
-				<div class="mt-4 flex items-center justify-center">
-					<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
-				</div>
-			{/if}
-		</div>
-	{/if}
+				{#if loading}
+					<div class="mt-4 flex items-center justify-center">
+						<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
+					</div>
+				{/if}
+			</div>
+		{/if}
 
-	{#if loading}
-		<div class="mt-4 flex items-center justify-center">
-			<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
+		{#if loading}
+			<div class="mt-4 flex items-center justify-center">
+				<div class="border-brand h-8 w-8 animate-spin rounded-full border-b-2"></div>
+			</div>
+		{/if}
+	</div>
+{:else}
+	<!-- Show a message when not logged in (behind the modal) -->
+	<div class="flex min-h-screen items-center justify-center">
+		<div class="text-center">
+			<h2 class="text-2xl font-bold text-white">Please log in to access your portfolio</h2>
+			<p class="mt-2 text-gray-300">You need to be authenticated to view this page.</p>
 		</div>
-	{/if}
-</div>
+	</div>
+{/if}
