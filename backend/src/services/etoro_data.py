@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import yfinance_cache as yf
-import logging
 
 from src import models
 
@@ -64,23 +63,23 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         details_series = splits.index.get_level_values("Details")
         split_factors = []
         for detail in details_series:
-            parts = detail.split(' ')
-            if 'Split' in parts:
-                split_idx = parts.index('Split')
+            parts = detail.split(" ")
+            if "Split" in parts:
+                split_idx = parts.index("Split")
                 if split_idx + 1 < len(parts):
                     split_ratio = parts[split_idx + 1]  # '10:1'
-                    split_factor = float(split_ratio.split(':')[0])
+                    split_factor = float(split_ratio.split(":")[0])
                     split_factors.append(split_factor)
                 else:
                     split_factors.append(1.0)
             else:
                 # Fallback: try original parsing for "Split 10:1" format
                 try:
-                    split_factor = float(parts[1].split(':')[0]) if len(parts) > 1 else 1.0
+                    split_factor = float(parts[1].split(":")[0]) if len(parts) > 1 else 1.0
                     split_factors.append(split_factor)
                 except (ValueError, IndexError):
                     split_factors.append(1.0)
-        
+
         splits["Factor"] = split_factors
         splits = splits.reset_index().set_index("Date")
     else:
@@ -97,34 +96,34 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         _ticker_positions = _ticker_positions.sort_values(by="Date")
         _ticker_positions["Units / Contracts"] = _ticker_positions["Units / Contracts"].astype(np.float32)
         _ticker_positions = _ticker_positions.resample("D").agg({"Units / Contracts": "sum"}).fillna(0)
-        
+
         # Create date range for the ticker
         date_range = pd.date_range(_ticker_positions.index.min(), pd.Timestamp.today())
         _ticker_positions = _ticker_positions.reindex(date_range, fill_value=0)
-        
+
         # Calculate cumulative shares
         _ticker_positions["shares_sum"] = _ticker_positions["Units / Contracts"].cumsum()
-        
+
         # Apply split adjustments for this ticker
         if not splits.empty:
             ticker_splits = splits[splits["Details"].str.startswith(tick)].copy()
             if not ticker_splits.empty:
                 # Create daily split factor series, starting with 1.0
                 split_factors = pd.Series(1.0, index=date_range, name="split_factor")
-                
+
                 # Process splits in reverse chronological order to build cumulative factors
                 ticker_splits = ticker_splits.sort_index(ascending=False)
-                
+
                 for split_date, split_row in ticker_splits.iterrows():
                     split_factor = split_row["Factor"]
                     # For dates before this split, multiply by the split factor to get equivalent post-split shares
                     mask = split_factors.index < split_date
                     split_factors.loc[mask] = split_factors.loc[mask] * split_factor
-                
+
                 # Apply split adjustments to shares
                 _ticker_positions["split_factor"] = split_factors
                 _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"] * _ticker_positions["split_factor"]
-        
+
         shares_per_ticker[tick] = _ticker_positions
 
     yahoo_data = {}
