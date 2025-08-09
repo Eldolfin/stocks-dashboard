@@ -27,10 +27,10 @@
 	// Ticker selection state - only used when showTickerSelector is true
 	let selectedTickers = $state(new SvelteSet<string>());
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
-	let availableTickers: string[] = $derived(showTickerSelector ? 
-		Object.keys(dataset).filter(ticker => 
-			ticker !== 'total' && 
-			ticker !== 'Closed Positions' && 
+	let availableTickers: string[] = $derived(showTickerSelector ?
+		Object.keys(dataset).filter(ticker =>
+			ticker !== 'total' &&
+			ticker !== 'Closed Positions' &&
 			ticker !== 'price'
 		) : []);
 
@@ -38,7 +38,7 @@
 	let filteredDataset = $derived(() => {
 		console.log('filteredDataset recalculating, selectedTickers size:', selectedTickers.size);
 		console.log('selectedTickersArray:', selectedTickersArray);
-		
+
 		if (!showTickerSelector) {
 			return dataset;
 		}
@@ -103,7 +103,7 @@
 						}
 					},
 					legend: {
-						display: false
+						display: true
 					},
 					zoom: {
 						pan: {
