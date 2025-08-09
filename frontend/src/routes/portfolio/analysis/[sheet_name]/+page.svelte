@@ -105,6 +105,8 @@
 			<HistoryChart
 				color="green"
 				title="Total profits evolution overtime"
+				showTickerSelector={true}
+				fullDataset={evolution_data['evolution']['parts']}
 				dataset={(() => {
 					const filteredDataset: { [key: string]: number[] } = {};
 					if (
