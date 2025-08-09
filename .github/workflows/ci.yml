@@ -5,9 +5,67 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    outputs:
+      backend-image: ${{ steps.meta.outputs.backend-image }}
+      frontend-image: ${{ steps.meta.outputs.frontend-image }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Generate image metadata
+      id: meta
+      run: |
+        # Create image names and tags
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        COMMIT_SHA="${{ github.sha }}"
+        BRANCH_NAME="${{ github.ref_name }}"
+        
+        BACKEND_IMAGE="ghcr.io/${REPO_LOWER}/backend"
+        FRONTEND_IMAGE="ghcr.io/${REPO_LOWER}/frontend"
+        
+        # Set outputs for use in other jobs
+        echo "backend-image=${BACKEND_IMAGE}:${COMMIT_SHA}" >> $GITHUB_OUTPUT
+        echo "frontend-image=${FRONTEND_IMAGE}:${COMMIT_SHA}" >> $GITHUB_OUTPUT
+        
+        # Set environment variables for build steps
+        echo "BACKEND_IMAGE=${BACKEND_IMAGE}" >> $GITHUB_ENV
+        echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> $GITHUB_ENV
+        echo "COMMIT_SHA=${COMMIT_SHA}" >> $GITHUB_ENV
+        echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile.prod
+        push: true
+        tags: |
+          ${{ env.BACKEND_IMAGE }}:${{ env.COMMIT_SHA }}
+          ${{ env.BACKEND_IMAGE }}:${{ env.BRANCH_NAME }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile.prod
+        push: true
+        tags: |
+          ${{ env.FRONTEND_IMAGE }}:${{ env.COMMIT_SHA }}
+          ${{ env.FRONTEND_IMAGE }}:${{ env.BRANCH_NAME }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
   tests-backend:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: build-and-push-images
     steps:
     - uses: actions/checkout@v4
     - uses: taiki-e/install-action@just
@@ -15,10 +73,18 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         version: "0.8.4"
-    - name: Setup environement
+    - name: Setup environment
       run: cp .env.example .env
-    - name: Run tests
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run tests with pre-built images
       run: |
+        export BACKEND_IMAGE="${{ needs.build-and-push-images.outputs.backend-image }}"
+        export FRONTEND_IMAGE="${{ needs.build-and-push-images.outputs.frontend-image }}"
         echo "REPORT_FILE=backend/${REPORT_OUTPUT}" >> "$GITHUB_ENV"
         just backend ci ${REPORT_OUTPUT}
     - name: Show logs on failure
@@ -38,13 +104,24 @@ jobs:
   tests-end2end:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: build-and-push-images
     steps:
     - uses: actions/checkout@v4
     - uses: taiki-e/install-action@just
-    - name: Setup environement
+    - name: Setup environment
       run: cp .env.example .env
-    - name: Run Playwright tests
-      run: export CI=1; just tests ci
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run Playwright tests with pre-built images
+      run: |
+        export CI=1
+        export BACKEND_IMAGE="${{ needs.build-and-push-images.outputs.backend-image }}"
+        export FRONTEND_IMAGE="${{ needs.build-and-push-images.outputs.frontend-image }}"
+        just tests ci
     - name: Show logs on failure
       if: failure()
       run: docker compose -f dev/docker-compose.yml logs

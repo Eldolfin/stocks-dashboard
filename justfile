@@ -33,6 +33,10 @@ _dc-dev *args:
 _dc-prod *args:
     #!/bin/sh
     cd dev
-    docker compose                \
-        -f docker-compose.yml     \
-        {{args}}
+    if [ -n "$BACKEND_IMAGE" ] && [ -n "$FRONTEND_IMAGE" ]; then
+        # Use CI configuration with pre-built images
+        docker compose -f docker-compose.ci.yml {{args}}
+    else
+        # Use standard production configuration
+        docker compose -f docker-compose.yml {{args}}
+    fi
