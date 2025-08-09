@@ -105,7 +105,7 @@
 			<HistoryChart
 				color="green"
 				title="Total profits evolution overtime"
-				showTickerSelector={false}
+				showTickerSelector={true}
 				defaultShown={['total', 'Closed Positions']}
 				dataset={evolution_data['evolution']['parts']}
 				dates={evolution_data['evolution']['dates']}

@@ -25,12 +25,8 @@
 	let chartInstance: Chart | undefined | null;
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = new SvelteSet<string>();
-	let availableTickers: string[] = $derived(
-		showTickerSelector
-			? Object.keys(dataset).filter((key) => defaultShown?.indexOf(key) !== -1)
-			: []
-	);
+	let selectedTickers = $state(new SvelteSet<string>());
+	let availableTickers: string[] = $derived(showTickerSelector ? Object.keys(dataset) : []);
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
@@ -51,15 +47,13 @@
 			result[ticker] = dataset[ticker];
 		}
 
-		console.log(result)
 		return result;
 	});
 
 	const createChart = () => {
-
 		const data = {
 			labels: dates,
-			datasets: Object.entries(filteredDataset).map(([label, data], index) => {
+			datasets: Object.entries(filteredDataset()).map(([label, data], index) => {
 				const isMainLine = label === 'price';
 				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
 				return {
@@ -144,17 +138,19 @@
 	$effect(() => {
 		if (chartInstance) {
 			chartInstance.data.labels = dates;
-			chartInstance.data.datasets = Object.entries(filteredDataset).map(([label, data], index) => {
-				const isMainLine = label === 'price';
-				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
-				return {
-					label,
-					data: [...data],
-					borderColor: lineColor,
-					backgroundColor: transparentize(lineColor, 0.5),
-					yAxisID: 'y'
-				};
-			});
+			chartInstance.data.datasets = Object.entries(filteredDataset()).map(
+				([label, data], index) => {
+					const isMainLine = label === 'price';
+					const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
+					return {
+						label,
+						data: [...data],
+						borderColor: lineColor,
+						backgroundColor: transparentize(lineColor, 0.5),
+						yAxisID: 'y'
+					};
+				}
+			);
 			chartInstance.update();
 		}
 	});
@@ -178,10 +174,7 @@
 		<div class="mt-4 w-full max-w-md">
 			<TickerSelector
 				{availableTickers}
-				{selectedTickers}
-				onTickerToggle={() => {
-					// Trigger reactivity - the chart will update via the $effect
-				}}
+				bind:selectedTickers
 			/>
 		</div>
 	{/if}

@@ -3,17 +3,19 @@
 
 	interface Props {
 		availableTickers: string[];
-		selectedTickers?: SvelteSet<string>;
-		onTickerToggle?: (ticker: string) => void;
+		selectedTickers: SvelteSet<string>; // required for binding
 	}
 
-	const { availableTickers, selectedTickers = new SvelteSet(), onTickerToggle }: Props = $props();
+	// Props (with binding capability)
+	let { availableTickers, selectedTickers = $bindable() }: Props = $props();
 
 	let searchText = $state('');
 
 	// Filter available tickers based on search text
 	let filteredTickers = $derived(
-		availableTickers.filter((ticker) => ticker.toLowerCase().includes(searchText.toLowerCase()))
+		availableTickers.filter((ticker) =>
+			ticker.toLowerCase().includes(searchText.toLowerCase())
+		)
 	);
 
 	function handleTickerSelect(ticker: string) {
@@ -22,7 +24,6 @@
 		} else {
 			selectedTickers.add(ticker);
 		}
-		onTickerToggle?.(ticker);
 	}
 </script>
 
