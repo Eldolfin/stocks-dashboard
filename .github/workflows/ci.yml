@@ -4,9 +4,16 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
+    # Only run on pushes to main or PRs from the same repository (not external forks)
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     outputs:
       backend-image: ${{ steps.meta.outputs.backend-image }}
       frontend-image: ${{ steps.meta.outputs.frontend-image }}
@@ -66,6 +73,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: build-and-push-images
+    # Skip if build-and-push-images was skipped (e.g., for external PRs)
+    if: always() && (needs.build-and-push-images.result == 'success' || needs.build-and-push-images.result == 'skipped')
     steps:
     - uses: actions/checkout@v4
     - uses: taiki-e/install-action@just
@@ -76,15 +85,22 @@ jobs:
     - name: Setup environment
       run: cp .env.example .env
     - name: Log in to GitHub Container Registry
+      if: needs.build-and-push-images.result == 'success'
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Run tests with pre-built images
+      if: needs.build-and-push-images.result == 'success'
       run: |
         export BACKEND_IMAGE="${{ needs.build-and-push-images.outputs.backend-image }}"
         export FRONTEND_IMAGE="${{ needs.build-and-push-images.outputs.frontend-image }}"
+        echo "REPORT_FILE=backend/${REPORT_OUTPUT}" >> "$GITHUB_ENV"
+        just backend ci ${REPORT_OUTPUT}
+    - name: Run tests with local build (fallback)
+      if: needs.build-and-push-images.result == 'skipped'
+      run: |
         echo "REPORT_FILE=backend/${REPORT_OUTPUT}" >> "$GITHUB_ENV"
         just backend ci ${REPORT_OUTPUT}
     - name: Show logs on failure
@@ -105,22 +121,31 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: build-and-push-images
+    # Skip if build-and-push-images was skipped (e.g., for external PRs)
+    if: always() && (needs.build-and-push-images.result == 'success' || needs.build-and-push-images.result == 'skipped')
     steps:
     - uses: actions/checkout@v4
     - uses: taiki-e/install-action@just
     - name: Setup environment
       run: cp .env.example .env
     - name: Log in to GitHub Container Registry
+      if: needs.build-and-push-images.result == 'success'
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Run Playwright tests with pre-built images
+      if: needs.build-and-push-images.result == 'success'
       run: |
         export CI=1
         export BACKEND_IMAGE="${{ needs.build-and-push-images.outputs.backend-image }}"
         export FRONTEND_IMAGE="${{ needs.build-and-push-images.outputs.frontend-image }}"
+        just tests ci
+    - name: Run Playwright tests with local build (fallback)
+      if: needs.build-and-push-images.result == 'skipped'
+      run: |
+        export CI=1
         just tests ci
     - name: Show logs on failure
       if: failure()
