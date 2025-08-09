@@ -1,0 +1,40 @@
+name: 'finance-dashboard-ci'
+services:
+  backend:
+    image: ${BACKEND_IMAGE}
+    container_name: backend
+    ports:
+      - 5000:5000 # local debugging
+    volumes:
+      - ./backend-db:/database
+    environment:
+      BACKEND_AUTH_SECRET_KEY: ${BACKEND_AUTH_SECRET_KEY}
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 2s
+    restart: unless-stopped
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    container_name: frontend
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 2s
+    restart: unless-stopped
+  caddy:
+    image: caddy:2.10-alpine
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    ports:
+      - 8085:80
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    restart: unless-stopped

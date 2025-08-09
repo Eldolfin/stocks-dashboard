@@ -5,7 +5,14 @@ help:
     just --list
 
 _dc *args:
-    docker compose -f ../dev/docker-compose.yml -f docker-compose.yml {{args}}
+    #!/bin/sh
+    if [ -n "$BACKEND_IMAGE" ] && [ -n "$FRONTEND_IMAGE" ]; then
+        # Use CI configuration with pre-built images
+        docker compose -f ../dev/docker-compose.ci.yml -f docker-compose.yml {{args}}
+    else
+        # Use standard development configuration
+        docker compose -f ../dev/docker-compose.yml -f docker-compose.yml {{args}}
+    fi
 
 # Run playwright command in docker
 docker-playwright +args:
