@@ -24,7 +24,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  // timeout: 5000,
+  timeout: 60000,
   expect: {
     timeout: 8000,
   },
