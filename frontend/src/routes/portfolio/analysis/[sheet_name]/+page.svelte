@@ -105,25 +105,9 @@
 			<HistoryChart
 				color="green"
 				title="Total profits evolution overtime"
-				showTickerSelector={true}
-				fullDataset={evolution_data['evolution']['parts']}
-				dataset={(() => {
-					const filteredDataset: { [key: string]: number[] } = {};
-					if (
-						evolution_data &&
-						evolution_data['evolution'] &&
-						evolution_data['evolution']['parts']
-					) {
-						const parts = evolution_data['evolution']['parts'];
-						if (parts['Closed Positions']) {
-							filteredDataset['Closed Positions'] = parts['Closed Positions'];
-						}
-						if (parts['total']) {
-							filteredDataset['total'] = parts['total'];
-						}
-					}
-					return filteredDataset;
-				})()}
+				showTickerSelector={false}
+				defaultShown={['total', 'Closed Positions']}
+				dataset={evolution_data['evolution']['parts']}
 				dates={evolution_data['evolution']['dates']}
 			/>
 		</div>

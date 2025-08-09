@@ -11,17 +11,24 @@
 		dates: string[];
 		color: string;
 		showTickerSelector?: boolean;
-		fullDataset?: { [key: string]: number[] };
+		defaultShown?: string[];
 	}
-	const { title, dataset, dates, color, showTickerSelector = false, fullDataset }: Props = $props();
+	const {
+		title,
+		dataset,
+		dates,
+		color,
+		showTickerSelector = false,
+		defaultShown
+	}: Props = $props();
 	let chartElt;
 	let chartInstance: Chart | undefined | null;
 
 	// Ticker selection state - only used when showTickerSelector is true
 	let selectedTickers = new SvelteSet<string>();
 	let availableTickers: string[] = $derived(
-		showTickerSelector && fullDataset
-			? Object.keys(fullDataset).filter((key) => key !== 'total' && key !== 'Closed Positions')
+		showTickerSelector
+			? Object.keys(dataset).filter((key) => defaultShown?.indexOf(key) !== -1)
 			: []
 	);
 
@@ -33,25 +40,23 @@
 
 		const result: { [key: string]: number[] } = {};
 
-		// Always show total and closed positions if they exist
-		if (dataset['total']) {
-			result['total'] = dataset['total'];
-		}
-		if (dataset['Closed Positions']) {
-			result['Closed Positions'] = dataset['Closed Positions'];
+		if (defaultShown) {
+			for (const ticker of defaultShown) {
+				result[ticker] = dataset[ticker];
+			}
 		}
 
 		// Add selected individual tickers
 		for (const ticker of selectedTickers) {
-			if (fullDataset?.[ticker]) {
-				result[ticker] = fullDataset[ticker];
-			}
+			result[ticker] = dataset[ticker];
 		}
 
+		console.log(result)
 		return result;
 	});
 
 	const createChart = () => {
+
 		const data = {
 			labels: dates,
 			datasets: Object.entries(filteredDataset).map(([label, data], index) => {
