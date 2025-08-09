@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import yfinance_cache as yf
+import logging
 
 from src import models
 
@@ -60,7 +61,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     if not splits.empty:
         splits = splits.groupby(["Date", "Details"]).last()
         # Extract split factor from Details column (format like "Split 10:1")
-        splits["Factor"] = splits["Details"].str.split(' ').str[1].str.split(':').str[0].astype(float)
+        splits["Factor"] = splits.index.get_level_values("Details").str.split(' ').str[1].str.split(':').str[0].astype(float)
         splits = splits.reset_index().set_index("Date")
     else:
         splits = pd.DataFrame(columns=["Details", "Factor"]).set_index(pd.DatetimeIndex([], name="Date"))
@@ -86,7 +87,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         
         # Apply split adjustments for this ticker
         if not splits.empty:
-            ticker_splits = splits[splits["Details"] == tick].copy()
+            ticker_splits = splits[splits["Details"].str.startswith(tick)].copy()
             if not ticker_splits.empty:
                 # Create daily split factor series, starting with 1.0
                 split_factors = pd.Series(1.0, index=date_range, name="split_factor")
@@ -103,6 +104,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                 # Apply split adjustments to shares
                 _ticker_positions["split_factor"] = split_factors
                 _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"] * _ticker_positions["split_factor"]
+                _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"]
+            elif tick == "NVDA/USD":
+                logging.error("TICKER_SPLITS is empty !!!")
         
         shares_per_ticker[tick] = _ticker_positions
 
@@ -303,10 +307,12 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     for _ticker_name, _ticker in shares_per_ticker.items():
         if _ticker_name in yahoo_data:
             _yahoo_data = yahoo_data[_ticker_name]
+            logging.error(_ticker.columns)
             _ticker.index = pd.to_datetime(_ticker.index).tz_localize(None)
             _yahoo_data.index = pd.to_datetime(_yahoo_data.index).tz_localize(None)
             combined = _ticker.join(_yahoo_data, how="left")
-            combined["net_value"] = combined["Close"] * combined["shares_sum"]
+            split_factor = combined.get("split_factor", 1)
+            combined["net_value"] = combined["Close"] * combined["shares_sum"] / split_factor
             all_combined_data[_ticker_name] = combined
 
     all_combined_data_filled = {}
