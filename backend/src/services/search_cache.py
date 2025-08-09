@@ -147,8 +147,9 @@ class SearchCache:
             
             # Check direct ticker matches
             for cached_key, ticker in self._ticker_cache.items():
+                longname_words = (ticker.raw.longname or "").lower().split()
                 if (word_lower in cached_key or 
-                    any(word_lower in (ticker.raw.longname or "").lower().split())):
+                    any(word_lower in word for word in longname_words)):
                     matched_tickers.append(ticker)
         
         if matched_tickers:

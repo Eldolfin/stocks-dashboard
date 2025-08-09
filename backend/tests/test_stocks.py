@@ -172,3 +172,73 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
         == 2986
     )
+
+
+def test_search_caching_integration() -> None:
+    """Test that search results are properly cached."""
+    # First search - should populate cache
+    response1 = requests.get(f"{BASE_URL}/search/", params={"query": "Apple"})
+    assert response1.status_code == 200
+    data1 = response1.json()
+    
+    # Second identical search - should use cache (faster response)
+    start_time = time.time()
+    response2 = requests.get(f"{BASE_URL}/search/", params={"query": "Apple"})
+    response_time = time.time() - start_time
+    
+    assert response2.status_code == 200
+    data2 = response2.json()
+    
+    # Results should be identical
+    assert data1 == data2
+    
+    # Cached response should be fast (less than 100ms)
+    assert response_time < 0.1
+
+
+def test_cache_stats_endpoint() -> None:
+    """Test the cache statistics endpoint."""
+    # Clear any existing cache by making a unique search
+    unique_query = f"test_query_{time.time_ns()}"
+    response = requests.get(f"{BASE_URL}/search/", params={"query": unique_query})
+    assert response.status_code == 200
+    
+    # Get cache stats
+    response = requests.get(f"{BASE_URL}/cache/stats")
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert "search_cache" in data
+    
+    cache_stats = data["search_cache"]
+    assert "exact_cache_size" in cache_stats
+    assert "ticker_cache_size" in cache_stats
+    assert "query_patterns" in cache_stats
+    
+    # All values should be non-negative integers
+    assert isinstance(cache_stats["exact_cache_size"], int)
+    assert isinstance(cache_stats["ticker_cache_size"], int)
+    assert isinstance(cache_stats["query_patterns"], int)
+    assert cache_stats["exact_cache_size"] >= 0
+    assert cache_stats["ticker_cache_size"] >= 0
+    assert cache_stats["query_patterns"] >= 0
+
+
+def test_search_partial_matching() -> None:
+    """Test that cached ticker data enables partial matching."""
+    # Search for a broad term that will cache multiple tickers
+    response1 = requests.get(f"{BASE_URL}/search/", params={"query": "technology"})
+    assert response1.status_code == 200
+    data1 = response1.json()
+    
+    # Assume Apple might be in technology results
+    has_apple = any(q["raw"]["symbol"] == "AAPL" for q in data1["quotes"])
+    
+    if has_apple:
+        # Now search for just "apple" - should find it from cache
+        response2 = requests.get(f"{BASE_URL}/search/", params={"query": "apple"})
+        assert response2.status_code == 200
+        data2 = response2.json()
+        
+        # Should find Apple from partial matching
+        assert any(q["raw"]["symbol"] == "AAPL" for q in data2["quotes"])
