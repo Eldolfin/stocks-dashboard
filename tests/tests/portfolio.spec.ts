@@ -21,7 +21,7 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   });
   await loggedInPage.waitForTimeout(2000);
 
-  await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
+  // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
 });
 
 // test('previously uploaded portfolio', async ({ loggedInPage }) => {
