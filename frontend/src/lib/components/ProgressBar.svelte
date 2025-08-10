@@ -17,6 +17,8 @@
 	);
 </script>
 
+{#if !isComplete}
+
 <div
 	class="rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
 >
@@ -29,17 +31,6 @@
 					<h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
 					<div class="mt-2 text-sm text-red-700 dark:text-red-300">
 						<p>{error}</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	{:else if isComplete}
-		<div class="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
-			<div class="flex">
-				<div class="ml-3">
-					<h3 class="text-sm font-medium text-green-800 dark:text-green-200">Complete</h3>
-					<div class="mt-2 text-sm text-green-700 dark:text-green-300">
-						<p>Analysis completed successfully</p>
 					</div>
 				</div>
 			</div>
@@ -68,3 +59,4 @@
 		</div>
 	{/if}
 </div>
+{/if}
