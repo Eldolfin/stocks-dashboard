@@ -13,9 +13,7 @@
 
 	// Filter available tickers based on search text
 	let filteredTickers = $derived(
-		availableTickers.filter((ticker) =>
-			ticker.toLowerCase().includes(searchText.toLowerCase())
-		)
+		availableTickers.filter((ticker) => ticker.toLowerCase().includes(searchText.toLowerCase()))
 	);
 
 	function handleTickerSelect(ticker: string) {
