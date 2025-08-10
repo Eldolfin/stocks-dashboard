@@ -2,7 +2,7 @@ from enum import Enum
 
 from flask_login import UserMixin
 from flask_openapi3 import FileStorage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class User(UserMixin):
@@ -380,11 +380,9 @@ class PrecisionEnum(str, Enum):
 
 
 class EtoroForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     precision: PrecisionEnum
     file: FileStorage
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class EtoroAnalysisResponse(BaseModel):
@@ -447,12 +445,10 @@ class LoginBody(BaseModel):
 
 
 class RegisterForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     email: str
     password: str
     profile_picture: FileStorage | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class RegisterResponse(BaseModel):
@@ -465,10 +461,8 @@ class RegisterResponse(BaseModel):
 #  PROFILE PICTURE #
 ####################
 class ProfilePictureForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     profile_picture: FileStorage
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class ProfilePicturePath(BaseModel):
@@ -493,7 +487,5 @@ class UserResponse(BaseModel):
 class TaskResultResponse(BaseModel):
     """Generic response for task results. Can contain various data types."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     result: dict | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
