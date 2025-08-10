@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Chart, { type ChartConfiguration } from 'chart.js/auto';
-	import { transparentize, SMA_COLORS } from '$lib/chart-utils';
+	import { transparentize  } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
 	import TickerSelector from './TickerSelector.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -30,7 +30,7 @@
 	let availableTickers: string[] = $derived(
 		showTickerSelector
 			? Object.keys(dataset).filter(
-					(ticker) => ticker !== 'total' && ticker !== 'Closed Positions' && ticker !== 'price'
+					(ticker) => [undefined, -1].indexOf(defaultShown?.indexOf(ticker)) !== -1
 				)
 			: []
 	);
@@ -66,15 +66,29 @@
 	});
 
 	const createChart = () => {
+		const mainColumns = ['Total', 'price'];
+		const entries = Object.entries(filteredDataset()).sort(([labelA], [labelB]) => {
+			const isMainA = mainColumns.includes(labelA);
+			const isMainB = mainColumns.includes(labelB);
+			return isMainA === isMainB ? 0 : isMainA ? -1 : 1;
+		});
+		const totalLines = entries.length;
+		// Move mainData ("Total" or "price") to the front
 		const data = {
 			labels: dates,
-			datasets: Object.entries(filteredDataset()).map(([label, data], index) => {
-				const isMainLine = label === 'price';
-				const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
+			datasets: entries.map(([label, data], index) => {
+				const isMainData = ['Total', 'price'].indexOf(label) !== -1;
+				const mainHue = 170;
+				// Generate hue separated colors (0 to 360 degrees)
+				// We skip the main line since you want a special color for it
+				// But if you want main line also colored by hue, just remove that condition
+				const hue = isMainData ? mainHue : (360 * index) / totalLines + mainHue;
+				const lineColor = `hsl(${hue}, 100%, 70%)`;
 				return {
 					label,
 					data: [...data],
 					borderColor: lineColor,
+					borderWidth: isMainData ? 2 : undefined,
 					backgroundColor: transparentize(lineColor, 0.5),
 					yAxisID: 'y'
 				};
@@ -126,7 +140,11 @@
 					y: {
 						type: 'linear',
 						display: true,
-						position: 'left'
+						position: 'left',
+						grid: {
+							color: (ctx) => (ctx.tick.value === 0 ? 'white' : 'gray'),
+							lineWidth: (ctx) => (ctx.tick.value === 0 ? 1 : 0.5)
+						}
 					},
 					x: {
 						type: 'timeseries'
@@ -157,26 +175,28 @@
 	});
 
 	$effect(() => {
-		console.log('Chart effect triggered, filteredDataset keys:', Object.keys(filteredDataset()));
-		if (chartInstance) {
-			chartInstance.data.labels = dates;
-			chartInstance.data.datasets = Object.entries(filteredDataset()).map(
-				([label, data], index) => {
-					console.log('Creating dataset for:', label, 'with', data.length, 'data points');
-					const isMainLine = label === 'price';
-					const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
-					return {
-						label,
-						data: [...data],
-						borderColor: lineColor,
-						backgroundColor: transparentize(lineColor, 0.5),
-						yAxisID: 'y'
-					};
-				}
-			);
-			console.log('Updating chart with', chartInstance.data.datasets.length, 'datasets');
-			chartInstance.update();
-		}
+		// if (chartInstance) {
+		// 	chartInstance.data.labels = dates;
+		// 	chartInstance.data.datasets = Object.entries(filteredDataset()).map(
+		// 		([label, data], index) => {
+		// 			console.log('Creating dataset for:', label, 'with', data.length, 'data points');
+		// 			const isMainLine = label === 'price';
+		// 			const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
+		// 			return {
+		// 				label,
+		// 				data: [...data],
+		// 				borderColor: lineColor,
+		// 				backgroundColor: transparentize(lineColor, 0.5),
+		// 				yAxisID: 'y'
+		// 			};
+		// 		}
+		// 	);
+		// 	console.log('Updating chart with', chartInstance.data.datasets.length, 'datasets');
+		// 	chartInstance.update();
+		// }
+		// FIXME: this is suboptimal + annoying to the user
+		// but for now I'm not re-assigning colors on dataset change so this is needed
+		createChart();
 	});
 
 	onDestroy(() => {

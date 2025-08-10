@@ -24,12 +24,6 @@ with app.setup:
     from src import models
 
 
-@app.cell
-def _():
-    yf.Search
-    return
-
-
 @app.cell(hide_code=True)
 def _():
     mo.md("""# Etoro networth analysis""")
@@ -89,12 +83,6 @@ def _(closed):
     return
 
 
-@app.cell(hide_code=True)
-def _():
-    mo.md("""## Cumulative deposits""")
-    return
-
-
 @app.cell
 def _(excel):
     activity = excel["Account Activity"]
@@ -105,7 +93,17 @@ def _(excel):
 
     # Set 'Date' as index for resampling
     activity = activity.set_index("Date")
+    return (activity,)
 
+
+@app.cell(hide_code=True)
+def _():
+    mo.md("""## Cumulative deposits""")
+    return
+
+
+@app.cell
+def _(activity):
     # Resample to daily frequency, filling missing values with 0
     daily_deposits = activity[activity["Type"] == "Deposit"]["Amount"].astype(np.float32).resample("D").sum().fillna(0)
 
@@ -114,11 +112,11 @@ def _(excel):
 
     # Create a date range for the x-axis
     start_date = daily_deposits.index.min()
-    end_date = daily_deposits.index.max()
+    end_date = pd.Timestamp.today()
     date_range = pd.date_range(start=start_date, end=end_date, freq="D")
 
     # Reindex the cumulative deposits to ensure all dates are present
-    cumulative_deposits = cumulative_deposits.reindex(date_range, fill_value=0)
+    cumulative_deposits = cumulative_deposits.reindex(date_range).fillna(method="ffill")
 
     # Plotting
     plt.plot(cumulative_deposits.index, cumulative_deposits)
@@ -129,8 +127,8 @@ def _(excel):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.gca()
-    activity
-    return (activity,)
+    cumulative_deposits
+    return (cumulative_deposits,)
 
 
 @app.cell(hide_code=True)
@@ -576,19 +574,19 @@ def _():
 
 
 @app.cell
-def _(all_combined_data_filled, closed):
+def _(all_combined_data_filled, closed, cumulative_deposits):
     _all_data = pd.DataFrame()
 
     all_profits = dict(all_combined_data_filled)
 
     all_profits["Closed Positions"] = closed.rename(columns={"Cumulative Profit": "net_value"})
     # all_profits["Deposits"] = pd.DataFrame({"net_value": cumulative_deposits})
-    print(all_profits["Closed Positions"])
     for _stock, _df in all_profits.items():
         _all_data = _all_data.join(_df[["net_value"]].rename(columns={"net_value": _stock}), how="outer")
 
     _all_data = _all_data.ffill()
     _all_data["total"] = _all_data.sum(axis=1)
+    _all_data = _all_data.join(cumulative_deposits, how="outer")
 
     _fig, _ax = plt.subplots(figsize=(16, 12))  # Double the default size
 
@@ -607,9 +605,9 @@ def _(all_combined_data_filled, closed):
 
     _ax.legend(loc="best")  # Let matplotlib decide the best location
     plt.gca()
-    print(_all_data)
-
     all_data = _all_data
+
+    print(all_data)
     return (all_data,)
 
 

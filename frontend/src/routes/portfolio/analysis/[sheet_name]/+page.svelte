@@ -106,7 +106,7 @@
 				color="green"
 				title="Total profits evolution overtime"
 				showTickerSelector={true}
-				defaultShown={['total', 'Closed Positions']}
+				defaultShown={['Total', 'Closed Positions', 'Deposits', 'P&L']}
 				dataset={evolution_data['evolution']['parts']}
 				dates={evolution_data['evolution']['dates']}
 			/>
