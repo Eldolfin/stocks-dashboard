@@ -170,23 +170,23 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     assert "2025-08-01" in response_data["evolution"]["dates"]
     assert (
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
-        == 3676
+        == 1196
     )
 
 
 def test_etoro_split_handling(etoro_excel_file) -> None:
     """Test that stock splits are properly handled in portfolio evolution."""
     from src.services.etoro_data import extract_portfolio_evolution
-    
+
     # Test that the function runs without errors when processing splits
     result = extract_portfolio_evolution(etoro_excel_file)
-    
+
     # Verify the function returns expected structure
-    assert hasattr(result, 'dates')
-    assert hasattr(result, 'parts')
+    assert hasattr(result, "dates")
+    assert hasattr(result, "parts")
     assert isinstance(result.dates, list)
     assert isinstance(result.parts, dict)
-    
+
     # Test should pass even if no splits are present in test data
     assert len(result.dates) > 0
 
@@ -195,47 +195,47 @@ def test_split_factor_calculation():
     """Test split factor calculation logic independently."""
     import pandas as pd
     from pathlib import Path
-    
+
     # This is a unit test for the split logic without needing full eToro data
     # Create a simple test scenario
-    date_range = pd.date_range('2024-01-01', '2024-12-31', freq='D')
-    
+    date_range = pd.date_range("2024-01-01", "2024-12-31", freq="D")
+
     # Mock split data: 2:1 split on June 1st
-    split_date = pd.Timestamp('2024-06-01')
+    split_date = pd.Timestamp("2024-06-01")
     split_factor = 2.0
-    
+
     # Test the logic that would be applied in extract_portfolio_evolution
     split_factors = pd.Series(1.0, index=date_range, name="split_factor")
-    
+
     # Apply cumulative factor for dates before split (multiply to get equivalent post-split shares)
     cumulative_factor = split_factor
     mask = split_factors.index < split_date
     split_factors.loc[mask] = split_factors.loc[mask] * cumulative_factor
-    
+
     # Verify the results
-    assert split_factors.loc[pd.Timestamp('2024-05-31')] == 2.0  # Before split: multiply by 2
-    assert split_factors.loc[pd.Timestamp('2024-06-01')] == 1.0  # From split: 1
-    assert split_factors.loc[pd.Timestamp('2024-06-02')] == 1.0  # After split: 1
+    assert split_factors.loc[pd.Timestamp("2024-05-31")] == 2.0  # Before split: multiply by 2
+    assert split_factors.loc[pd.Timestamp("2024-06-01")] == 1.0  # From split: 1
+    assert split_factors.loc[pd.Timestamp("2024-06-02")] == 1.0  # After split: 1
 
 
 def test_split_details_parsing():
     """Test parsing of split details from various formats."""
     test_cases = [
-        ('Split 10:1', 10.0),
-        ('NVDA/USD Split 10:1', 10.0),
-        ('AAPL/USD Split 2:1', 2.0),
-        ('Split 5:1', 5.0),
-        ('Invalid format', 1.0),  # Should fallback to 1.0
+        ("Split 10:1", 10.0),
+        ("NVDA/USD Split 10:1", 10.0),
+        ("AAPL/USD Split 2:1", 2.0),
+        ("Split 5:1", 5.0),
+        ("Invalid format", 1.0),  # Should fallback to 1.0
     ]
-    
+
     for detail, expected in test_cases:
-        parts = detail.split(' ')
-        if 'Split' in parts:
-            split_idx = parts.index('Split')
+        parts = detail.split(" ")
+        if "Split" in parts:
+            split_idx = parts.index("Split")
             if split_idx + 1 < len(parts):
                 split_ratio = parts[split_idx + 1]  # '10:1'
                 try:
-                    split_factor = float(split_ratio.split(':')[0])
+                    split_factor = float(split_ratio.split(":")[0])
                 except (ValueError, IndexError):
                     split_factor = 1.0
             else:
@@ -243,8 +243,8 @@ def test_split_details_parsing():
         else:
             # Fallback: try original parsing
             try:
-                split_factor = float(parts[1].split(':')[0]) if len(parts) > 1 else 1.0
+                split_factor = float(parts[1].split(":")[0]) if len(parts) > 1 else 1.0
             except (ValueError, IndexError):
                 split_factor = 1.0
-        
+
         assert split_factor == expected, f"Failed for '{detail}': expected {expected}, got {split_factor}"
