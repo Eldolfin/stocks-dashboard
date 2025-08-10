@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import yfinance_cache as yf
+import logging
 
 from src import models
 
@@ -88,7 +89,11 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     open_positions = activity[activity["Type"] == "Open Position"]
     closed_positions = activity[activity["Type"] == "Position closed"]
     closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
-    still_open = open_positions[~open_positions["Position ID"].isin(closed_position_ids)].copy()
+    still_open = activity[activity["Type"].isin(["Open Position", "Position closed"])].copy()
+    still_open["Units / Contracts"] = still_open["Units / Contracts"].astype(np.float32)
+    still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] = (
+        still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] * -1
+    )
 
     shares_per_ticker = {}
     for tick in still_open["Details"].unique():
@@ -100,9 +105,6 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         # Create date range for the ticker
         date_range = pd.date_range(_ticker_positions.index.min(), pd.Timestamp.today())
         _ticker_positions = _ticker_positions.reindex(date_range, fill_value=0)
-
-        # Calculate cumulative shares
-        _ticker_positions["shares_sum"] = _ticker_positions["Units / Contracts"].cumsum()
 
         # Apply split adjustments for this ticker
         if not splits.empty:
@@ -122,7 +124,12 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
 
                 # Apply split adjustments to shares
                 _ticker_positions["split_factor"] = split_factors
-                _ticker_positions["shares_sum"] = _ticker_positions["shares_sum"] * _ticker_positions["split_factor"]
+                _ticker_positions["Units / Contracts"] = (
+                    _ticker_positions["Units / Contracts"] * _ticker_positions["split_factor"]
+                )
+
+        # Calculate cumulative shares
+        _ticker_positions["shares_sum"] = _ticker_positions["Units / Contracts"].cumsum()
 
         shares_per_ticker[tick] = _ticker_positions
 
@@ -141,7 +148,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         if market != "USD":
             if market == "GBX":
                 scale = yf.Ticker("GBPUSD=X").fast_info["lastPrice"]
-
+                match ticker:
+                    case "BT.l":
+                        ticker = "BT-A.L"
             elif market == "EUR":
                 scale = yf.Ticker("EURUSD=X").fast_info["lastPrice"]
                 match ticker:
@@ -342,7 +351,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
             how="outer",
         )
     _all_data = _all_data.ffill().fillna(0)
-    _all_data["total"] = _all_data.sum(axis=1)
+    _all_data["total"] = _all_data.loc[:, ~_all_data.columns.str.contains("Closed Positions")].sum(axis=1)
     _all_data.index = pd.to_datetime(_all_data.index).strftime("%Y-%m-%d")
     parts = {
         str(k): [float(x) for x in v]
