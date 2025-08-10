@@ -129,7 +129,7 @@
 		return obj;
 	};
 
-	const summary = data.summary as components['schemas']['KPIResponse'];
+	const summary = data.summary as components['schemas']['KPIResponse'] | undefined;
 	const historical_kpis = data.historical_kpis as components['schemas']['HistoricalKPIs'] | null;
 
 	// Fullscreen modal state
@@ -234,6 +234,7 @@
 		{/each}
 	</div>
 
+	{#if summary !== undefined}
 	<div class="grid w-full max-w-screen-lg grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 		{#each kpis as group (group.group)}
 			<div
@@ -257,6 +258,7 @@
 			</div>
 		{/each}
 	</div>
+	{/if}
 
 	{#if historical_kpis}
 		<h2 class="mt-8 text-2xl font-bold text-white">Historical KPIs</h2>
