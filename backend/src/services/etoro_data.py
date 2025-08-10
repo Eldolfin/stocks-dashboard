@@ -2,8 +2,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yfinance_cache as yf
-import logging
+import yfinance as yf
+import yfinance_cache as yfc
 
 from src import models
 
@@ -52,7 +52,6 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
 
     activity = excel["Account Activity"]
-    activity = activity[activity["Asset type"] != "Crypto"].copy()
     activity["Date"] = column_date_to_timestamp(activity["Date"])
     activity = activity.set_index("Date")
 
@@ -86,9 +85,9 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
     else:
         splits = pd.DataFrame(columns=["Details", "Factor"]).set_index(pd.DatetimeIndex([], name="Date"))
 
-    open_positions = activity[activity["Type"] == "Open Position"]
+    activity[activity["Type"] == "Open Position"]
     closed_positions = activity[activity["Type"] == "Position closed"]
-    closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
+    closed_positions["Position ID"].dropna().astype(str)
     still_open = activity[activity["Type"].isin(["Open Position", "Position closed"])].copy()
     still_open["Units / Contracts"] = still_open["Units / Contracts"].astype(np.float32)
     still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] = (
@@ -111,7 +110,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
             ticker_splits = splits[splits["Details"].str.startswith(tick)].copy()
             if not ticker_splits.empty:
                 # Create daily split factor series, starting with 1.0
-                split_factors = pd.Series(1.0, index=date_range, name="split_factor")
+                split_factors_df = pd.Series(1.0, index=date_range, name="split_factor")
 
                 # Process splits in reverse chronological order to build cumulative factors
                 ticker_splits = ticker_splits.sort_index(ascending=False)
@@ -119,11 +118,11 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                 for split_date, split_row in ticker_splits.iterrows():
                     split_factor = split_row["Factor"]
                     # For dates before this split, multiply by the split factor to get equivalent post-split shares
-                    mask = split_factors.index < split_date
-                    split_factors.loc[mask] = split_factors.loc[mask] * split_factor
+                    mask = split_factors_df.index < split_date
+                    split_factors_df.loc[mask] = split_factors_df.loc[mask] * split_factor
 
                 # Apply split adjustments to shares
-                _ticker_positions["split_factor"] = split_factors
+                _ticker_positions["split_factor"] = split_factors_df
                 _ticker_positions["Units / Contracts"] = (
                     _ticker_positions["Units / Contracts"] * _ticker_positions["split_factor"]
                 )
@@ -138,21 +137,24 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
         first_open_date = still_open[still_open["Details"] == _details].index.min()
         [ticker, market] = _details.split("/")
         ticker = ticker.removesuffix(".US").removesuffix(".EXT")
-        if ticker == "BRK.B":
+        scale = 1
+        is_crypto = still_open.loc[still_open["Details"] == _details, "Asset type"].iloc[0] == "Crypto"
+        if is_crypto:
+            ticker = f"{ticker}-{market}"
+        elif ticker == "BRK.B":
             ticker = "BRK-B"
         elif ticker == "NSDQ100":
             ticker = "^NDX"
         elif ticker == "SPX500":
             ticker = "^SPX"
-        scale = 1
-        if market != "USD":
+        elif market != "USD":
             if market == "GBX":
-                scale = yf.Ticker("GBPUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "BT.l":
                         ticker = "BT-A.L"
             elif market == "EUR":
-                scale = yf.Ticker("EURUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("EURUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "ACA" | "BNP" | "ENGI":
                         ticker += ".PA"
@@ -239,11 +241,11 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "HKD":
-                scale = yf.Ticker("HKDUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("HKDUSD=X").fast_info["lastPrice"]
                 ticker = ticker[-7:]  # remove eToro's prefix
 
             elif market == "SEK":
-                scale = yf.Ticker("SEKUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("SEKUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "NDA_SE.ST":
                         ticker = "0N4T.IL"  # Nordea Bank via LSE
@@ -253,7 +255,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "CHF":
-                scale = yf.Ticker("CHFUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("CHFUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "BAER":
                         ticker = "BAER.SW"
@@ -266,7 +268,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "AUD":
-                scale = yf.Ticker("AUDUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("AUDUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "CLW.ASX":
                         ticker = "CLW.AX"
@@ -276,7 +278,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "NOK":
-                scale = yf.Ticker("NOKUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("NOKUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "NAS":
                         ticker = "NAS.OL"
@@ -288,7 +290,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "DKK":
-                scale = yf.Ticker("DKKUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("DKKUSD=X").fast_info["lastPrice"]
                 match ticker:
                     case "ISS":
                         ticker = "ISS.CO"
@@ -298,11 +300,11 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                         continue
 
             elif market == "JPY":
-                scale = yf.Ticker("JPYUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("JPYUSD=X").fast_info["lastPrice"]
                 # No JPY tickers in your list except CAD/USD placeholders
 
             elif market == "SGD":
-                scale = yf.Ticker("SGDUSD=X").fast_info["lastPrice"]
+                scale = yfc.Ticker("SGDUSD=X").fast_info["lastPrice"]
                 if ticker == "USD":
                     ticker = "SGDUSD=X"
 
@@ -311,7 +313,10 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
 
         history = None
         try:
-            ticker_data = yf.Ticker(ticker)
+            # HACK: for some reason yfc corrects the price of some non US currency
+            # (ex it scales GBX by 1/100 because it's pens) but it returns bad data
+            # for crypto so we use regular yahoo finance for cryptos
+            ticker_data = yf.Ticker(ticker) if is_crypto else yfc.Ticker(ticker)
             # Fetch historical data since the company's IPO or listing date
             history = ticker_data.history(
                 start=first_open_date.strftime("%Y-%m-%d"),

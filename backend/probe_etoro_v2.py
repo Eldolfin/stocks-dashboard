@@ -7,18 +7,20 @@ app = marimo.App(width="full")
 @app.cell
 def _():
     from pathlib import Path
-    from src import models
-    import pandas as pd
-    from src.services.etoro_data import column_date_to_timestamp
-    import numpy as np
-    import logging
-    import yfinance_cache as yf
 
-    return Path, column_date_to_timestamp, models, np, pd, yf
+    import numpy as np
+    import pandas as pd
+    import yfinance as yf
+    import yfinance_cache as yfc
+
+    from src import models
+    from src.services.etoro_data import column_date_to_timestamp
+
+    return Path, column_date_to_timestamp, models, np, pd, yf, yfc
 
 
 @app.cell
-def _(Path, column_date_to_timestamp, models, np, pd, yf):
+def _(Path, column_date_to_timestamp, models, np, pd, yf, yfc):
     def extract_portfolio_evolution(
         etoro_statement_file: Path,
     ) -> models.EtoroEvolutionInner:
@@ -32,7 +34,6 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
         closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
 
         activity = excel["Account Activity"]
-        activity = activity[activity["Asset type"] != "Crypto"].copy()
         activity["Date"] = column_date_to_timestamp(activity["Date"])
         activity = activity.set_index("Date")
 
@@ -66,9 +67,9 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
         else:
             splits = pd.DataFrame(columns=["Details", "Factor"]).set_index(pd.DatetimeIndex([], name="Date"))
 
-        open_positions = activity[activity["Type"] == "Open Position"]
+        activity[activity["Type"] == "Open Position"]
         closed_positions = activity[activity["Type"] == "Position closed"]
-        closed_position_ids = closed_positions["Position ID"].dropna().astype(str)
+        closed_positions["Position ID"].dropna().astype(str)
         still_open = activity[activity["Type"].isin(["Open Position", "Position closed"])].copy()
         still_open["Units / Contracts"] = still_open["Units / Contracts"].astype(np.float32)
         still_open.loc[still_open["Type"] == "Position closed", "Units / Contracts"] = (
@@ -118,17 +119,22 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
             first_open_date = still_open[still_open["Details"] == _details].index.min()
             [ticker, market] = _details.split("/")
             ticker = ticker.removesuffix(".US").removesuffix(".EXT")
-            if ticker == "BRK.B":
+            scale = 1
+            is_crypto = still_open.loc[still_open["Details"] == _details, "Asset type"].iloc[0] == "Crypto"
+            if is_crypto:
+                ticker = f"{ticker}-{market}"
+            elif ticker == "BRK.B":
                 ticker = "BRK-B"
             elif ticker == "NSDQ100":
                 ticker = "^NDX"
             elif ticker == "SPX500":
                 ticker = "^SPX"
-            scale = 1
-            if market != "USD":
+            elif market != "USD":
                 if market == "GBX":
                     scale = yf.Ticker("GBPUSD=X").fast_info["lastPrice"]
-
+                    match ticker:
+                        case "BT.l":
+                            ticker = "BT-A.L"
                 elif market == "EUR":
                     scale = yf.Ticker("EURUSD=X").fast_info["lastPrice"]
                     match ticker:
@@ -289,7 +295,7 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
 
             history = None
             try:
-                ticker_data = yf.Ticker(ticker)
+                ticker_data = yf.Ticker(ticker) if is_crypto else yfc.Ticker(ticker)
                 # Fetch historical data since the company's IPO or listing date
                 history = ticker_data.history(
                     start=first_open_date.strftime("%Y-%m-%d"),
@@ -329,8 +335,9 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
                 how="outer",
             )
         _all_data = _all_data.ffill().fillna(0)
-        _all_data["total"] = _all_data.sum(axis=1)
+        _all_data["total"] = _all_data.loc[:, ~_all_data.columns.str.contains("Closed Positions")].sum(axis=1)
         _all_data.index = pd.to_datetime(_all_data.index).strftime("%Y-%m-%d")
+        return _all_data
         parts = {
             str(k): [float(x) for x in v]
             for k, v in _all_data.reset_index().drop(columns=["index"]).to_dict("list").items()
@@ -344,9 +351,8 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf):
 
 
 @app.cell
-def _(extract_portfolio_evolution):
+def _(extract_portfolio_evolution) -> None:
     extract_portfolio_evolution("~/Downloads/etoro-account-statement-12-31-2014-8-7-2025.xlsx")
-    return
 
 
 if __name__ == "__main__":
