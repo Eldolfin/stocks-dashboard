@@ -121,11 +121,16 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     infos: list[models.Info] = [models.Info.model_validate(t.info) for t in tickers.values()]
     deltas = [(((i.currentPrice - i.open) / i.currentPrice) if i.currentPrice and i.open else None) for i in infos]
 
+    pd.read_csv("data/search/top_cryptos.csv")
+    pd.read_csv("data/search/top_indexes.csv")
+
     quotes = [
         models.Quote(
-            raw=raw,
-            info=info,
-            icon_url=(None if info.website is None else f"https://logo.clearbit.com/{info.website}"),
+            symbol=raw.symbol,
+            long_name=raw.longname or "MISSING!!",
+            icon_url=(
+                None if info.website is None else f"https://financialmodelingprep.com/image-stock/{info.symbol}.png"
+            ),
             today_change=today_change,
         )
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas, strict=True)

@@ -291,8 +291,8 @@ class RawQuote(BaseModel):
 
 
 class Quote(BaseModel):
-    raw: RawQuote
-    info: Info
+    symbol: str
+    long_name: str
     icon_url: str | None = None
     # Change % for since open
     today_change: float | None = None

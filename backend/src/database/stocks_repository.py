@@ -1,5 +1,6 @@
 import pandas as pd
 import yfinance as yf
+import yfinance_cache as yfc
 
 
 def get_ticker_history(ticker_name: str, period: str, interval: str) -> pd.DataFrame:
@@ -18,7 +19,7 @@ def get_tickers_history(ticker_names: list[str], period: str) -> pd.DataFrame:
 
 
 def get_ticker_info(ticker_name: str) -> pd.DataFrame:
-    dat = yf.Ticker(ticker_name)
+    dat = yfc.Ticker(ticker_name)
     return dat.info
 
 
