@@ -8,29 +8,50 @@ app = marimo.App(width="full")
 def _():
     import pandas as pd
     import yfinance as yf
+    from src.models import SearchQuery
+    from src import models
 
-    return pd, yf
-
-
-@app.cell
-def _(pd, yf):
-    static_indexes = pd.read_csv("data/search/top_cryptos.csv")
-    for index_index, index_row in static_indexes.iterrows():
-        yahoo_ticker = yf.Ticker(f"{index_row['Ticker']}-USD")
-        print(index_row["Ticker"], yahoo_ticker.fast_info.currency)
-    return
+    return SearchQuery, models, pd
 
 
 @app.cell
-def _(yf):
-    res = yf.Search("Apple")
+def _(pd):
+    STATIC_CRYPTO = pd.read_csv("data/search/top_cryptos.csv")
+    STATIC_INDEX = pd.read_csv("data/search/top_indexes.csv")
 
-    return
+    return STATIC_CRYPTO, STATIC_INDEX
 
 
 @app.cell
-def _(yf):
-    yf.Tickers(["AAPL"]).tickers["AAPL"].fast_info.market_cap
+def _(STATIC_CRYPTO, STATIC_INDEX, SearchQuery, models):
+    query = SearchQuery(query="us")
+
+    cryptos_filtered = STATIC_CRYPTO[
+        STATIC_CRYPTO.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+    ]
+    index_filtered = STATIC_INDEX[
+        STATIC_INDEX.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+    ]
+
+    quotes_cryptos = [
+        models.Quote(
+            symbol=row["Ticker"],
+            long_name=row["Name"],
+            icon_url=(f"https://financialmodelingprep.com/image-stock/{row['Ticker'].removesuffix('-USD')}.png"),
+            today_change=None,
+        )
+        for (_, row) in cryptos_filtered.iterrows()
+    ]
+    quotes_indexes = [
+        models.Quote(
+            symbol=row["Ticker"],
+            long_name=row["Name"],
+            icon_url=f"https://flagcdn.com/160x120/{row['CountryCode']}.png",
+            today_change=None,
+        )
+        for (_, row) in index_filtered.iterrows()
+    ]
+    quotes_cryptos + quotes_indexes
     return
 
 

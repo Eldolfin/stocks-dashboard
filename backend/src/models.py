@@ -2,7 +2,7 @@ from enum import Enum
 
 from flask_login import UserMixin
 from flask_openapi3 import FileStorage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class User(UserMixin):
@@ -232,8 +232,8 @@ class KPIQuery(BaseModel):
 
 
 class MainKPIs(BaseModel):
-    ratioPE: float | None
-    freeCashflowYield: float | None
+    ratioPE: float | None = None
+    freeCashflowYield: float | None = None
 
 
 class KPIResponse(BaseModel):
@@ -376,9 +376,7 @@ class PrecisionEnum(str, Enum):
 class EtoroForm(BaseModel):
     precision: PrecisionEnum
     file: FileStorage
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class EtoroAnalysisResponse(BaseModel):
@@ -419,9 +417,7 @@ class RegisterForm(BaseModel):
     email: str
     password: str
     profile_picture: FileStorage | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RegisterResponse(BaseModel):
@@ -435,9 +431,7 @@ class RegisterResponse(BaseModel):
 ####################
 class ProfilePictureForm(BaseModel):
     profile_picture: FileStorage
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ProfilePicturePath(BaseModel):

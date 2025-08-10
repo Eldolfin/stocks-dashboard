@@ -322,7 +322,7 @@ def extract_portfolio_evolution(etoro_statement_file: Path) -> models.EtoroEvolu
                 start=first_open_date.strftime("%Y-%m-%d"),
                 end=pd.Timestamp.now().strftime("%Y-%m-%d"),
             )
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"Could not fetch data for {ticker}: {e}")
             continue
         if not history.empty:
