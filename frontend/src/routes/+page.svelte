@@ -2,7 +2,10 @@
 	import { client } from '$lib/typed-fetch-client';
 	import { formatCurrency, formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
-	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
+	import { SvelteSet, SvelteMap, SvelteURLSearchParams } from 'svelte/reactivity';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	type Ticker = components['schemas']['Quote'];
 
 	let searchResult = $state<Ticker[] | undefined>(undefined);
@@ -43,6 +46,13 @@
 			// Update cache with new results
 			newResults.forEach((ticker: Ticker) => tickerCache.set(ticker.symbol, ticker));
 			searchResult = newResults;
+
+			if (browser && page.url.pathname == "/") {
+				// change url param
+				let query = new SvelteURLSearchParams(page.url.searchParams.toString());
+				query.set('q', data.query.query);
+				window.history.replaceState(history.state, '', `?${query}`)
+			}
 		}
 	};
 
@@ -75,7 +85,7 @@
 		id="search"
 		type="text"
 		placeholder="Apple, Microsoft, ..."
-		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:ring-2 focus:outline-none"
+		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:outline-none focus:ring-2"
 	/>
 </form>
 
@@ -100,9 +110,9 @@
 							Price: <span class="text-brand">{formatCurrency(quote.currentPrice)}</span>
 						</li>-->
 						{#if quote.today_change}
-						<li>
-							Today's P&L: <span class="text-brand">{formatPercent(quote.today_change)}</span>
-						</li>
+							<li>
+								Today's P&L: <span class="text-brand">{formatPercent(quote.today_change)}</span>
+							</li>
 						{/if}
 					</ul>
 					<div class="mt-2 flex justify-end">

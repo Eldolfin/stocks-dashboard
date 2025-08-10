@@ -137,7 +137,7 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     quotes_classic = [
         models.Quote(
             symbol=raw.symbol,
-            long_name=raw.longname or "MISSING!!",
+            long_name=raw.longname or raw.shortname or "MISSING!!",
             icon_url=(
                 None if info.website is None else f"https://financialmodelingprep.com/image-stock/{info.symbol}.png"
             ),

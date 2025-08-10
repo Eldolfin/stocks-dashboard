@@ -18,6 +18,7 @@
 
 	// State for current chart data and loading
 	let currentHistory = $state(data.history as components['schemas']['TickerResponse']);
+	let currentPeriod = $page.url.searchParams.get('period') || 'ytd';
 	let isLoadingHistory = $state(false);
 
 	const ranges = [
@@ -86,18 +87,18 @@
 		}
 	];
 	const changeRange = async (newValue: string) => {
-		const currentPeriod = $page.url.searchParams.get('period') || 'ytd';
-
 		// Don't fetch if it's the same period
 		if (currentPeriod === newValue) {
 			return;
 		}
+		currentPeriod = newValue;
 
 		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
 		query.set('period', newValue);
 
 		// Update URL first
-		goto(`?${query.toString()}`, { replaceState: true });
+		window.history.replaceState(history.state, '', `?${query}`)
+
 
 		// Fetch new data
 		isLoadingHistory = true;
@@ -227,7 +228,7 @@
 	<div class="mb-8 flex flex-wrap justify-center gap-2">
 		{#each ranges as range (range.label)}
 			<button
-				class="rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+				class={`${currentPeriod == range.value ? "bg-gray-700":"bg-gray-800"} rounded-full px-4 py-1 text-white shadow transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50`}
 				disabled={isLoadingHistory}
 				onclick={() => changeRange(range.value)}>{range.label}</button
 			>
