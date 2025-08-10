@@ -169,7 +169,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     assert isinstance(response_data["evolution"], dict)
     assert "2025-08-01" in response_data["evolution"]["dates"]
     assert (
-        round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
+        round(response_data["evolution"]["parts"]["Total"][response_data["evolution"]["dates"].index("2025-08-01")])
         == 1196
     )
 
