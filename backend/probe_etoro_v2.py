@@ -20,6 +20,12 @@ def _():
 
 
 @app.cell
+def _(yf):
+    yf.Search
+    return
+
+
+@app.cell
 def _(Path, column_date_to_timestamp, models, np, pd, yf, yfc):
     def extract_portfolio_evolution(
         etoro_statement_file: Path,
@@ -351,8 +357,9 @@ def _(Path, column_date_to_timestamp, models, np, pd, yf, yfc):
 
 
 @app.cell
-def _(extract_portfolio_evolution) -> None:
+def _(extract_portfolio_evolution):
     extract_portfolio_evolution("~/Downloads/etoro-account-statement-12-31-2014-8-7-2025.xlsx")
+    return
 
 
 if __name__ == "__main__":

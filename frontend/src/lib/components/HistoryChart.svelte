@@ -27,12 +27,13 @@
 	// Ticker selection state - only used when showTickerSelector is true
 	let selectedTickers = $state(new SvelteSet<string>());
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
-	let availableTickers: string[] = $derived(showTickerSelector ?
-		Object.keys(dataset).filter(ticker =>
-			ticker !== 'total' &&
-			ticker !== 'Closed Positions' &&
-			ticker !== 'price'
-		) : []);
+	let availableTickers: string[] = $derived(
+		showTickerSelector
+			? Object.keys(dataset).filter(
+					(ticker) => ticker !== 'total' && ticker !== 'Closed Positions' && ticker !== 'price'
+				)
+			: []
+	);
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
@@ -195,10 +196,7 @@
 
 	{#if showTickerSelector}
 		<div class="mt-4 w-full max-w-md">
-			<TickerSelector
-				{availableTickers}
-				bind:selectedTickers
-			/>
+			<TickerSelector {availableTickers} bind:selectedTickers />
 		</div>
 	{/if}
 </div>

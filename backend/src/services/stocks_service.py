@@ -10,6 +10,9 @@ from src.database import bloomberg_repository, stocks_repository
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
 
+STATIC_CRYPTO = pd.read_csv("data/search/top_cryptos.csv")
+STATIC_INDEX = pd.read_csv("data/search/top_indexes.csv")
+
 
 def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     n_points = 20
@@ -80,7 +83,10 @@ def get_compare_growth(query: models.CompareGrowthQuery) -> models.CompareGrowth
 
 
 def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
-    info = stocks_repository.get_ticker_info(query.ticker_name)
+    try:
+        info = stocks_repository.get_ticker_info(query.ticker_name)
+    except Exception:
+        return None
     if not info or info.get("marketCap") is None:
         return None
 
@@ -121,16 +127,45 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     infos: list[models.Info] = [models.Info.model_validate(t.info) for t in tickers.values()]
     deltas = [(((i.currentPrice - i.open) / i.currentPrice) if i.currentPrice and i.open else None) for i in infos]
 
-    quotes = [
+    cryptos_filtered = STATIC_CRYPTO[
+        STATIC_CRYPTO.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+    ]
+    index_filtered = STATIC_INDEX[
+        STATIC_INDEX.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+    ]
+
+    quotes_classic = [
         models.Quote(
-            raw=raw,
-            info=info,
-            icon_url=(None if info.website is None else f"https://logo.clearbit.com/{info.website}"),
+            symbol=raw.symbol,
+            long_name=raw.longname or raw.shortname or "MISSING!!",
+            icon_url=(
+                None if info.website is None else f"https://financialmodelingprep.com/image-stock/{info.symbol}.png"
+            ),
             today_change=today_change,
         )
         for (raw, info, today_change) in zip(raw_quotes, infos, deltas, strict=True)
         if info.currentPrice is not None
     ]
+    quotes_cryptos = [
+        models.Quote(
+            symbol=row["Ticker"],
+            long_name=row["Name"],
+            icon_url=(f"https://financialmodelingprep.com/image-stock/{row['Ticker'].removesuffix('-USD')}.png"),
+            today_change=None,
+        )
+        for (_, row) in cryptos_filtered.iterrows()
+    ]
+    quotes_indexes = [
+        models.Quote(
+            symbol=row["Ticker"],
+            long_name=row["Name"],
+            icon_url=f"https://flagcdn.com/{row['CountryCode']}.svg",
+            today_change=None,
+        )
+        for (_, row) in index_filtered.iterrows()
+    ]
+    # take at most 5 of crypto/indexes
+    quotes = quotes_classic + (quotes_cryptos + quotes_indexes)[:5]
     return models.SearchResponse(quotes=quotes, query=query)
 
 

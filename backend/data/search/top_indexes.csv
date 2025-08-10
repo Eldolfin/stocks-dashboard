@@ -1,0 +1,28 @@
+Ticker,Name,CountryCode,CountryName,Currency
+^GSPC,S&P 500,us,United States,USD
+^DJI,Dow Jones Industrial Average,us,United States,USD
+^IXIC,NASDAQ Composite,us,United States,USD
+^NDX,NASDAQ-100,us,United States,USD
+^RUT,Russell 2000,us,United States,USD
+^FTSE,FTSE 100,gb,United Kingdom,GBP
+^FCHI,CAC 40,fr,France,EUR
+^GDAXI,DAX,de,Germany,EUR
+^N225,Nikkei 225,jp,Japan,JPY
+^HSI,Hang Seng Index,hk,Hong Kong,HKD
+^BSESN,BSE Sensex,in,India,INR
+^NSEI,Nifty 50,in,India,INR
+^AEX,AEX,nl,Netherlands,EUR
+^IBEX,IBEX 35,es,Spain,EUR
+^OMXS30,OMX Stockholm 30,se,Sweden,SEK
+^SSMI,Swiss Market Index,ch,Switzerland,CHF
+^AXJO,S&P/ASX 200,au,Australia,AUD
+^BVSP,Ibovespa,br,Brazil,BRL
+^MERV,MERVAL,ar,Argentina,ARS
+^KLSE,FBM KLCI,my,Malaysia,MYR
+^NZ50,NZX 50,nz,New Zealand,NZD
+^JKSE,Jakarta Composite,id,Indonesia,IDR
+^KS11,KOSPI,kr,South Korea,KRW
+^TA125.TA,TA-35,il,Israel,ILS
+^TASI.SR,Tadawul All Share,sa,Saudi Arabia,SAR
+^STOXX,STOXX Europe 600,eu,Europe,EUR
+^STOXX50E,Euro STOXX 50,eu,Europe,EUR

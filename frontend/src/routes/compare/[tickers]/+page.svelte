@@ -2,7 +2,6 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import FullscreenChartModal from '$lib/components/FullscreenChartModal.svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data } = $props();
@@ -19,10 +18,8 @@
 	];
 	const changeRange = (newValue: string) => {
 		let query = new SvelteURLSearchParams(page.url.searchParams.toString());
-
 		query.set('period', newValue);
-
-		goto(`?${query.toString()}`, { replaceState: true });
+		window.history.replaceState(history.state, '', `?${query}`)
 	};
 
 	const historyData = data.history_data;

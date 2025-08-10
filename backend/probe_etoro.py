@@ -24,6 +24,12 @@ with app.setup:
     from src import models
 
 
+@app.cell
+def _():
+    yf.Search
+    return
+
+
 @app.cell(hide_code=True)
 def _():
     mo.md("""# Etoro networth analysis""")
