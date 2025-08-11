@@ -1320,9 +1320,15 @@ export interface components {
 		};
 		/** MainKPIs */
 		MainKPIs: {
-			/** Freecashflowyield */
+			/**
+			 * Freecashflowyield
+			 * @default null
+			 */
 			freeCashflowYield: number | null;
-			/** Ratiope */
+			/**
+			 * Ratiope
+			 * @default null
+			 */
 			ratioPE: number | null;
 		};
 		/** NotFoundResponse */
@@ -1635,7 +1641,6 @@ export interface operations {
 		parameters: {
 			query: {
 				filename: string;
-				precision: components['schemas']['PrecisionEnum'];
 			};
 			header?: never;
 			path?: never;

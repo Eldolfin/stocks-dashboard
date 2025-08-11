@@ -19,7 +19,7 @@
 	const changeRange = (newValue: string) => {
 		let query = new SvelteURLSearchParams(page.url.searchParams.toString());
 		query.set('period', newValue);
-		window.history.replaceState(history.state, '', `?${query}`)
+		window.history.replaceState(history.state, '', `?${query}`);
 	};
 
 	const historyData = data.history_data;

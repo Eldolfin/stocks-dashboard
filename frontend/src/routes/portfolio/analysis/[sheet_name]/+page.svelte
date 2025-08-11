@@ -208,20 +208,20 @@
 						])}
 						dates={trades_data.close_date}
 					/>
-				<div class="flex flex-col items-center">
-					<label for="precision-range" class="mb-2 block text-white"
-						>{precision_values[precision_index][0]}</label
-					>
-					<input
-						type="range"
-						id="precision-range"
-						min="0"
-						max={precision_values.length - 1}
-						step="1"
-						bind:value={precision_index}
-						class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
-					/>
-				</div>
+					<div class="flex flex-col items-center">
+						<label for="precision-range" class="mb-2 block text-white"
+							>{precision_values[precision_index][0]}</label
+						>
+						<input
+							type="range"
+							id="precision-range"
+							min="0"
+							max={precision_values.length - 1}
+							step="1"
+							bind:value={precision_index}
+							class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
+						/>
+					</div>
 				</div>
 			{/if}
 		</div>

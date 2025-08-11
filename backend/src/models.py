@@ -391,9 +391,13 @@ class EtoroAnalysisResponse(BaseModel):
     profit_usd: list[float]
 
 
-class EtoroAnalysisByNameQuery(BaseModel):
+class EtoroTradeCountQuery(BaseModel):
     filename: str
     precision: PrecisionEnum
+
+
+class EtoroEvolutionQuery(BaseModel):
+    filename: str
 
 
 class EtoroReportsResponse(BaseModel):

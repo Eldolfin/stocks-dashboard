@@ -188,7 +188,7 @@ def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
     return models.EtoroReportsResponse(reports=reports)
 
 
-def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_email: str) -> dict | None:
+def analyze_etoro_excel_by_name(query: models.EtoroTradeCountQuery, user_email: str) -> dict[str, list[str]] | None:
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
 
@@ -198,7 +198,7 @@ def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_ema
     return extract_closed_position(file_path, time_unit=query.precision)
 
 
-def analyze_etoro_excel_by_name_async(query: models.EtoroAnalysisByNameQuery, user_email: str) -> str:
+def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_email: str) -> str:
     """Start async analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -220,7 +220,7 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroAnalysisByNameQuery, us
 
 
 def analyze_etoro_evolution_by_name(
-    query: models.EtoroAnalysisByNameQuery, user_email: str
+    query: models.EtoroEvolutionQuery, user_email: str
 ) -> models.EtoroEvolutionResponse | None:
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -231,7 +231,7 @@ def analyze_etoro_evolution_by_name(
     return models.EtoroEvolutionResponse(evolution=extract_portfolio_evolution(file_path))
 
 
-def analyze_etoro_evolution_by_name_async(query: models.EtoroAnalysisByNameQuery, user_email: str) -> str:
+def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, user_email: str) -> str:
     """Start async evolution analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename

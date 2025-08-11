@@ -97,8 +97,7 @@
 		query.set('period', newValue);
 
 		// Update URL first
-		window.history.replaceState(history.state, '', `?${query}`)
-
+		window.history.replaceState(history.state, '', `?${query}`);
 
 		// Fetch new data
 		isLoadingHistory = true;
@@ -228,7 +227,7 @@
 	<div class="mb-8 flex flex-wrap justify-center gap-2">
 		{#each ranges as range (range.label)}
 			<button
-				class={`${currentPeriod == range.value ? "bg-gray-700":"bg-gray-800"} rounded-full px-4 py-1 text-white shadow transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50`}
+				class={`${currentPeriod == range.value ? 'bg-gray-700' : 'bg-gray-800'} rounded-full px-4 py-1 text-white shadow transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50`}
 				disabled={isLoadingHistory}
 				onclick={() => changeRange(range.value)}>{range.label}</button
 			>
@@ -236,29 +235,29 @@
 	</div>
 
 	{#if summary !== undefined}
-	<div class="grid w-full max-w-screen-lg grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-		{#each kpis as group (group.group)}
-			<div
-				class="rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-5 shadow-lg transition hover:scale-[1.02]"
-			>
-				<h2 class="mb-2 font-semibold text-white">{group.group}</h2>
-				<ul class="space-y-1 text-sm text-gray-300">
-					{#each group.items as kpi (kpi.label)}
-						{#if deep_value(summary, kpi.value) !== null}
-							<li>
-								{kpi.label}:
-								<span class="text-brand"
-									>{kpi.format
-										? kpi.format(deep_value(summary, kpi.value))
-										: deep_value(summary, kpi.value)}</span
-								>
-							</li>
-						{/if}
-					{/each}
-				</ul>
-			</div>
-		{/each}
-	</div>
+		<div class="grid w-full max-w-screen-lg grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+			{#each kpis as group (group.group)}
+				<div
+					class="rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-5 shadow-lg transition hover:scale-[1.02]"
+				>
+					<h2 class="mb-2 font-semibold text-white">{group.group}</h2>
+					<ul class="space-y-1 text-sm text-gray-300">
+						{#each group.items as kpi (kpi.label)}
+							{#if deep_value(summary, kpi.value) !== null}
+								<li>
+									{kpi.label}:
+									<span class="text-brand"
+										>{kpi.format
+											? kpi.format(deep_value(summary, kpi.value))
+											: deep_value(summary, kpi.value)}</span
+									>
+								</li>
+							{/if}
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
 	{/if}
 
 	{#if historical_kpis}
