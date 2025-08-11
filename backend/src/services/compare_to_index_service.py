@@ -1,12 +1,14 @@
 from pathlib import Path
-from typing import Any, List, Tuple
+
 import pandas as pd
+import yfinance as yf
 
 from src.services import etoro_data
 
+
 class CompareToIndexService:
     @staticmethod
-    def extract_etoro_data(file_path: Path) -> Tuple[List[str], List[float]]:
+    def extract_etoro_data(file_path: Path) -> tuple[list[str], list[float]]:
         """Extract portfolio evolution dates and deposits from eToro report."""
         evolution = etoro_data.extract_portfolio_evolution(file_path, lambda _progress: None)
         dates = evolution.dates
@@ -17,8 +19,7 @@ class CompareToIndexService:
         return dates, deposits
 
     @staticmethod
-    def get_index_prices(index_ticker: str, dates: List[str]) -> pd.Series:
-        import yfinance as yf
+    def get_index_prices(index_ticker: str, dates: list[str]) -> pd.Series:
         # yfinance end is exclusive; extend by one day to cover the last date
         index_data = yf.download(
             index_ticker, start=dates[0], end=pd.to_datetime(dates[-1]) + pd.Timedelta(days=1)
@@ -60,8 +61,8 @@ class CompareToIndexService:
 
     @staticmethod
     def simulate_index_investment(
-        dates: List[str], deposits: List[float], index_prices: pd.Series
-    ) -> List[float]:
+        dates: list[str], deposits: list[float], index_prices: pd.Series
+    ) -> list[float]:
         units = 0.0
         units_history = []
         daily_deposits = [max(0.0, float(deposits[0]))]

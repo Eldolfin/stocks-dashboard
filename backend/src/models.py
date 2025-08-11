@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from enum import Enum
+
 from flask_login import UserMixin
 from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
