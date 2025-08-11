@@ -18,7 +18,7 @@
 
 	// State for current chart data and loading
 	let currentHistory = $state(data.history as components['schemas']['TickerResponse']);
-	let currentPeriod = $page.url.searchParams.get('period') || 'ytd';
+	let currentPeriod = $state($page.url.searchParams.get('period') || 'ytd');
 	let isLoadingHistory = $state(false);
 
 	const ranges = [
