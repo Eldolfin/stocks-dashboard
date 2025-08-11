@@ -10,6 +10,7 @@ from typing import Any
 
 class TaskStatus(Enum):
     """Task execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -19,6 +20,7 @@ class TaskStatus(Enum):
 @dataclass
 class TaskProgress:
     """Progress information for a task."""
+
     step_name: str
     step_number: int
     step_count: int
@@ -27,6 +29,7 @@ class TaskProgress:
 @dataclass
 class Task:
     """Task information and state."""
+
     id: str
     status: TaskStatus
     progress: TaskProgress | None = None
@@ -45,10 +48,7 @@ class TaskManager:
         """Create a new task and return its ID."""
         task_id = str(uuid.uuid4())
         with self._lock:
-            self._tasks[task_id] = Task(
-                id=task_id,
-                status=TaskStatus.PENDING
-            )
+            self._tasks[task_id] = Task(id=task_id, status=TaskStatus.PENDING)
         return task_id
 
     def get_task(self, task_id: str) -> Task | None:
@@ -61,9 +61,7 @@ class TaskManager:
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id].progress = TaskProgress(
-                    step_name=step_name,
-                    step_number=step_number,
-                    step_count=step_count
+                    step_name=step_name, step_number=step_number, step_count=step_count
                 )
                 if self._tasks[task_id].status == TaskStatus.PENDING:
                     self._tasks[task_id].status = TaskStatus.RUNNING
@@ -84,11 +82,12 @@ class TaskManager:
 
     def run_task(self, task_id: str, func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
         """Run a function as a background task."""
+
         def _run() -> None:
             try:
                 result = func(task_id, *args, **kwargs)
                 self.complete_task(task_id, result)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 self.fail_task(task_id, str(e))
 
         thread = threading.Thread(target=_run)
