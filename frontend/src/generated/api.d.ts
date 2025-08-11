@@ -212,6 +212,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/task_result/{task_id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['stocks_get_task_result_task_result__task_id__get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/task_status/{task_id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['stocks_get_task_status_task_status__task_id__get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/ticker/': {
 		parameters: {
 			query?: never;
@@ -276,6 +308,21 @@ export interface components {
 			 */
 			median: number | null;
 		};
+		/** BadRequestResponse */
+		BadRequestResponse: {
+			/**
+			 * Code
+			 * @default -2
+			 */
+			code: number;
+			/** Error */
+			error: string;
+			/**
+			 * Message
+			 * @default Bad request!
+			 */
+			message: string;
+		};
 		/** CompanyOfficer */
 		CompanyOfficer: {
 			/**
@@ -328,28 +375,6 @@ export interface components {
 			/** Dates */
 			dates: string[];
 			query: components['schemas']['CompareGrowthQuery'];
-		};
-		/** EtoroAnalysisResponse */
-		EtoroAnalysisResponse: {
-			/** Close Date */
-			close_date: string[];
-			/** Closed Trades */
-			closed_trades: number[];
-			/** Profit Usd */
-			profit_usd: number[];
-		};
-		/** EtoroEvolutionInner */
-		EtoroEvolutionInner: {
-			/** Dates */
-			dates: string[];
-			/** Parts */
-			parts: {
-				[key: string]: number[];
-			};
-		};
-		/** EtoroEvolutionResponse */
-		EtoroEvolutionResponse: {
-			evolution: components['schemas']['EtoroEvolutionInner'];
 		};
 		/** EtoroForm */
 		EtoroForm: {
@@ -1373,6 +1398,45 @@ export interface components {
 			/** Quotes */
 			quotes: components['schemas']['Quote'][];
 		};
+		/** TaskProgressResponse */
+		TaskProgressResponse: {
+			/** Step Count */
+			step_count: number;
+			/** Step Name */
+			step_name: string;
+			/** Step Number */
+			step_number: number;
+		};
+		/**
+		 * TaskResultResponse
+		 * @description Generic response for task results. Can contain various data types.
+		 */
+		TaskResultResponse: {
+			/**
+			 * Result
+			 * @default null
+			 */
+			result: {
+				[key: string]: unknown;
+			} | null;
+		};
+		/** TaskStartResponse */
+		TaskStartResponse: {
+			/** Task Id */
+			task_id: string;
+		};
+		/** TaskStatusResponse */
+		TaskStatusResponse: {
+			/**
+			 * Error
+			 * @default null
+			 */
+			error: string | null;
+			/** @default null */
+			progress: components['schemas']['TaskProgressResponse'] | null;
+			/** Status */
+			status: string;
+		};
 		/** TickerQuery */
 		TickerQuery: {
 			/**
@@ -1544,7 +1608,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					'application/json': components['schemas']['EtoroAnalysisResponse'];
+					'application/json': components['schemas']['TaskStartResponse'];
 				};
 			};
 			/** @description Not Found */
@@ -1585,7 +1649,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					'application/json': components['schemas']['EtoroEvolutionResponse'];
+					'application/json': components['schemas']['TaskStartResponse'];
 				};
 			};
 			/** @description Not Found */
@@ -1846,6 +1910,95 @@ export interface operations {
 				};
 				content: {
 					'application/json': components['schemas']['SearchResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_get_task_result_task_result__task_id__get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				task_id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['TaskResultResponse'];
+				};
+			};
+			/** @description Bad Request */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['BadRequestResponse'];
+				};
+			};
+			/** @description Not Found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['NotFoundResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_get_task_status_task_status__task_id__get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				task_id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['TaskStatusResponse'];
+				};
+			};
+			/** @description Not Found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['NotFoundResponse'];
 				};
 			};
 			/** @description Unprocessable Content */

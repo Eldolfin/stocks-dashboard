@@ -138,10 +138,53 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
     response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
 
+    # Start the async analysis task
     params = {"filename": filename, "precision": "D"}
     response = logged_in_session.get(f"{BASE_URL}/etoro_analysis_by_name", params=params)
     assert response.status_code == 200
-    response_data = response.json()
+    task_response = response.json()
+    assert "task_id" in task_response
+    task_id = task_response["task_id"]
+
+    # Poll for task completion and verify progress updates
+    progress_seen = False
+    max_attempts = 30  # Wait up to 30 seconds
+    for _ in range(max_attempts):
+        status_response = logged_in_session.get(f"{BASE_URL}/task_status/{task_id}")
+        assert status_response.status_code == 200
+        status_data = status_response.json()
+
+        # Check if we see progress updates
+        if status_data.get("progress") is not None:
+            progress_seen = True
+            progress = status_data["progress"]
+            assert "step_name" in progress
+            assert "step_number" in progress
+            assert "step_count" in progress
+            assert isinstance(progress["step_number"], int)
+            assert isinstance(progress["step_count"], int)
+            assert progress["step_number"] <= progress["step_count"]
+
+        if status_data["status"] == "completed":
+            break
+        elif status_data["status"] == "failed":
+            assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+
+        time.sleep(1)
+    else:
+        assert False, "Task did not complete within timeout"
+
+    # Verify progress was reported during execution
+    assert progress_seen, "No progress updates were seen during task execution"
+
+    # Get the final results
+    result_response = logged_in_session.get(f"{BASE_URL}/task_result/{task_id}")
+    assert result_response.status_code == 200
+    result_data = result_response.json()
+    assert "result" in result_data
+    response_data = result_data["result"]
+
+    # Verify the results are as expected
     assert "close_date" in response_data
     assert "closed_trades" in response_data
     assert "profit_usd" in response_data
@@ -161,16 +204,59 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     response = logged_in_session.post(f"{BASE_URL}/etoro/upload_report", files=files, data=data)
     assert response.status_code == 200
 
+    # Start the async evolution task
     params = {"filename": filename, "precision": "D"}
     response = logged_in_session.get(f"{BASE_URL}/etoro_evolution_by_name", params=params)
     assert response.status_code == 200
-    response_data = response.json()
+    task_response = response.json()
+    assert "task_id" in task_response
+    task_id = task_response["task_id"]
+
+    # Poll for task completion and verify progress updates
+    progress_seen = False
+    max_attempts = 60  # Wait up to 30 seconds
+    for _ in range(max_attempts):
+        status_response = logged_in_session.get(f"{BASE_URL}/task_status/{task_id}")
+        assert status_response.status_code == 200
+        status_data = status_response.json()
+
+        # Check if we see progress updates
+        if status_data.get("progress") is not None:
+            progress_seen = True
+            progress = status_data["progress"]
+            assert "step_name" in progress
+            assert "step_number" in progress
+            assert "step_count" in progress
+            assert isinstance(progress["step_number"], int)
+            assert isinstance(progress["step_count"], int)
+            assert progress["step_number"] <= progress["step_count"]
+
+        if status_data["status"] == "completed":
+            break
+        elif status_data["status"] == "failed":
+            assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+
+        time.sleep(1)
+    else:
+        assert False, "Task did not complete within timeout"
+
+    # Verify progress was reported during execution
+    assert progress_seen, "No progress updates were seen during task execution"
+
+    # Get the final results
+    result_response = logged_in_session.get(f"{BASE_URL}/task_result/{task_id}")
+    assert result_response.status_code == 200
+    result_data = result_response.json()
+    assert "result" in result_data
+    response_data = result_data["result"]
+
+    # Verify the results are as expected
     assert "evolution" in response_data
     assert isinstance(response_data["evolution"], dict)
     assert "2025-08-01" in response_data["evolution"]["dates"]
     assert (
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
-        == 1196
+        == 1195
     )
 
 

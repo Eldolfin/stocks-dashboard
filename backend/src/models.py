@@ -343,6 +343,12 @@ class NotFoundResponse(BaseModel):
     message: str = "Resource not found!"
 
 
+class BadRequestResponse(BaseModel):
+    code: int = -2
+    message: str = "Bad request!"
+    error: str
+
+
 #########################
 #  HISTORICALKPI QUERY  #
 #########################
@@ -374,9 +380,9 @@ class PrecisionEnum(str, Enum):
 
 
 class EtoroForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     precision: PrecisionEnum
     file: FileStorage
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class EtoroAnalysisResponse(BaseModel):
@@ -403,6 +409,31 @@ class EtoroEvolutionResponse(BaseModel):
     evolution: EtoroEvolutionInner
 
 
+######################
+#  PROGRESS MODELS   #
+######################
+
+
+class TaskProgressResponse(BaseModel):
+    step_name: str
+    step_number: int
+    step_count: int
+
+
+class TaskStatusResponse(BaseModel):
+    status: str  # pending, running, completed, failed
+    progress: TaskProgressResponse | None = None
+    error: str | None = None
+
+
+class TaskStartResponse(BaseModel):
+    task_id: str
+
+
+class TaskIdPath(BaseModel):
+    task_id: str
+
+
 #################
 #  AUTH MODELS  #
 #################
@@ -414,10 +445,10 @@ class LoginBody(BaseModel):
 
 
 class RegisterForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     email: str
     password: str
     profile_picture: FileStorage | None = None
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RegisterResponse(BaseModel):
@@ -430,8 +461,8 @@ class RegisterResponse(BaseModel):
 #  PROFILE PICTURE #
 ####################
 class ProfilePictureForm(BaseModel):
-    profile_picture: FileStorage
     model_config = ConfigDict(arbitrary_types_allowed=True)
+    profile_picture: FileStorage
 
 
 class ProfilePicturePath(BaseModel):
@@ -451,3 +482,10 @@ class ProfilePicturePathParams(BaseModel):
 class UserResponse(BaseModel):
     email: str
     profile_picture: str | None = None
+
+
+class TaskResultResponse(BaseModel):
+    """Generic response for task results. Can contain various data types."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    result: dict | None = None
