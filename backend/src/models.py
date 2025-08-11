@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from enum import Enum
 
 from flask_login import UserMixin
 from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
+
+from src.services import task_manager
 
 
 class User(UserMixin):
@@ -343,6 +347,12 @@ class NotFoundResponse(BaseModel):
     message: str = "Resource not found!"
 
 
+class BadRequestResponse(BaseModel):
+    code: int = -2
+    message: str = "Bad request!"
+    error: str
+
+
 #########################
 #  HISTORICALKPI QUERY  #
 #########################
@@ -374,9 +384,9 @@ class PrecisionEnum(str, Enum):
 
 
 class EtoroForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     precision: PrecisionEnum
     file: FileStorage
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class EtoroAnalysisResponse(BaseModel):
@@ -385,9 +395,13 @@ class EtoroAnalysisResponse(BaseModel):
     profit_usd: list[float]
 
 
-class EtoroAnalysisByNameQuery(BaseModel):
+class EtoroTradeCountQuery(BaseModel):
     filename: str
     precision: PrecisionEnum
+
+
+class EtoroEvolutionQuery(BaseModel):
+    filename: str
 
 
 class EtoroReportsResponse(BaseModel):
@@ -403,6 +417,32 @@ class EtoroEvolutionResponse(BaseModel):
     evolution: EtoroEvolutionInner
 
 
+######################
+#  PROGRESS MODELS   #
+######################
+
+
+class TaskProgressResponse(BaseModel):
+    step_name: str
+    step_number: int
+    step_count: int
+    sub_task: TaskProgressResponse | None = None
+
+
+class TaskStatusResponse(BaseModel):
+    status: str  # pending, running, completed, failed
+    progress: TaskProgressResponse | None = None
+    error: str | None = None
+
+
+class TaskStartResponse(BaseModel):
+    task_id: str
+
+
+class TaskIdPath(BaseModel):
+    task_id: str
+
+
 #################
 #  AUTH MODELS  #
 #################
@@ -414,10 +454,10 @@ class LoginBody(BaseModel):
 
 
 class RegisterForm(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     email: str
     password: str
     profile_picture: FileStorage | None = None
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RegisterResponse(BaseModel):
@@ -430,8 +470,8 @@ class RegisterResponse(BaseModel):
 #  PROFILE PICTURE #
 ####################
 class ProfilePictureForm(BaseModel):
-    profile_picture: FileStorage
     model_config = ConfigDict(arbitrary_types_allowed=True)
+    profile_picture: FileStorage
 
 
 class ProfilePicturePath(BaseModel):
@@ -451,3 +491,22 @@ class ProfilePicturePathParams(BaseModel):
 class UserResponse(BaseModel):
     email: str
     profile_picture: str | None = None
+
+
+class TaskResultResponse(BaseModel):
+    """Generic response for task results. Can contain various data types."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    result: dict | None = None
+
+
+# Convertors
+def task_progress_to_response(progress: task_manager.TaskProgress | None) -> TaskProgressResponse | None:
+    if progress is None:
+        return None
+    return TaskProgressResponse(
+        step_number=progress.step_number,
+        step_count=progress.step_count,
+        step_name=progress.step_name,
+        sub_task=task_progress_to_response(progress.sub_task),
+    )

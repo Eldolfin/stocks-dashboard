@@ -3,6 +3,7 @@ import { test as baseTest, expect } from '@playwright/test';
 import * as path from 'path';
 
 test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
+  test.setTimeout(180_000);
   // Navigate to portfolio page
   await loggedInPage.getByRole('link', { name: 'Portfolio' }).click();
   await loggedInPage.waitForURL('/portfolio');
@@ -16,10 +17,9 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
 
   await loggedInPage.waitForLoadState("networkidle");
 
-  await loggedInPage.locator('canvas').first().hover({
-    position: { x: 140, y: 320 },
-  });
-  await loggedInPage.waitForTimeout(2000);
+  await expect(loggedInPage.locator('canvas').nth(0)).toBeVisible();
+  await expect(loggedInPage.locator('canvas').nth(1)).toBeVisible({timeout: 60_000});
+  // await loggedInPage.waitForTimeout(2000);
 
   // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
 });

@@ -9,3 +9,5 @@ services:
     volumes:
       - ../tests/playwright-report:/tests/playwright-report
       - ../tests/tests:/tests/tests
+    environment:
+      - CI=${CI}
