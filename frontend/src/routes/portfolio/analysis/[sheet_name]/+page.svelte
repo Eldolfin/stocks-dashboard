@@ -183,18 +183,7 @@
 </script>
 
 <div class="p-8">
-	{#if evolution_data !== undefined}
-		<div class="flex justify-center">
-			<HistoryChart
-				color="green"
-				title="Total profits evolution overtime"
-				showTickerSelector={true}
-				defaultShown={['Total', 'Closed Positions', 'Deposits', 'P&L']}
-				dataset={evolution_data['evolution']['parts']}
-				dates={evolution_data['evolution']['dates']}
-			/>
-		</div>
-	{:else if error}
+	{#if error}
 		<div class="text-center text-red-500">{error}</div>
 	{/if}
 
@@ -255,7 +244,7 @@
 						color="green"
 						title="Total profits evolution overtime"
 						showTickerSelector={true}
-						defaultShown={['total', 'Closed Positions']}
+						defaultShown={['Total', 'Closed Positions', 'Deposits', 'P&L']}
 						dataset={evolution_data['evolution']['parts']}
 						dates={evolution_data['evolution']['dates']}
 					/>
