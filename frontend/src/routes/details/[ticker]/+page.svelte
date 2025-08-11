@@ -294,6 +294,8 @@
 								dataset={{ [kpiName]: kpiData.values }}
 								dates={kpiData.dates}
 								color="#8884d8"
+								showLegend={false}
+								zoomable={false}
 							/>
 						</div>
 					{:else}
