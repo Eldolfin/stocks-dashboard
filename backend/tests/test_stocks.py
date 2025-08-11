@@ -101,7 +101,7 @@ def test_search_ticker() -> None:
     assert data["query"]["query"] == "Apple"
     assert "quotes" in data
     assert len(data["quotes"]) > 0
-    assert any(q["raw"]["symbol"] == "AAPL" for q in data["quotes"])
+    assert any(q["symbol"] == "AAPL" for q in data["quotes"])
 
 
 def test_upload_etoro_report(logged_in_session, etoro_excel_file) -> None:

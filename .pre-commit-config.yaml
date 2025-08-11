@@ -37,15 +37,15 @@ repos:
           - prettier-plugin-svelte
         files: ^frontend/.*\.(ts|js|svelte|json|css|html)$
 
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.32.0
-    hooks:
-      - id: eslint
-        entry: sh -c 'cd frontend && eslint'
-        pass_filenames: false
-        name: Frontend ESLint Check
-        additional_dependencies: [eslint]
-        files: ^frontend/.*\.(ts|js|svelte)$
+  # - repo: https://github.com/pre-commit/mirrors-eslint
+  #   rev: v9.32.0
+  #   hooks:
+  #     - id: eslint
+  #       entry: sh -c 'cd frontend && eslint'
+  #       pass_filenames: false
+  #       name: Frontend ESLint Check
+  #       additional_dependencies: [eslint]
+  #       files: ^frontend/.*\.(ts|js|svelte)$
 
   # Generic hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks

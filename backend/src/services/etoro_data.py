@@ -360,7 +360,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
                 start=first_open_date.strftime("%Y-%m-%d"),
                 end=pd.Timestamp.now().strftime("%Y-%m-%d"),
             )
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"Could not fetch data for {ticker}: {e}")
             continue
         if not history.empty:

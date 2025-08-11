@@ -232,8 +232,8 @@ class KPIQuery(BaseModel):
 
 
 class MainKPIs(BaseModel):
-    ratioPE: float | None
-    freeCashflowYield: float | None
+    ratioPE: float | None = None
+    freeCashflowYield: float | None = None
 
 
 class KPIResponse(BaseModel):
@@ -291,8 +291,8 @@ class RawQuote(BaseModel):
 
 
 class Quote(BaseModel):
-    raw: RawQuote
-    info: Info
+    symbol: str
+    long_name: str
     icon_url: str | None = None
     # Change % for since open
     today_change: float | None = None

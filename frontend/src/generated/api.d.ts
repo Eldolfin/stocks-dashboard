@@ -1365,67 +1365,15 @@ export interface components {
 			 * @default null
 			 */
 			icon_url: string | null;
-			info: components['schemas']['Info'];
-			raw: components['schemas']['RawQuote'];
+			/** Long Name */
+			long_name: string;
+			/** Symbol */
+			symbol: string;
 			/**
 			 * Today Change
 			 * @default null
 			 */
 			today_change: number | null;
-		};
-		/** RawQuote */
-		RawQuote: {
-			/**
-			 * Dispsecindflag
-			 * @default null
-			 */
-			dispSecIndFlag: boolean | null;
-			/** Exchdisp */
-			exchDisp: string;
-			/** Exchange */
-			exchange: string;
-			/** Index */
-			index: string;
-			/**
-			 * Industry
-			 * @default null
-			 */
-			industry: string | null;
-			/**
-			 * Industrydisp
-			 * @default null
-			 */
-			industryDisp: string | null;
-			/** Isyahoofinance */
-			isYahooFinance: boolean;
-			/**
-			 * Longname
-			 * @default null
-			 */
-			longname: string | null;
-			/** Quotetype */
-			quoteType: string;
-			/** Score */
-			score: number;
-			/**
-			 * Sector
-			 * @default null
-			 */
-			sector: string | null;
-			/**
-			 * Sectordisp
-			 * @default null
-			 */
-			sectorDisp: string | null;
-			/**
-			 * Shortname
-			 * @default null
-			 */
-			shortname: string | null;
-			/** Symbol */
-			symbol: string;
-			/** Typedisp */
-			typeDisp: string;
 		};
 		/** RegisterForm */
 		RegisterForm: {

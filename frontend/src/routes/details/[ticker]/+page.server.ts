@@ -18,9 +18,6 @@ export async function load({
 			}
 		}
 	});
-	if (!kpis_res.response.ok) {
-		error(kpis_res.response.status, kpis_res.response.statusText);
-	}
 
 	const history_res = await client.GET('/api/ticker/', {
 		params: {
