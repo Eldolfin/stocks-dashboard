@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from flask_login import UserMixin
+from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
 
-if TYPE_CHECKING:
-    from flask_openapi3 import FileStorage
-
-    from src.services import task_manager
+from src.services import task_manager
 
 
 class User(UserMixin):
