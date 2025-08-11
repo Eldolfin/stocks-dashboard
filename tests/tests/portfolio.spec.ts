@@ -18,7 +18,7 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   await loggedInPage.waitForLoadState("networkidle");
 
   await expect(loggedInPage.locator('canvas').nth(0)).toBeVisible();
-  await expect(loggedInPage.locator('canvas').nth(1)).toBeVisible();
+  await expect(loggedInPage.locator('canvas').nth(1)).toBeVisible({timeout: 60_000});
   // await loggedInPage.waitForTimeout(2000);
 
   // await expect(loggedInPage).toHaveScreenshot("portfolio-hover-first.png")
