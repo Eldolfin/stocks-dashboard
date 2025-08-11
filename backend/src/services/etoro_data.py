@@ -164,7 +164,17 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
     progress_callback(TaskProgress("Fetching market data", 4, total_steps))
 
     yahoo_data = {}
-    for _details in still_open["Details"].unique():
+    tickers_to_fetch = still_open["Details"].unique()
+    total_tickers = len(tickers_to_fetch)
+    for i, _details in enumerate(tickers_to_fetch):
+        progress_callback(
+            TaskProgress(
+                "Fetching market data",
+                4,
+                total_steps,
+                sub_task=TaskProgress(f"Fetching ticker {_details}", i, total_tickers),
+            )
+        )
         first_open_date = still_open[still_open["Details"] == _details].index.min()
         [ticker, market] = _details.split("/")
         ticker = ticker.removesuffix(".US").removesuffix(".EXT")
