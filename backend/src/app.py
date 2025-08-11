@@ -8,6 +8,7 @@ from flask_openapi3 import Info, OpenAPI
 
 from .database.auth_repository import AuthRepository
 from .endpoints.auth import auth_bp
+from .endpoints.compare import compare_bp
 from .endpoints.stocks import cache, stocks_bp
 from .models import User
 from .services.auth_service import UPLOAD_FOLDER
@@ -34,6 +35,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 app.register_api(auth_bp)
+app.register_api(compare_bp)
 app.register_api(stocks_bp)
 
 auth_repository = AuthRepository()

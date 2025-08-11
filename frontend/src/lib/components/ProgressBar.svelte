@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { components } from '../../generated/api';
-	import ProgressBarInner from './ProgressBarInner.svelte'
+	import ProgressBarInner from './ProgressBarInner.svelte';
 
 	type TaskProgressResponse = components['schemas']['TaskProgressResponse'];
 	interface Props {
@@ -36,7 +36,7 @@
 			</div>
 		{:else if progress}
 			<div class="space-y-3">
-				<ProgressBarInner progress={progress}/>
+				<ProgressBarInner {progress} />
 			</div>
 		{:else}
 			<div class="space-y-3">

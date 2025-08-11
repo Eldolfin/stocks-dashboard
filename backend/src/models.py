@@ -323,6 +323,13 @@ class CompareGrowthResponse(BaseModel):
     dates: list[str]
 
 
+#########################
+#  STATIC FILES (PATH)  #
+#########################
+class StaticFilePath(BaseModel):
+    filename: str
+
+
 ##################
 #  TICKER QUERY  #
 ##################

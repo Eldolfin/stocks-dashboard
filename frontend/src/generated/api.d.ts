@@ -20,6 +20,26 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/etoro/compare_to_index': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Compare eToro portfolio performance to a selected index.
+		 * @description Expects JSON: {"filename": str, "index_ticker": str}</br>Returns: {"dates": [...], "index_values": [...]}
+		 */
+		post: operations['compare_compare_to_index_compare_to_index_post'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/etoro/reports': {
 		parameters: {
 			query?: never;
@@ -1553,6 +1573,16 @@ export interface operations {
 				};
 			};
 		};
+	};
+	compare_compare_to_index_compare_to_index_post: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: never;
 	};
 	stocks_list_etoro_reports_etoro_reports_get: {
 		parameters: {
