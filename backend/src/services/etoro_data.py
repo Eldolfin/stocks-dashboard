@@ -400,9 +400,21 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
             _df[["net_value"]].rename(columns={"net_value": _stock}),
             how="outer",
         )
+    daily_deposits = activity[activity["Type"] == "Deposit"]["Amount"].astype(np.float32).resample("D").sum().fillna(0)
+    cumulative_deposits = daily_deposits.cumsum()
+    start_date = daily_deposits.index.min()
+    end_date = pd.Timestamp.today()
+    date_range = pd.date_range(start=start_date, end=end_date, freq="D")
+    cumulative_deposits = cumulative_deposits.reindex(date_range).ffill()
+
     _all_data = _all_data.ffill().fillna(0)
     _all_data["total"] = _all_data.loc[:, ~_all_data.columns.str.contains("Closed Positions")].sum(axis=1)
+    _all_data = _all_data.join(cumulative_deposits, how="outer")
     _all_data.index = pd.to_datetime(_all_data.index).strftime("%Y-%m-%d")
+    _all_data = _all_data.rename(columns={"Amount": "Deposits", "total": "Total"})
+
+    _all_data["P&L"] = _all_data["Total"] - _all_data["Deposits"]
+
     parts = {
         str(k): [float(x) for x in v]
         for k, v in _all_data.reset_index().drop(columns=["index"]).to_dict("list").items()
