@@ -171,7 +171,7 @@
 		}
 	}
 
-	async function handleIndexSelect(opt) {
+	async function handleIndexSelect(opt: { value: string }) {
 		selectedIndex = opt.value;
 		indexLoading = true;
 		indexError = null;
