@@ -4,7 +4,7 @@
 	import BarChart from '$lib/components/BarChart.svelte';
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { page } from '$app/stores'; // Import page store
+	import { page } from '$app/state';
 
 	interface EtoroData {
 		close_date: string[];
@@ -90,42 +90,57 @@
 		poll();
 	}
 
+	async function startEvolutionAnalyses(reportName: string) {
+		const evolutionTaskRes = await client.GET('/api/etoro_evolution_by_name', {
+			params: {
+				query: {
+					filename: reportName
+				}
+			}
+		});
+
+		// Handle evolution analysis task
+		if (evolutionTaskRes.error) {
+			evolutionError = (evolutionTaskRes.error as components['schemas']['NotFoundResponse'])
+				.message;
+		} else {
+			evolutionTaskId = evolutionTaskRes.data!.task_id;
+			pollTaskStatus(
+				evolutionTaskId,
+				(progress) => {
+					evolutionProgress = progress;
+				},
+				(result) => {
+					evolution_data = result as EtoroEvolutionData;
+					evolutionComplete = true;
+				},
+				(error) => {
+					evolutionError = error;
+				}
+			);
+		}
+	}
+	// }
 	// Function to start async analysis
-	async function startAnalyses(reportName: string, precision: Precision) {
+	async function startTradesAnalyses(reportName: string, precision: Precision) {
 		// Reset state
 		trades_data = undefined;
-		evolution_data = undefined;
 		tradesTaskId = undefined;
-		evolutionTaskId = undefined;
 		tradesProgress = null;
-		evolutionProgress = null;
 		tradesComplete = false;
-		evolutionComplete = false;
 		tradesError = null;
-		evolutionError = null;
 		error = undefined;
 
 		try {
 			// Start both tasks concurrently
-			const [tradesTaskRes, evolutionTaskRes] = await Promise.all([
-				client.GET('/api/etoro_analysis_by_name', {
-					params: {
-						query: {
-							filename: reportName,
-							precision: precision
-						}
+			const tradesTaskRes = await client.GET('/api/etoro_analysis_by_name', {
+				params: {
+					query: {
+						filename: reportName,
+						precision: precision
 					}
-				}),
-				client.GET('/api/etoro_evolution_by_name', {
-					params: {
-						query: {
-							filename: reportName,
-							precision: precision
-						}
-					}
-				})
-			]);
-
+				}
+			});
 			// Handle trades analysis task
 			if (tradesTaskRes.error) {
 				tradesError = (tradesTaskRes.error as components['schemas']['NotFoundResponse']).message;
@@ -145,27 +160,6 @@
 					}
 				);
 			}
-
-			// Handle evolution analysis task
-			if (evolutionTaskRes.error) {
-				evolutionError = (evolutionTaskRes.error as components['schemas']['NotFoundResponse'])
-					.message;
-			} else {
-				evolutionTaskId = evolutionTaskRes.data!.task_id;
-				pollTaskStatus(
-					evolutionTaskId,
-					(progress) => {
-						evolutionProgress = progress;
-					},
-					(result) => {
-						evolution_data = result as EtoroEvolutionData;
-						evolutionComplete = true;
-					},
-					(error) => {
-						evolutionError = error;
-					}
-				);
-			}
 		} catch (err) {
 			error = `Failed to start analysis: ${err}`;
 		}
@@ -173,10 +167,17 @@
 
 	// React to changes in sheet_name or precision_index
 	$effect(() => {
-		const sheetName = $page.params.sheet_name;
+		const sheetName = page.params.sheet_name;
 		const currentPrecision = precision_values[precision_index][1];
 		if (sheetName) {
-			startAnalyses(sheetName, currentPrecision);
+			startTradesAnalyses(sheetName, currentPrecision);
+		}
+	});
+	// React to changes in sheet_name or precision_index
+	$effect(() => {
+		const sheetName = page.params.sheet_name;
+		if (sheetName) {
+			startEvolutionAnalyses(sheetName);
 		}
 	});
 </script>
@@ -208,20 +209,20 @@
 						])}
 						dates={trades_data.close_date}
 					/>
-				<div class="flex flex-col items-center">
-					<label for="precision-range" class="mb-2 block text-white"
-						>{precision_values[precision_index][0]}</label
-					>
-					<input
-						type="range"
-						id="precision-range"
-						min="0"
-						max={precision_values.length - 1}
-						step="1"
-						bind:value={precision_index}
-						class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
-					/>
-				</div>
+					<div class="flex flex-col items-center">
+						<label for="precision-range" class="mb-2 block text-white"
+							>{precision_values[precision_index][0]}</label
+						>
+						<input
+							type="range"
+							id="precision-range"
+							min="0"
+							max={precision_values.length - 1}
+							step="1"
+							bind:value={precision_index}
+							class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
+						/>
+					</div>
 				</div>
 			{/if}
 		</div>

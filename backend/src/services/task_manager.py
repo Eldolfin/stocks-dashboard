@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Self
 
 
 class TaskStatus(Enum):
@@ -24,6 +24,7 @@ class TaskProgress:
     step_name: str
     step_number: int
     step_count: int
+    sub_task: Self | None = None
 
 
 @dataclass
@@ -56,13 +57,11 @@ class TaskManager:
         with self._lock:
             return self._tasks.get(task_id)
 
-    def update_progress(self, task_id: str, step_name: str, step_number: int, step_count: int) -> None:
+    def update_progress(self, task_id: str, new_progress: TaskProgress) -> None:
         """Update task progress."""
         with self._lock:
             if task_id in self._tasks:
-                self._tasks[task_id].progress = TaskProgress(
-                    step_name=step_name, step_number=step_number, step_count=step_count
-                )
+                self._tasks[task_id].progress = new_progress
                 if self._tasks[task_id].status == TaskStatus.PENDING:
                     self._tasks[task_id].status = TaskStatus.RUNNING
 

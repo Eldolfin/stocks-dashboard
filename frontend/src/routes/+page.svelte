@@ -47,11 +47,11 @@
 			newResults.forEach((ticker: Ticker) => tickerCache.set(ticker.symbol, ticker));
 			searchResult = newResults;
 
-			if (browser && page.url.pathname == "/") {
+			if (browser && page.url.pathname == '/') {
 				// change url param
 				let query = new SvelteURLSearchParams(page.url.searchParams.toString());
 				query.set('q', data.query.query);
-				window.history.replaceState(history.state, '', `?${query}`)
+				window.history.replaceState(history.state, '', `?${query}`);
 			}
 		}
 	};
@@ -85,7 +85,7 @@
 		id="search"
 		type="text"
 		placeholder="Apple, Microsoft, ..."
-		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:outline-none focus:ring-2"
+		class="focus:ring-brand w-full rounded-full bg-gray-800 px-4 py-2 text-white shadow focus:ring-2 focus:outline-none"
 	/>
 </form>
 
