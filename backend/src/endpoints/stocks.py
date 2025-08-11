@@ -1,10 +1,11 @@
 # ruff: noqa: ANN201
 
+from pathlib import Path
+
+from flask import send_from_directory
 from flask_caching import Cache
 from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
-from flask import send_from_directory
-from pathlib import Path
 
 from src import models
 from src.services import stocks_service

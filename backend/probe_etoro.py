@@ -11,11 +11,12 @@ app = marimo.App(width="medium")
 with app.setup:
     # Initialization code that runs before all other cells
 
+    import logging
+
     import marimo as mo
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    import logging
 
     # import yfinance as yf
     import yfinance_cache as yf
@@ -27,13 +28,11 @@ with app.setup:
 @app.cell(hide_code=True)
 def _():
     mo.md("""# Etoro networth analysis""")
-    return
 
 
 @app.cell(hide_code=True)
 def _():
     mo.md("""## Data Import and Preparation""")
-    return
 
 
 @app.cell
@@ -63,7 +62,6 @@ def _(excel):
 @app.cell(hide_code=True)
 def _():
     mo.md("""## Cumulative profit of closed trades""")
-    return
 
 
 @app.cell
@@ -80,7 +78,6 @@ def _(closed):
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
     plt.gca()
-    return
 
 
 @app.cell
@@ -99,7 +96,6 @@ def _(excel):
 @app.cell(hide_code=True)
 def _():
     mo.md("""## Cumulative deposits""")
-    return
 
 
 @app.cell
@@ -134,7 +130,6 @@ def _(activity):
 @app.cell(hide_code=True)
 def _():
     mo.md("""## Open positions price estimation""")
-    return
 
 
 @app.cell
@@ -205,7 +200,6 @@ def _(shares_per_ticker):
 @app.cell(hide_code=True)
 def _():
     mo.md("""## Yahoo Finance Data Retrieval""")
-    return
 
 
 @app.cell
@@ -437,7 +431,6 @@ def _():
     *(this is where it starts to get weird)*
     """
     )
-    return
 
 
 @app.cell
@@ -475,7 +468,6 @@ def _():
     -> C'est parceque **RRL.l** est en fait **RRL.l/GBX** sur etoro donc les "Units/Contracts" sont peut être pas equivalents
     """
     )
-    return
 
 
 @app.cell
@@ -489,7 +481,6 @@ def _(all_combined_data):
     all_combined_data["RR.l/GBX"]  # exchange_rate
     # all_combined_data["ACA/EUR"]  # exchange_rate
     # all_combined_data["BAER/CHF"]  # exchange_rate
-    return
 
 
 @app.cell
@@ -512,7 +503,6 @@ def _(all_combined_data):
     for i in range(min(30, len(_sorted_net_values))):
         _ticker, _max_net_value = _sorted_net_values[i]
         print(f"{i + 1}. Ticker: {_ticker}, Net Value: {_max_net_value}")
-    return
 
 
 @app.cell
@@ -534,13 +524,11 @@ def _():
     *Mais si on ajoute **RR.L** ☠️
     """
     )
-    return
 
 
 @app.cell
 def _(all_combined_data_filled):
     list(a for a in all_combined_data_filled if "EUR" in a)
-    return
 
 
 @app.cell
@@ -555,7 +543,6 @@ def _(all_combined_data_filled, ax, name, table):
     plt.ylabel("Net Value")
     plt.legend()
     plt.gca()
-    return
 
 
 @app.cell
@@ -564,13 +551,11 @@ def _(closed):
         columns={"Cumulative Profit": "net_value"}
     )  # closed.reindex(closed["Close Date"]).rename({"Cumulative Profit":"net_value"})
     # print(cumulative_deposits)
-    return
 
 
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""# Total net-value""")
-    return
 
 
 @app.cell
@@ -623,7 +608,6 @@ def _(all_data):
 @app.cell
 def _(res):
     res
-    return
 
 
 @app.cell
@@ -637,7 +621,6 @@ def _(all_data):
     plt.tight_layout()
 
     plt.gca()
-    return
 
 
 if __name__ == "__main__":

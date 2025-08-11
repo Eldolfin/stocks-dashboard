@@ -8,11 +8,10 @@ app = marimo.App(width="full")
 def _():
     from pathlib import Path
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
     import yfinance as yf
-    import yfinance_cache as yfc
-    import matplotlib.pyplot as plt
 
     from src import models
     from src.services.etoro_data import column_date_to_timestamp
@@ -23,12 +22,11 @@ def _():
 @app.cell
 def _(yf):
     yf.Search
-    return
 
 
 @app.cell
 def _(Path, column_date_to_timestamp, models, np, pd, yf):
-    def compare_portfolio_to_simulation(etoro_statement_file: Path, reference: str) -> models.EtoroEvolutionInner:  # noqa: C901, PLR0912, PLR0915
+    def compare_portfolio_to_simulation(etoro_statement_file: Path, reference: str) -> models.EtoroEvolutionInner:
         excel = pd.read_excel(etoro_statement_file, sheet_name=None)
         closed = excel["Closed Positions"]
         closed["Close Date"] = column_date_to_timestamp(closed["Close Date"])
@@ -92,7 +90,6 @@ def _(if_i_bought_only_sp500, plt):
     plt.title("SP500 Investment Over Time", fontsize=14)
     plt.legend(fontsize=10)
     plt.gca()
-    return
 
 
 if __name__ == "__main__":

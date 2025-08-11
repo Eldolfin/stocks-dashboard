@@ -1,5 +1,6 @@
 import io
 import time
+
 import requests
 
 BASE_URL = "http://localhost:5000/api"
@@ -23,8 +24,13 @@ def test_compare_to_index_works_end_to_end():
 
     # Upload an eToro report first so the file exists in the user's folder
     with open("tests/data/etoro-account-statement-12-31-2014-7-5-2025_TEST.xlsx", "rb") as f:
-        files = {"file": ("etoro-report.xlsx", io.BytesIO(f.read()),
-                           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+        files = {
+            "file": (
+                "etoro-report.xlsx",
+                io.BytesIO(f.read()),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        }
     resp = session.post(f"{BASE_URL}/etoro/upload_report", files=files, data={"precision": "D"})
     assert resp.status_code == 200, f"Upload failed: {resp.text}"
 
