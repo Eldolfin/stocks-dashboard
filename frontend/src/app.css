@@ -6,7 +6,7 @@
 }
 
 body {
-	@apply bg-black font-sans text-white;
+	@apply bg-white font-sans text-black dark:bg-black dark:text-white;
 }
 
 .animate-fade-in {
