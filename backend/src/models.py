@@ -1,7 +1,5 @@
 from __future__ import annotations
-
 from enum import Enum
-
 from flask_login import UserMixin
 from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
@@ -517,3 +515,13 @@ def task_progress_to_response(progress: task_manager.TaskProgress | None) -> Tas
         step_name=progress.step_name,
         sub_task=task_progress_to_response(progress.sub_task),
     )
+
+
+class CompareToIndexQuery(BaseModel):
+    filename: str
+    index_ticker: str
+
+
+class CompareToIndexResponse(BaseModel):
+    dates: list[str]
+    index_values: list[float]

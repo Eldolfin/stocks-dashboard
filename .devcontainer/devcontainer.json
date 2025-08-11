@@ -17,7 +17,8 @@
 			"extensions": [
 				"svelte.svelte-vscode",
 				"mechatroner.rainbow-csv",
-				"ms-azuretools.vscode-containers"
+				"ms-azuretools.vscode-containers",
+				"GitHub.copilot-chat"
 			]
 		}
 	}
