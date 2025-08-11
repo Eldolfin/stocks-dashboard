@@ -1,16 +1,16 @@
 <script lang="ts">
+	import type { components } from '../../generated/api';
+	import ProgressBarInner from './ProgressBarInner.svelte'
+
+	type TaskProgressResponse = components['schemas']['TaskProgressResponse'];
 	interface Props {
 		title: string;
-		progress?: {
-			step_name: string;
-			step_number: number;
-			step_count: number;
-		} | null;
-		isComplete?: boolean;
+		progress: TaskProgressResponse | null;
+		isComplete: boolean;
 		error?: string | null;
 	}
 
-	let { title, progress, isComplete = false, error = null }: Props = $props();
+	let { title, progress, isComplete, error = null }: Props = $props();
 
 	let progressPercentage = $derived(
 		progress ? (progress.step_number / progress.step_count) * 100 : 0
@@ -36,16 +36,7 @@
 			</div>
 		{:else if progress}
 			<div class="space-y-3">
-				<div class="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-					<span>{progress.step_name}</span>
-					<span>{progress.step_number} / {progress.step_count}</span>
-				</div>
-				<div class="h-2.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-					<div
-						class="h-2.5 rounded-full bg-blue-600 transition-all duration-300 ease-out"
-						style="width: {progressPercentage}%"
-					></div>
-				</div>
+				<ProgressBarInner progress={progress}/>
 			</div>
 		{:else}
 			<div class="space-y-3">
