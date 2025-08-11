@@ -46,10 +46,10 @@
 	let evolutionError: string | null = $state(null);
 
 	// Index comparison state
-	let selectedIndex: string | null = null;
-	let indexComparison: { dates: string[]; index_values: number[] } | null = null;
-	let indexLoading = false;
-	let indexError: string | null = null;
+	let selectedIndex: string | null = $state(null);
+	let indexComparison: { dates: string[]; index_values: number[] } | null = $state(null);
+	let indexLoading = $state(false);
+	let indexError: string | null = $state(null);
 
 	// Function to poll task status until completion
 	async function pollTaskStatus(
@@ -301,23 +301,25 @@
 			<IndexDropdown
 				selected={selectedIndex}
 				onSelect={handleIndexSelect}
-				loading={indexLoading}
-				error={indexError}
 			/>
 
-			{#if indexComparison}
+			{#if indexLoading}
+				<div class="mt-2 text-gray-500">Loading index data...</div>
+			{:else if indexError}
+				<div class="mt-2 text-red-500">{indexError}</div>
+			{:else if indexComparison && evolution_data}
 				<div class="mt-4">
 					<FullscreenWrapper
-						title="Index comparison"
+						title="Portfolio vs Index"
 						chartComponent={HistoryChart}
 						chartProps={{
 							color: 'blue',
 							title: '',
 							showTickerSelector: false,
-							dataset: new Map([
-								['Your Trades', evolution_data.evolution.parts],
-								['Index', indexComparison.index_values]
-							]),
+							dataset: {
+								'Portfolio Total': evolution_data.evolution.parts['Total'],
+								'Simulated Index': indexComparison.index_values
+							},
 							dates: evolution_data.evolution.dates
 						}}
 					/>
