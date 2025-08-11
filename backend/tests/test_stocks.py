@@ -205,7 +205,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     assert response.status_code == 200
 
     # Start the async evolution task
-    params = {"filename": filename, "precision": "D"}
+    params = {"filename": filename}
     response = logged_in_session.get(f"{BASE_URL}/etoro_evolution_by_name", params=params)
     assert response.status_code == 200
     task_response = response.json()
@@ -258,23 +258,6 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
         == 1195
     )
-
-
-def test_etoro_split_handling(etoro_excel_file) -> None:
-    """Test that stock splits are properly handled in portfolio evolution."""
-    from src.services.etoro_data import extract_portfolio_evolution
-
-    # Test that the function runs without errors when processing splits
-    result = extract_portfolio_evolution(etoro_excel_file)
-
-    # Verify the function returns expected structure
-    assert hasattr(result, "dates")
-    assert hasattr(result, "parts")
-    assert isinstance(result.dates, list)
-    assert isinstance(result.parts, dict)
-
-    # Test should pass even if no splits are present in test data
-    assert len(result.dates) > 0
 
 
 def test_split_factor_calculation():

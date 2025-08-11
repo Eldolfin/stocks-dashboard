@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Self
 
 
 class TaskStatus(Enum):
@@ -24,6 +24,7 @@ class TaskProgress:
     step_name: str
     step_number: int
     step_count: int
+    sub_task: Self | None = None
 
 
 @dataclass

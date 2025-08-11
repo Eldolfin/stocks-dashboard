@@ -188,16 +188,6 @@ def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
     return models.EtoroReportsResponse(reports=reports)
 
 
-def analyze_etoro_excel_by_name(query: models.EtoroTradeCountQuery, user_email: str) -> dict[str, list[str]] | None:
-    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
-    file_path = Path(user_etoro_folder) / query.filename
-
-    if not Path.exists(file_path):
-        return None
-
-    return extract_closed_position(file_path, time_unit=query.precision)
-
-
 def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_email: str) -> str:
     """Start async analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
@@ -217,18 +207,6 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_e
 
     task_manager.run_task(task_id, _run_analysis)
     return task_id
-
-
-def analyze_etoro_evolution_by_name(
-    query: models.EtoroEvolutionQuery, user_email: str
-) -> models.EtoroEvolutionResponse | None:
-    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
-    file_path = Path(user_etoro_folder) / query.filename
-
-    if not Path.exists(file_path):
-        return None
-
-    return models.EtoroEvolutionResponse(evolution=extract_portfolio_evolution(file_path))
 
 
 def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, user_email: str) -> str:

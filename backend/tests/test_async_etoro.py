@@ -1,8 +1,7 @@
 """Test the new async eToro endpoints with progress tracking."""
 
 import time
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from flask import Flask
@@ -13,23 +12,22 @@ from src.services.task_manager import task_manager
 
 
 @pytest.fixture
-def fake_app():
+def fake_app() -> Flask:
     """Return a minimal Flask app with fake config."""
     app = Flask(__name__)
     app.config["UPLOAD_FOLDER"] = "/tmp"
     return app
 
 
-def test_async_etoro_analysis_file_not_found(fake_app):
-    query = models.EtoroAnalysisByNameQuery(filename="nonexistent.xlsx", precision="M")
+def test_async_etoro_analysis_file_not_found(fake_app: Flask) -> None:
+    query = models.EtoroTradeCountQuery(filename="nonexistent.xlsx", precision="M")
 
-    with fake_app.app_context():
-        with pytest.raises(FileNotFoundError):
-            stocks_service.analyze_etoro_excel_by_name_async(query, "test@example.com")
+    with fake_app.app_context(), pytest.raises(FileNotFoundError):
+        stocks_service.analyze_etoro_excel_by_name_async(query, "test@example.com")
 
 
 def test_async_etoro_evolution_file_not_found(fake_app):
-    query = models.EtoroAnalysisByNameQuery(filename="nonexistent.xlsx", precision="M")
+    query = models.EtoroEvolutionQuery(filename="nonexistent.xlsx")
 
     with fake_app.app_context():
         with pytest.raises(FileNotFoundError):
@@ -42,7 +40,7 @@ def test_async_etoro_analysis_success(mock_extract, mock_path, fake_app):
     mock_path.exists.return_value = True
     mock_extract.return_value = {"test": ["data"]}
 
-    query = models.EtoroAnalysisByNameQuery(filename="test.xlsx", precision="M")
+    query = models.EtoroTradeCountQuery(filename="test.xlsx", precision="M")
 
     with fake_app.app_context():
         task_id = stocks_service.analyze_etoro_excel_by_name_async(query, "test@example.com")
@@ -66,7 +64,7 @@ def test_async_etoro_evolution_success(mock_extract, mock_path, fake_app):
     mock_evolution = models.EtoroEvolutionInner(dates=["2023-01-01"], parts={"test": [1.0]})
     mock_extract.return_value = mock_evolution
 
-    query = models.EtoroAnalysisByNameQuery(filename="test.xlsx", precision="M")
+    query = models.EtoroEvolutionQuery(filename="test.xlsx")
 
     with fake_app.app_context():
         task_id = stocks_service.analyze_etoro_evolution_by_name_async(query, "test@example.com")
