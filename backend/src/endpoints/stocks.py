@@ -4,6 +4,7 @@ from flask_caching import Cache
 from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
 from flask import send_from_directory
+from pathlib import Path
 
 from src import models
 from src.services import stocks_service
@@ -139,6 +140,7 @@ def get_task_result(path: models.TaskIdPath):
     return response.model_dump(), 200
 
 
-@stocks_bp.get("/static/{filename}", tags=[stocks_tag])
+@stocks_bp.get("/static/<filename>", tags=[stocks_tag])
 def get_static_csv(path: models.StaticFilePath):
-    return send_from_directory("data/search", path.filename)
+    base = Path.cwd() / "data" / "search"
+    return send_from_directory(str(base), path.filename)
