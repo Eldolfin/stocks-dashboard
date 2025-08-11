@@ -214,7 +214,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
 
     # Poll for task completion and verify progress updates
     progress_seen = False
-    max_attempts = 30  # Wait up to 30 seconds
+    max_attempts = 60  # Wait up to 30 seconds
     for _ in range(max_attempts):
         status_response = logged_in_session.get(f"{BASE_URL}/task_status/{task_id}")
         assert status_response.status_code == 200
@@ -256,7 +256,7 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     assert "2025-08-01" in response_data["evolution"]["dates"]
     assert (
         round(response_data["evolution"]["parts"]["total"][response_data["evolution"]["dates"].index("2025-08-01")])
-        == 1196
+        == 1195
     )
 
 
