@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Chart, { type ChartConfiguration } from 'chart.js/auto';
-	import { transparentize  } from '$lib/chart-utils';
+	import { transparentize } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
 	import TickerSelector from './TickerSelector.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -12,6 +12,8 @@
 		color: string;
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
+		showLegend?: boolean;
+		zoomable?: boolean;
 	}
 	const {
 		title,
@@ -19,7 +21,9 @@
 		dates,
 		color,
 		showTickerSelector = false,
-		defaultShown
+		defaultShown,
+		showLegend = true,
+		zoomable = true
 	}: Props = $props();
 	let chartElt;
 	let chartInstance: Chart | undefined | null;
@@ -118,16 +122,16 @@
 						}
 					},
 					legend: {
-						display: true
+						display: showLegend
 					},
 					zoom: {
 						pan: {
-							enabled: true,
+							enabled: zoomable,
 							mode: 'x'
 						},
 						zoom: {
 							wheel: {
-								enabled: true
+								enabled: zoomable
 							},
 							pinch: {
 								enabled: true
@@ -209,10 +213,12 @@
 
 <div class="flex h-full w-full flex-col items-center justify-center">
 	<canvas bind:this={chartElt} id="history-chart"></canvas>
-	<button
-		class="mt-4 rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
-		onclick={() => chartInstance?.resetZoom()}>Reset zoom</button
-	>
+	{#if zoomable}
+		<button
+			class="mt-4 rounded-full bg-gray-800 px-4 py-1 text-white shadow transition hover:scale-105"
+			onclick={() => chartInstance?.resetZoom()}>Reset zoom</button
+		>
+	{/if}
 
 	{#if showTickerSelector}
 		<div class="mt-4 w-full max-w-md">

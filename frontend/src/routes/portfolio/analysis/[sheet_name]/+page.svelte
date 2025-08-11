@@ -5,6 +5,7 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { page } from '$app/state';
+	import FullscreenWrapper from '$lib/components/FullscreenWrapper.svelte';
 
 	interface EtoroData {
 		close_date: string[];
@@ -120,8 +121,7 @@
 			);
 		}
 	}
-	// }
-	// Function to start async analysis
+
 	async function startTradesAnalyses(reportName: string, precision: Precision) {
 		// Reset state
 		trades_data = undefined;
@@ -132,7 +132,6 @@
 		error = undefined;
 
 		try {
-			// Start both tasks concurrently
 			const tradesTaskRes = await client.GET('/api/etoro_analysis_by_name', {
 				params: {
 					query: {
@@ -141,7 +140,7 @@
 					}
 				}
 			});
-			// Handle trades analysis task
+
 			if (tradesTaskRes.error) {
 				tradesError = (tradesTaskRes.error as components['schemas']['NotFoundResponse']).message;
 			} else {
@@ -165,7 +164,6 @@
 		}
 	}
 
-	// React to changes in sheet_name or precision_index
 	$effect(() => {
 		const sheetName = page.params.sheet_name;
 		const currentPrecision = precision_values[precision_index][1];
@@ -173,7 +171,7 @@
 			startTradesAnalyses(sheetName, currentPrecision);
 		}
 	});
-	// React to changes in sheet_name or precision_index
+
 	$effect(() => {
 		const sheetName = page.params.sheet_name;
 		if (sheetName) {
@@ -183,45 +181,7 @@
 </script>
 
 <div class="p-8">
-	{#if trades_data !== undefined}
-		<div class="flex justify-center">
-			<BarChart
-				dataset={new Map([
-					['profit (USD)', new Array(...trades_data.profit_usd)],
-					['closed trades', new Array(...trades_data.closed_trades)]
-				])}
-				dates={trades_data.close_date}
-			/>
-		</div>
-		<div class="mt-4 flex flex-col items-center">
-			<label for="precision-range" class="mb-2 block text-white"
-				>{precision_values[precision_index][0]}</label
-			>
-			<input
-				type="range"
-				id="precision-range"
-				min="0"
-				max={precision_values.length - 1}
-				step="1"
-				bind:value={precision_index}
-				class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
-			/>
-		</div>
-	{:else if error}
-		<div class="text-center text-red-500">{error}</div>
-	{/if}
-	{#if evolution_data !== undefined}
-		<div class="flex justify-center">
-			<HistoryChart
-				color="green"
-				title="Total profits evolution overtime"
-				showTickerSelector={true}
-				defaultShown={['Total', 'Closed Positions', 'Deposits', 'P&L']}
-				dataset={evolution_data['evolution']['parts']}
-				dates={evolution_data['evolution']['dates']}
-			/>
-		</div>
-	{:else if error}
+	{#if error}
 		<div class="text-center text-red-500">{error}</div>
 	{/if}
 
@@ -240,12 +200,17 @@
 				<div
 					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
 				>
-					<BarChart
-						dataset={new Map([
-							['profit (USD)', new Array(...trades_data.profit_usd)],
-							['closed trades', new Array(...trades_data.closed_trades)]
-						])}
-						dates={trades_data.close_date}
+					<FullscreenWrapper
+						title="Closed trades returns"
+						chartComponent={BarChart}
+						chartProps={{
+							dataset: new Map([
+								['profit (USD)', new Array(...trades_data.profit_usd)],
+								['closed trades', new Array(...trades_data.closed_trades)]
+							]),
+							dates: trades_data.close_date,
+							title: ''
+						}}
 					/>
 					<div class="flex flex-col items-center">
 						<label for="precision-range" class="mb-2 block text-white"
@@ -278,13 +243,17 @@
 				<div
 					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
 				>
-					<HistoryChart
-						color="green"
+					<FullscreenWrapper
 						title="Total profits evolution overtime"
-						showTickerSelector={true}
-						defaultShown={['total', 'Closed Positions']}
-						dataset={evolution_data['evolution']['parts']}
-						dates={evolution_data['evolution']['dates']}
+						chartComponent={HistoryChart}
+						chartProps={{
+							color: 'green',
+							title: '',
+							showTickerSelector: true,
+							defaultShown: ['Total', 'Closed Positions', 'Deposits', 'P&L'],
+							dataset: evolution_data.evolution.parts,
+							dates: evolution_data.evolution.dates
+						}}
 					/>
 				</div>
 			{/if}

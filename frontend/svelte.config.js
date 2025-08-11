@@ -14,6 +14,9 @@ const config = {
 		adapter: adapter({
 			out: 'build'
 		})
+	},
+	vitePlugin: {
+		inspector: true
 	}
 };
 

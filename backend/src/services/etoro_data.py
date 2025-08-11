@@ -414,6 +414,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
     _all_data = _all_data.rename(columns={"Amount": "Deposits", "total": "Total"})
 
     _all_data["P&L"] = _all_data["Total"] - _all_data["Deposits"]
+    _all_data = _all_data.fillna(0)
 
     parts = {
         str(k): [float(x) for x in v]
