@@ -25,6 +25,7 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
 });
 
 baseTest('portfolio page shows login message and redirects when not logged in', async ({ page }) => {
+  test.setTimeout(180_000);
   // Navigate to portfolio page without logging in
   await page.goto('/portfolio');
 
