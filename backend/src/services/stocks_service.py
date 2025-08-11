@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from src import models
 from src.database import bloomberg_repository, stocks_repository
-from src.services.task_manager import task_manager
+from src.services.task_manager import TaskProgress, task_manager
 
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
@@ -201,7 +201,7 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_e
 
     def _run_analysis(task_id: str) -> dict[str, list[str]]:
         def progress_callback(step_name: str, step_number: int, step_count: int) -> None:
-            task_manager.update_progress(task_id, step_name, step_number, step_count)
+            task_manager.update_progress(task_id, TaskProgress(step_name, step_number, step_count))
 
         return extract_closed_position(file_path, time_unit=query.precision, progress_callback=progress_callback)
 
@@ -221,8 +221,8 @@ def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, use
     task_id = task_manager.create_task()
 
     def _run_analysis(task_id: str) -> models.EtoroEvolutionResponse:
-        def progress_callback(step_name: str, step_number: int, step_count: int) -> None:
-            task_manager.update_progress(task_id, step_name, step_number, step_count)
+        def progress_callback(new_progress: TaskProgress) -> None:
+            task_manager.update_progress(task_id, new_progress)
 
         evolution = extract_portfolio_evolution(file_path, progress_callback=progress_callback)
         return models.EtoroEvolutionResponse(evolution=evolution)

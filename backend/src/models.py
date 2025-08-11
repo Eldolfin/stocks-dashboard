@@ -1,8 +1,15 @@
+from __future__ import annotations
+
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from flask_login import UserMixin
-from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from flask_openapi3 import FileStorage
+
+    from src.services import task_manager
 
 
 class User(UserMixin):
@@ -422,6 +429,7 @@ class TaskProgressResponse(BaseModel):
     step_name: str
     step_number: int
     step_count: int
+    sub_task: TaskProgressResponse | None = None
 
 
 class TaskStatusResponse(BaseModel):
@@ -493,3 +501,15 @@ class TaskResultResponse(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     result: dict | None = None
+
+
+# Convertors
+def task_progress_to_response(progress: task_manager.TaskProgress | None) -> TaskProgressResponse | None:
+    if progress is None:
+        return None
+    return TaskProgressResponse(
+        step_number=progress.step_number,
+        step_count=progress.step_count,
+        step_name=progress.step_name,
+        sub_task=task_progress_to_response(progress.sub_task),
+    )

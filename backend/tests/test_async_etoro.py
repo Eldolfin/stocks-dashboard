@@ -26,17 +26,16 @@ def test_async_etoro_analysis_file_not_found(fake_app: Flask) -> None:
         stocks_service.analyze_etoro_excel_by_name_async(query, "test@example.com")
 
 
-def test_async_etoro_evolution_file_not_found(fake_app):
+def test_async_etoro_evolution_file_not_found(fake_app) -> None:
     query = models.EtoroEvolutionQuery(filename="nonexistent.xlsx")
 
-    with fake_app.app_context():
-        with pytest.raises(FileNotFoundError):
-            stocks_service.analyze_etoro_evolution_by_name_async(query, "test@example.com")
+    with fake_app.app_context(), pytest.raises(FileNotFoundError):
+        stocks_service.analyze_etoro_evolution_by_name_async(query, "test@example.com")
 
 
 @patch("src.services.stocks_service.Path")
 @patch("src.services.stocks_service.extract_closed_position")
-def test_async_etoro_analysis_success(mock_extract, mock_path, fake_app):
+def test_async_etoro_analysis_success(mock_extract, mock_path, fake_app) -> None:
     mock_path.exists.return_value = True
     mock_extract.return_value = {"test": ["data"]}
 
@@ -59,7 +58,7 @@ def test_async_etoro_analysis_success(mock_extract, mock_path, fake_app):
 
 @patch("src.services.stocks_service.Path")
 @patch("src.services.stocks_service.extract_portfolio_evolution")
-def test_async_etoro_evolution_success(mock_extract, mock_path, fake_app):
+def test_async_etoro_evolution_success(mock_extract, mock_path, fake_app) -> None:
     mock_path.exists.return_value = True
     mock_evolution = models.EtoroEvolutionInner(dates=["2023-01-01"], parts={"test": [1.0]})
     mock_extract.return_value = mock_evolution
@@ -79,21 +78,3 @@ def test_async_etoro_evolution_success(mock_extract, mock_path, fake_app):
     args, kwargs = mock_extract.call_args
     assert "progress_callback" in kwargs
     assert callable(kwargs["progress_callback"])
-
-
-def test_progress_callback_functionality():
-    from src.services.etoro_data import extract_closed_position
-
-    task_id = task_manager.create_task()
-
-    def mock_progress_callback(step_name: str, step_number: int, step_count: int):
-        task_manager.update_progress(task_id, step_name, step_number, step_count)
-
-    mock_progress_callback("Test step", 2, 4)
-
-    task = task_manager.get_task(task_id)
-    assert task is not None
-    assert task.progress is not None
-    assert task.progress.step_name == "Test step"
-    assert task.progress.step_number == 2
-    assert task.progress.step_count == 4

@@ -1,9 +1,8 @@
 """Tests for task manager functionality."""
 
 import time
-from unittest.mock import patch
 
-from src.services.task_manager import TaskManager, TaskStatus
+from src.services.task_manager import TaskManager, TaskProgress, TaskStatus
 
 
 def test_task_creation() -> None:
@@ -22,7 +21,7 @@ def test_task_progress_update() -> None:
     manager = TaskManager()
     task_id = manager.create_task()
 
-    manager.update_progress(task_id, "Test step", 1, 3)
+    manager.update_progress(task_id, TaskProgress("Test step", 1, 3))
 
     task = manager.get_task(task_id)
     assert task is not None
@@ -86,7 +85,8 @@ def test_run_task_with_exception() -> None:
     task_id = manager.create_task()
 
     def test_func(task_id: str) -> str:
-        raise ValueError("Test exception")
+        msg = "Test exception"
+        raise ValueError(msg)
 
     manager.run_task(task_id, test_func)
 

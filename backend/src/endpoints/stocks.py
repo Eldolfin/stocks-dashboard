@@ -112,11 +112,7 @@ def get_task_status(path: models.TaskIdPath):
 
     progress = None
     if task.progress:
-        progress = models.TaskProgressResponse(
-            step_name=task.progress.step_name,
-            step_number=task.progress.step_number,
-            step_count=task.progress.step_count,
-        )
+        progress = models.task_progress_to_response(task.progress)
 
     status_response = models.TaskStatusResponse(status=task.status.value, progress=progress, error=task.error)
     return status_response.dict(), 200

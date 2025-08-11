@@ -7,6 +7,7 @@ import yfinance as yf
 import yfinance_cache as yfc
 
 from src import models
+from src.services.task_manager import TaskProgress
 
 
 def column_date_to_timestamp(column: pd.Series) -> pd.Series:
@@ -58,16 +59,16 @@ def extract_closed_position(
 
 
 def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
-    etoro_statement_file: Path, progress_callback: Callable[[str, int, int], None]
+    etoro_statement_file: Path, progress_callback: Callable[[TaskProgress], None]
 ) -> models.EtoroEvolutionInner:
     """Extract portfolio evolution with optional progress reporting."""
     total_steps = 6
 
-    progress_callback("Reading Excel file", 1, total_steps)
+    progress_callback(TaskProgress("Reading Excel file", 1, total_steps))
 
     excel = pd.read_excel(etoro_statement_file, sheet_name=None)
 
-    progress_callback("Processing closed positions", 2, total_steps)
+    progress_callback(TaskProgress("Processing closed positions", 2, total_steps))
 
     closed = excel["Closed Positions"]
     closed["Close Date"] = column_date_to_timestamp(closed["Close Date"])
@@ -77,7 +78,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
     closed = closed.resample("D").agg({"Profit(USD)": "sum"}).fillna(0)
     closed["Cumulative Profit"] = closed["Profit(USD)"].cumsum()
 
-    progress_callback("Processing open positions", 3, total_steps)
+    progress_callback(TaskProgress("Processing open positions", 3, total_steps))
 
     activity = excel["Account Activity"]
     activity["Date"] = column_date_to_timestamp(activity["Date"])
@@ -160,7 +161,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
 
         shares_per_ticker[tick] = _ticker_positions
 
-    progress_callback("Fetching market data", 4, total_steps)
+    progress_callback(TaskProgress("Fetching market data", 4, total_steps))
 
     yahoo_data = {}
     for _details in still_open["Details"].unique():
@@ -363,7 +364,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
         else:
             print(f"No data found for {ticker}")
 
-    progress_callback("Combining portfolio data", 5, total_steps)
+    progress_callback(TaskProgress("Combining portfolio data", 5, total_steps))
 
     all_combined_data = {}
     for _ticker_name, _ticker in shares_per_ticker.items():
@@ -379,7 +380,7 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
     for _stock, _df in all_combined_data.items():
         all_combined_data_filled[_stock] = _df.ffill()
 
-    progress_callback("Finalizing evolution", 6, total_steps)
+    progress_callback(TaskProgress("Finalizing evolution", 6, total_steps))
 
     _all_data = pd.DataFrame()
     all_profits = dict(all_combined_data_filled)

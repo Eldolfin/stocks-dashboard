@@ -1412,6 +1412,8 @@ export interface components {
 			step_name: string;
 			/** Step Number */
 			step_number: number;
+			/** @default null */
+			sub_task: components['schemas']['TaskProgressResponse'] | null;
 		};
 		/**
 		 * TaskResultResponse

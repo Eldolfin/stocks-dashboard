@@ -167,12 +167,14 @@ def test_analyze_etoro_excel_by_name(logged_in_session, etoro_excel_file) -> Non
 
         if status_data["status"] == "completed":
             break
-        elif status_data["status"] == "failed":
-            assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+        if status_data["status"] == "failed":
+            msg = f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+            raise AssertionError(msg)
 
         time.sleep(1)
     else:
-        assert False, "Task did not complete within timeout"
+        msg = "Task did not complete within timeout"
+        raise AssertionError(msg)
 
     # Verify progress was reported during execution
     assert progress_seen, "No progress updates were seen during task execution"
@@ -233,12 +235,14 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
 
         if status_data["status"] == "completed":
             break
-        elif status_data["status"] == "failed":
-            assert False, f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+        if status_data["status"] == "failed":
+            msg = f"Task failed with error: {status_data.get('error', 'Unknown error')}"
+            raise AssertionError(msg)
 
         time.sleep(1)
     else:
-        assert False, "Task did not complete within timeout"
+        msg = "Task did not complete within timeout"
+        raise AssertionError(msg)
 
     # Verify progress was reported during execution
     assert progress_seen, "No progress updates were seen during task execution"
@@ -260,10 +264,10 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     )
 
 
-def test_split_factor_calculation():
+def test_split_factor_calculation() -> None:
     """Test split factor calculation logic independently."""
+
     import pandas as pd
-    from pathlib import Path
 
     # This is a unit test for the split logic without needing full eToro data
     # Create a simple test scenario
@@ -287,7 +291,7 @@ def test_split_factor_calculation():
     assert split_factors.loc[pd.Timestamp("2024-06-02")] == 1.0  # After split: 1
 
 
-def test_split_details_parsing():
+def test_split_details_parsing() -> None:
     """Test parsing of split details from various formats."""
     test_cases = [
         ("Split 10:1", 10.0),
