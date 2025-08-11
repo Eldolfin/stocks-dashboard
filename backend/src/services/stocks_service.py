@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from src import models
 from src.database import bloomberg_repository, stocks_repository
-from src.services.task_manager import task_manager
+from src.services.task_manager import TaskProgress, task_manager
 
 from .etoro_data import extract_closed_position, extract_portfolio_evolution
 from .intervals import duration_to_interval, interval_to_duration, now
@@ -188,17 +188,7 @@ def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
     return models.EtoroReportsResponse(reports=reports)
 
 
-def analyze_etoro_excel_by_name(query: models.EtoroAnalysisByNameQuery, user_email: str) -> dict | None:
-    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
-    file_path = Path(user_etoro_folder) / query.filename
-
-    if not Path.exists(file_path):
-        return None
-
-    return extract_closed_position(file_path, time_unit=query.precision)
-
-
-def analyze_etoro_excel_by_name_async(query: models.EtoroAnalysisByNameQuery, user_email: str) -> str:
+def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_email: str) -> str:
     """Start async analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -211,7 +201,7 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroAnalysisByNameQuery, us
 
     def _run_analysis(task_id: str) -> dict[str, list[str]]:
         def progress_callback(step_name: str, step_number: int, step_count: int) -> None:
-            task_manager.update_progress(task_id, step_name, step_number, step_count)
+            task_manager.update_progress(task_id, TaskProgress(step_name, step_number, step_count))
 
         return extract_closed_position(file_path, time_unit=query.precision, progress_callback=progress_callback)
 
@@ -219,19 +209,7 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroAnalysisByNameQuery, us
     return task_id
 
 
-def analyze_etoro_evolution_by_name(
-    query: models.EtoroAnalysisByNameQuery, user_email: str
-) -> models.EtoroEvolutionResponse | None:
-    user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
-    file_path = Path(user_etoro_folder) / query.filename
-
-    if not Path.exists(file_path):
-        return None
-
-    return models.EtoroEvolutionResponse(evolution=extract_portfolio_evolution(file_path))
-
-
-def analyze_etoro_evolution_by_name_async(query: models.EtoroAnalysisByNameQuery, user_email: str) -> str:
+def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, user_email: str) -> str:
     """Start async evolution analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -243,8 +221,8 @@ def analyze_etoro_evolution_by_name_async(query: models.EtoroAnalysisByNameQuery
     task_id = task_manager.create_task()
 
     def _run_analysis(task_id: str) -> models.EtoroEvolutionResponse:
-        def progress_callback(step_name: str, step_number: int, step_count: int) -> None:
-            task_manager.update_progress(task_id, step_name, step_number, step_count)
+        def progress_callback(new_progress: TaskProgress) -> None:
+            task_manager.update_progress(task_id, new_progress)
 
         evolution = extract_portfolio_evolution(file_path, progress_callback=progress_callback)
         return models.EtoroEvolutionResponse(evolution=evolution)

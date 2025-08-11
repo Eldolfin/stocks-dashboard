@@ -4,4 +4,4 @@ indent-width = 4
 
 [lint]
 select = ["ALL"]
-ignore = ["FA", "D", "TD", "FIX", "A002", "N815", "TD003", "T201", "S101", "COM812", "BLE001"]
+ignore = ["FA", "D", "TD", "FIX", "A002", "N815", "TD003", "T201", "S101", "COM812", "BLE001", "TC001", "TC002"]

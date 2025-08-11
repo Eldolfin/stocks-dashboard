@@ -1,3 +1,5 @@
 __pycache__
 .venv
 venv
+finance_dashboard_api.egg-info
+finance_dashboard_api
