@@ -12,10 +12,10 @@ The project runs with hot reload enabled via Docker, so there's no need to manua
 - Single test: `uv run pytest tests/test_file.py::test_name`
 
 ### Frontend (Svelte/TypeScript)
-- Lint: `npm run check` (runs svelte-check)
-- Format: `npm run format` (runs prettier)
-- Type check: `npm run test:ts` (runs tsc --noEmit)
-- Dev server: `npm run dev`
+- Lint: `deno task check` (runs svelte-check)
+- Format: `deno task format` (runs prettier)
+- Type check: `deno task test:ts` (runs tsc --noEmit)
+- Dev server: `deno task dev`
 
 ### E2E Tests
 - Run tests: `npx playwright test`

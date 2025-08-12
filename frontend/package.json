@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -12,7 +12,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch && tsc --noEmit",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"generate-api-types": "npx openapi-typescript http://localhost:5000/api/openapi/openapi.json -o src/generated/api.d.ts && npm run format",
+		"generate-api-types": "npx openapi-typescript http://localhost:5000/api/openapi/openapi.json -o src/generated/api.d.ts && deno task format",
 		"test:ts": "tsc --noEmit"
 	},
 	"devDependencies": {
@@ -45,6 +45,7 @@
 	},
 	"dependencies": {
 		"@floating-ui/dom": "^1.7.3",
+		"@kurkle/color": "^0.4.0",
 		"@sveltejs/kit": "^2.16.0",
 		"chart.js": "^4.4.8",
 		"chartjs-adapter-luxon": "^1.3.1",

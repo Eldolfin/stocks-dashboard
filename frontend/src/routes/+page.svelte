@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { client } from '$lib/typed-fetch-client';
-	import { formatCurrency, formatPercent } from '$lib/format-utils';
+	import { formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';
 	import { SvelteSet, SvelteMap, SvelteURLSearchParams } from 'svelte/reactivity';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	type Ticker = components['schemas']['Quote'];
 

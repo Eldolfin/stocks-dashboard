@@ -6,14 +6,14 @@ The project runs with hot reload enabled via Docker, so there's no need to manua
 
 ### Frontend (Svelte/TypeScript)
 
-- Lint: `npm run check` (runs svelte-check)
-- Format: `npm run format` (runs prettier)
-- Type check: `npm run test:ts` (runs tsc --noEmit)
-- Generate API types: `npm run generate-api-types`
+- Lint: `deno task check` (runs svelte-check)
+- Format: `deno task format` (runs prettier)
+- Type check: `deno task test:ts` (runs tsc --noEmit)
+- Generate API types: `deno task generate-api-types`
 
 ### Running Single Tests
 
-- Use `npm run test:ts` for TypeScript type checking
+- Use `deno task test:ts` for TypeScript type checking
 
 ## Code Style Guidelines
 
