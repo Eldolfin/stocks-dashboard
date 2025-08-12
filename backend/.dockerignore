@@ -6,7 +6,6 @@ finance_dashboard_api
 bloomberg-historical.py
 build
 completions
-data
 Dockerfile.*
 fast_search.py
 GEMINI.md
