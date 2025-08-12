@@ -258,9 +258,11 @@ def test_analyze_etoro_evolution_by_name(logged_in_session, etoro_excel_file) ->
     assert "evolution" in response_data
     assert isinstance(response_data["evolution"], dict)
     assert "2025-08-01" in response_data["evolution"]["dates"]
+    # Value is not fixed because we use today's price for forex convertion atm
+    # FIXME: use precise day-to-day forex prices
     assert round(
         response_data["evolution"]["parts"]["Total"][response_data["evolution"]["dates"].index("2025-08-01")]
-    ) in [1195, 1196]
+    ) in range(1190, 1200)
 
 
 def test_split_factor_calculation() -> None:
