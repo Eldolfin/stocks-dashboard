@@ -81,6 +81,6 @@ jobs:
         node-version: lts/*
     - uses: taiki-e/install-action@just
     - name: Install frontend dependencies
-      run: cd frontend && npm ci
+      run: cd frontend && deno install
     - name: Run frontend lint
       run: just frontend lint
