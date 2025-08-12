@@ -14,6 +14,182 @@ def column_date_to_timestamp(column: pd.Series) -> pd.Series:
     return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
+def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[str | None, float, bool]:
+    """Map eToro ticker details to Yahoo Finance ticker symbol.
+    
+    Returns:
+        tuple: (yahoo_ticker, scale_factor, is_crypto) or (None, 1, False) if unsupported
+    """
+    [ticker, market] = details.split("/")
+    ticker = ticker.removesuffix(".US").removesuffix(".EXT")
+    scale = 1
+    is_crypto = still_open.loc[still_open["Details"] == details, "Asset type"].iloc[0] == "Crypto"
+    
+    if is_crypto:
+        return f"{ticker}-{market}", scale, True
+    elif ticker == "BRK.B":
+        return "BRK-B", scale, False
+    elif ticker == "NSDQ100":
+        return "^NDX", scale, False
+    elif ticker == "SPX500":
+        return "^SPX", scale, False
+    elif market != "USD":
+        if market == "GBX":
+            scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "BT.l":
+                    ticker = "BT-A.L"
+        elif market == "EUR":
+            scale = yfc.Ticker("EURUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "ACA" | "BNP" | "ENGI":
+                    ticker += ".PA"
+                case "NN.NV" | "ASRNL.NV":
+                    ticker = ticker[:-3] + ".AS"
+                case "STLAM.MI":
+                    ticker = "STLAM.MI"
+                case "BKT":
+                    ticker = "BKT.MC"
+                case "SAN.MC":
+                    ticker = "SAN.MC"
+                case "PAH3.DE":
+                    ticker = "PAH3.DE"
+                case "REP.MC":
+                    ticker = "REP.MC"
+                case "DG":
+                    ticker = "DG.PA"  # Vinci SA
+                case "AIR":
+                    ticker = "AIR.PA"  # Airbus
+                case "AMUN.PA":
+                    ticker = "AMUN.PA"
+                case "AZM":
+                    ticker = "AZM.MI"  # Azimut
+                case "EDP.LSB":
+                    ticker = "EDP.LS"
+                case "DTE.de":
+                    ticker = "DTE.DE"
+                case "RWE.de":
+                    ticker = "RWE.DE"
+                case "AC":
+                    ticker = "AC.PA"  # Accor
+                case "SIE.de":
+                    ticker = "SIE.DE"
+                case "AKZA.NV":
+                    ticker = "AKZA.AS"
+                case "ABI.BR":
+                    ticker = "ABI.BR"
+                case "VNA.DE":
+                    ticker = "VNA.DE"
+                case "CLNX.MC":
+                    ticker = "CLNX.MC"
+                case "CA":
+                    ticker = "CA.PA"  # Carrefour
+                case "GFC.PA":
+                    ticker = "GFC.PA"
+                case "ENEL":
+                    ticker = "ENEL.MI"
+                case "SU":
+                    ticker = "SU.PA"  # Schneider Electric
+                case "ORA":
+                    ticker = "ORA.PA"
+                case "WCH.DE":
+                    ticker = "WCH.DE"
+                case "AKE.PA":
+                    ticker = "AKE.PA"
+                case "MRL.MC":
+                    ticker = "MRL.MC"
+                case "TEP.PA":
+                    ticker = "TEP.PA"
+                case "FGR.PA":
+                    ticker = "FGR.PA"
+                case "SAN.PA":
+                    ticker = "SAN.PA"
+                case "ES.PA":
+                    ticker = "ES.PA"
+                case "INGA.NV":
+                    ticker = "INGA.AS"
+                case "DAN.MI":
+                    ticker = "DAN.MI"
+                case "AALB.NV":
+                    ticker = "AALB.AS"
+                case "ELIS.PA":
+                    ticker = "ELIS.PA"
+                case "RF.PA":
+                    ticker = "RF.PA"
+                case "NEXI.MI":
+                    ticker = "NEXI.MI"
+                case "SW.PA":
+                    ticker = "SW.PA"
+                case "ISP":
+                    ticker = "ISP.MI"
+                case _:
+                    return None, scale, False
+        elif market == "HKD":
+            scale = yfc.Ticker("HKDUSD=X").fast_info["lastPrice"]
+            ticker = ticker[-7:]  # remove eToro's prefix
+        elif market == "SEK":
+            scale = yfc.Ticker("SEKUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "NDA_SE.ST":
+                    ticker = "0N4T.IL"  # Nordea Bank via LSE
+                case "EVO.ST":
+                    ticker = "EVO.ST"
+                case _:
+                    return None, scale, False
+        elif market == "CHF":
+            scale = yfc.Ticker("CHFUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "BAER":
+                    ticker = "BAER.SW"
+                case "CLN.ZU":
+                    ticker = "CLN.SW"
+                case "USD":
+                    ticker = "CHFUSD=X"
+                    scale = 1
+                case _:
+                    return None, scale, False
+        elif market == "AUD":
+            scale = yfc.Ticker("AUDUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "CLW.ASX":
+                    ticker = "CLW.AX"
+                case "PLS.ASX":
+                    ticker = "PLS.AX"
+                case _:
+                    return None, scale, False
+        elif market == "NOK":
+            scale = yfc.Ticker("NOKUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "NAS":
+                    ticker = "NAS.OL"
+                case "HAUTO.OL":
+                    ticker = "HAUTO.OL"
+                case "WAWI.OL":
+                    ticker = "WAWI.OL"
+                case _:
+                    return None, scale, False
+        elif market == "DKK":
+            scale = yfc.Ticker("DKKUSD=X").fast_info["lastPrice"]
+            match ticker:
+                case "ISS":
+                    ticker = "ISS.CO"
+                case "DANSKE":
+                    ticker = "DANSKE.CO"
+                case _:
+                    return None, scale, False
+        elif market == "JPY":
+            scale = yfc.Ticker("JPYUSD=X").fast_info["lastPrice"]
+            # No JPY tickers in your list except CAD/USD placeholders
+        elif market == "SGD":
+            scale = yfc.Ticker("SGDUSD=X").fast_info["lastPrice"]
+            if ticker == "USD":
+                ticker = "SGDUSD=X"
+        else:
+            return None, scale, False
+    
+    return ticker, scale, is_crypto
+
+
 def extract_closed_position(
     etoro_statement_file: Path, time_unit: str, progress_callback: Callable[[str, int, int], None]
 ) -> dict[str, list[str]]:
@@ -163,216 +339,83 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
 
     progress_callback(TaskProgress("Fetching market data", 4, total_steps))
 
-    yahoo_data = {}
+    # Pre-process all tickers to get Yahoo Finance symbols and metadata
     tickers_to_fetch = still_open["Details"].unique()
-    total_tickers = len(tickers_to_fetch)
-    for i, _details in enumerate(tickers_to_fetch):
-        progress_callback(
-            TaskProgress(
-                "Fetching market data",
-                4,
-                total_steps,
-                sub_task=TaskProgress(f"Fetching ticker {_details}", i, total_tickers),
-            )
-        )
+    ticker_metadata = {}
+    yahoo_symbols = []
+    crypto_symbols = []
+    
+    for _details in tickers_to_fetch:
         first_open_date = still_open[still_open["Details"] == _details].index.min()
-        [ticker, market] = _details.split("/")
-        ticker = ticker.removesuffix(".US").removesuffix(".EXT")
-        scale = 1
-        is_crypto = still_open.loc[still_open["Details"] == _details, "Asset type"].iloc[0] == "Crypto"
-        if is_crypto:
-            ticker = f"{ticker}-{market}"
-        elif ticker == "BRK.B":
-            ticker = "BRK-B"
-        elif ticker == "NSDQ100":
-            ticker = "^NDX"
-        elif ticker == "SPX500":
-            ticker = "^SPX"
-        elif market != "USD":
-            if market == "GBX":
-                scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "BT.l":
-                        ticker = "BT-A.L"
-            elif market == "EUR":
-                scale = yfc.Ticker("EURUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "ACA" | "BNP" | "ENGI":
-                        ticker += ".PA"
-                    case "NN.NV" | "ASRNL.NV":
-                        ticker = ticker[:-3] + ".AS"
-                    case "STLAM.MI":
-                        ticker = "STLAM.MI"
-                    case "BKT":
-                        ticker = "BKT.MC"
-                    case "SAN.MC":
-                        ticker = "SAN.MC"
-                    case "PAH3.DE":
-                        ticker = "PAH3.DE"
-
-                    case "REP.MC":
-                        ticker = "REP.MC"
-                    case "DG":
-                        ticker = "DG.PA"  # Vinci SA
-                    case "AIR":
-                        ticker = "AIR.PA"  # Airbus
-                    case "AMUN.PA":
-                        ticker = "AMUN.PA"
-                    case "AZM":
-                        ticker = "AZM.MI"  # Azimut
-                    case "EDP.LSB":
-                        ticker = "EDP.LS"
-                    case "DTE.de":
-                        ticker = "DTE.DE"
-                    case "RWE.de":
-                        ticker = "RWE.DE"
-                    case "AC":
-                        ticker = "AC.PA"  # Accor
-                    case "SIE.de":
-                        ticker = "SIE.DE"
-                    case "AKZA.NV":
-                        ticker = "AKZA.AS"
-                    case "ABI.BR":
-                        ticker = "ABI.BR"
-                    case "VNA.DE":
-                        ticker = "VNA.DE"
-                    case "CLNX.MC":
-                        ticker = "CLNX.MC"
-                    case "CA":
-                        ticker = "CA.PA"  # Carrefour
-                    case "GFC.PA":
-                        ticker = "GFC.PA"
-                    case "ENEL":
-                        ticker = "ENEL.MI"
-                    case "SU":
-                        ticker = "SU.PA"  # Schneider Electric
-                    case "ORA":
-                        ticker = "ORA.PA"
-                    case "WCH.DE":
-                        ticker = "WCH.DE"
-                    case "AKE.PA":
-                        ticker = "AKE.PA"
-                    case "MRL.MC":
-                        ticker = "MRL.MC"
-                    case "TEP.PA":
-                        ticker = "TEP.PA"
-                    case "FGR.PA":
-                        ticker = "FGR.PA"
-                    case "SAN.PA":
-                        ticker = "SAN.PA"
-                    case "ES.PA":
-                        ticker = "ES.PA"
-                    case "INGA.NV":
-                        ticker = "INGA.AS"
-                    case "DAN.MI":
-                        ticker = "DAN.MI"
-                    case "AALB.NV":
-                        ticker = "AALB.AS"
-                    case "ELIS.PA":
-                        ticker = "ELIS.PA"
-                    case "RF.PA":
-                        ticker = "RF.PA"
-                    case "NEXI.MI":
-                        ticker = "NEXI.MI"
-                    case "SW.PA":
-                        ticker = "SW.PA"
-                    case "ISP":
-                        ticker = "ISP.MI"
-                    case _:
-                        continue
-
-            elif market == "HKD":
-                scale = yfc.Ticker("HKDUSD=X").fast_info["lastPrice"]
-                ticker = ticker[-7:]  # remove eToro's prefix
-
-            elif market == "SEK":
-                scale = yfc.Ticker("SEKUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "NDA_SE.ST":
-                        ticker = "0N4T.IL"  # Nordea Bank via LSE
-                    case "EVO.ST":
-                        ticker = "EVO.ST"
-                    case _:
-                        continue
-
-            elif market == "CHF":
-                scale = yfc.Ticker("CHFUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "BAER":
-                        ticker = "BAER.SW"
-                    case "CLN.ZU":
-                        ticker = "CLN.SW"
-                    case "USD":
-                        ticker = "CHFUSD=X"
-                        scale = 1
-                    case _:
-                        continue
-
-            elif market == "AUD":
-                scale = yfc.Ticker("AUDUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "CLW.ASX":
-                        ticker = "CLW.AX"
-                    case "PLS.ASX":
-                        ticker = "PLS.AX"
-                    case _:
-                        continue
-
-            elif market == "NOK":
-                scale = yfc.Ticker("NOKUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "NAS":
-                        ticker = "NAS.OL"
-                    case "HAUTO.OL":
-                        ticker = "HAUTO.OL"
-                    case "WAWI.OL":
-                        ticker = "WAWI.OL"
-                    case _:
-                        continue
-
-            elif market == "DKK":
-                scale = yfc.Ticker("DKKUSD=X").fast_info["lastPrice"]
-                match ticker:
-                    case "ISS":
-                        ticker = "ISS.CO"
-                    case "DANSKE":
-                        ticker = "DANSKE.CO"
-                    case _:
-                        continue
-
-            elif market == "JPY":
-                scale = yfc.Ticker("JPYUSD=X").fast_info["lastPrice"]
-                # No JPY tickers in your list except CAD/USD placeholders
-
-            elif market == "SGD":
-                scale = yfc.Ticker("SGDUSD=X").fast_info["lastPrice"]
-                if ticker == "USD":
-                    ticker = "SGDUSD=X"
-
+        yahoo_ticker, scale, is_crypto = _map_etoro_ticker_to_yahoo(_details, still_open)
+        
+        if yahoo_ticker is not None:
+            ticker_metadata[_details] = {
+                'yahoo_symbol': yahoo_ticker,
+                'scale': scale,
+                'is_crypto': is_crypto,
+                'first_open_date': first_open_date
+            }
+            if is_crypto:
+                crypto_symbols.append(yahoo_ticker)
             else:
-                continue
+                yahoo_symbols.append(yahoo_ticker)
 
-        history = None
-        try:
-            # HACK: for some reason yfc corrects the price of some non US currency
-            # (ex it scales GBX by 1/100 because it's pens) but it returns bad data
-            # for crypto so we use regular yahoo finance for cryptos
-            ticker_data = yf.Ticker(ticker) if is_crypto else yfc.Ticker(ticker)
-            # Fetch historical data since the company's IPO or listing date
-            history = ticker_data.history(
-                start=first_open_date.strftime("%Y-%m-%d"),
-                end=pd.Timestamp.now().strftime("%Y-%m-%d"),
-            )
-        except Exception as e:
-            print(f"Could not fetch data for {ticker}: {e}")
-            continue
-        if not history.empty:
-            history = history[["Close"]]
-            history.loc[:, "Close"] = history.loc[:, "Close"] * scale
-
-            yahoo_data[_details] = history
-        else:
-            print(f"No data found for {ticker}")
+    # Find the earliest start date across all tickers
+    if ticker_metadata:
+        earliest_date = min(meta['first_open_date'] for meta in ticker_metadata.values())
+        start_date = earliest_date.strftime("%Y-%m-%d")
+        end_date = pd.Timestamp.now().strftime("%Y-%m-%d")
+        
+        # Bulk fetch all non-crypto tickers at once using yf.Tickers()
+        bulk_histories = {}
+        if yahoo_symbols:
+            try:
+                # Use bulk fetch for non-crypto symbols with yfinance_cache
+                bulk_data = yf.Tickers(yahoo_symbols).history(start=start_date, end=end_date)
+                if not bulk_data.empty and 'Close' in bulk_data.columns.get_level_values(1):
+                    for symbol in yahoo_symbols:
+                        try:
+                            symbol_data = bulk_data.xs(symbol, level=1, axis=1)
+                            if 'Close' in symbol_data.columns and not symbol_data.empty:
+                                bulk_histories[symbol] = symbol_data[['Close']]
+                        except KeyError:
+                            # Symbol not found in bulk data
+                            continue
+            except Exception as e:
+                print(f"Bulk fetch failed, falling back to individual fetches: {e}")
+        
+        # Fetch crypto symbols individually (they need different handling)
+        for symbol in crypto_symbols:
+            try:
+                ticker_data = yf.Ticker(symbol)
+                history = ticker_data.history(start=start_date, end=end_date)
+                if not history.empty:
+                    bulk_histories[symbol] = history[['Close']]
+            except Exception as e:
+                print(f"Could not fetch crypto data for {symbol}: {e}")
+        
+        # Process the bulk data to create yahoo_data with original eToro details as keys
+        yahoo_data = {}
+        for _details, metadata in ticker_metadata.items():
+            yahoo_symbol = metadata['yahoo_symbol']
+            scale = metadata['scale']
+            first_open_date = metadata['first_open_date']
+            
+            if yahoo_symbol in bulk_histories:
+                history = bulk_histories[yahoo_symbol].copy()
+                # Filter to only include data from the ticker's first open date
+                history = history[history.index >= first_open_date]
+                if not history.empty:
+                    # Apply scaling
+                    history.loc[:, "Close"] = history.loc[:, "Close"] * scale
+                    yahoo_data[_details] = history
+                else:
+                    print(f"No data found for {yahoo_symbol} after filtering")
+            else:
+                print(f"No data found for {yahoo_symbol}")
+    else:
+        yahoo_data = {}
 
     progress_callback(TaskProgress("Combining portfolio data", 5, total_steps))
 
