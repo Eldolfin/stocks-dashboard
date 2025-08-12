@@ -177,16 +177,18 @@
 		indexError = null;
 		indexComparison = null;
 		try {
-			const res = await fetch('/api/etoro/compare_to_index', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ filename: page.params.sheet_name, index_ticker: selectedIndex })
+			const res = await client.POST('/api/etoro/compare_to_index', {
+				params: {
+					query: {
+						filename: page.params.sheet_name!,
+						index_ticker: selectedIndex
+					}
+				}
 			});
-			if (!res.ok) {
-				const err = await res.json();
-				indexError = err.error || 'Failed to fetch index comparison';
+			if (!res.data) {
+				indexError = res.error || 'Failed to fetch index comparison';
 			} else {
-				indexComparison = await res.json();
+				indexComparison = res.data;
 			}
 		} catch (e) {
 			indexError = String(e);
@@ -298,10 +300,7 @@
 		<h2 class="text-lg font-semibold text-gray-800 dark:text-white">Compare with Index</h2>
 
 		<div class="mt-4">
-			<IndexDropdown
-				selected={selectedIndex}
-				onSelect={handleIndexSelect}
-			/>
+			<IndexDropdown selected={selectedIndex} onSelect={handleIndexSelect} />
 
 			{#if indexLoading}
 				<div class="mt-2 text-gray-500">Loading index data...</div>

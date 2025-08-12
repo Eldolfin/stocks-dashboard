@@ -15,7 +15,6 @@ compare_bp = APIBlueprint(
 )
 
 
-
 @compare_bp.post(
     "/compare_to_index",
     summary="Compare eToro portfolio to index",
@@ -50,4 +49,4 @@ def compare_to_index(query: CompareToIndexQuery) -> CompareToIndexResponse:
         error_message = f"Processing error: {e!s}"
         raise ValueError(error_message) from e
 
-    return CompareToIndexResponse(dates=dates, index_values=index_values)
+    return CompareToIndexResponse(dates=dates, index_values=index_values).dict()
