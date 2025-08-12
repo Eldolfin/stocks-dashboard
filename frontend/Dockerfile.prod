@@ -11,5 +11,5 @@ RUN deno task prepare
 COPY . .
 RUN deno task build
 
-CMD [ "deno", "serve", "--allow-env", "--allow-read", "--allow-net", "build/index.js" ]
+CMD [ "deno", "--allow-env", "--allow-read", "--allow-net", "build/index.js" ]
 HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
