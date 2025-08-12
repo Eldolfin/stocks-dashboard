@@ -80,6 +80,9 @@ jobs:
       with:
         node-version: lts/*
     - uses: taiki-e/install-action@just
+    - uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.x
     - name: Install frontend dependencies
       run: cd frontend && deno install
     - name: Run frontend lint
