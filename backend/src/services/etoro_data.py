@@ -405,7 +405,10 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
             if yahoo_symbol in bulk_histories:
                 history = bulk_histories[yahoo_symbol].copy()
                 # Filter to only include data from the ticker's first open date
-                history = history[history.index >= first_open_date]
+                # Ensure both dates are timezone-naive for proper comparison
+                history_index_naive = pd.to_datetime(history.index).tz_localize(None)
+                first_open_date_naive = pd.to_datetime(first_open_date).tz_localize(None) if first_open_date.tz else first_open_date
+                history = history[history_index_naive >= first_open_date_naive]
                 if not history.empty:
                     # Apply scaling
                     history.loc[:, "Close"] = history.loc[:, "Close"] * scale
