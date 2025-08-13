@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { client } from '../../../../lib/typed-fetch-client';
+	import { client } from '../../../lib/typed-fetch-client';
 	import type { components } from '../../../../generated/api.js';
 	import BarChart from '$lib/components/BarChart.svelte';
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
@@ -165,7 +165,7 @@
 	}
 
 	$effect(() => {
-		const sheetName = page.params.sheet_name;
+		const sheetName = page.url.searchParams.get('sheet_name');
 		const currentPrecision = precision_values[precision_index][1];
 		if (sheetName) {
 			startTradesAnalyses(sheetName, currentPrecision);
@@ -173,7 +173,7 @@
 	});
 
 	$effect(() => {
-		const sheetName = page.params.sheet_name;
+		const sheetName = page.url.searchParams.get('sheet_name');
 		if (sheetName) {
 			startEvolutionAnalyses(sheetName);
 		}

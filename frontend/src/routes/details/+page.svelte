@@ -13,13 +13,74 @@
 	import type { components } from '../../../generated/api.js';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { client } from '$lib/typed-fetch-client';
-
-	let { data } = $props();
+	import { error } from '@sveltejs/kit';
 
 	// State for current chart data and loading
-	let currentHistory = $state(data.history as components['schemas']['TickerResponse']);
+	let currentHistory = $state(null);
 	let currentPeriod = $state($page.url.searchParams.get('period') || 'ytd');
 	let isLoadingHistory = $state(false);
+	let summary = $state(null);
+	let historical_kpis = $state(null);
+
+	const fetchData = async () => {
+		const ticker = $page.params.ticker;
+		const period = $page.url.searchParams.get('period') || 'ytd';
+
+		isLoadingHistory = true;
+		try {
+			const kpis_res = await client.GET('/api/kpis/', {
+				params: {
+					query: {
+						ticker_name: ticker
+					}
+				}
+			});
+			summary = kpis_res.data;
+
+			const history_res = await client.GET('/api/ticker/', {
+				params: {
+					query: {
+						period,
+						ticker_name: ticker
+					}
+				}
+			});
+			if (!history_res.response.ok) {
+				throw error(history_res.response.status, history_res.response.statusText);
+			}
+			currentHistory = history_res.data;
+
+			let historical_kpis_res;
+			try {
+				historical_kpis_res = await client.GET('/api/historical-kpis/', {
+				params: {
+					query: {
+						ticker_name: ticker
+					}
+				}
+			});
+			if (!historical_kpis_res.response.ok) {
+				if (historical_kpis_res.response.status === 404) {
+					historical_kpis_res = null; // No historical data found
+				} else {
+					throw error(historical_kpis_res.response.status, historical_kpis_res.response.statusText);
+				}
+			}
+		} catch (e) {
+			historical_kpis_res = null; // Handle network errors or other exceptions
+		}
+		historical_kpis = historical_kpis_res ? historical_kpis_res.data : null;
+
+		} catch (e) {
+			console.error('Failed to fetch data:', e);
+		} finally {
+			isLoadingHistory = false;
+		}
+	};
+
+	$effect(() => {
+		fetchData();
+	});
 
 	const ranges = [
 		{ label: '1 Day', value: '1d' },
@@ -27,64 +88,8 @@
 		{ label: '1 month', value: '1mo' },
 		{ label: '3 month', value: '3mo' },
 		{ label: 'YTD', value: 'ytd' },
-		{ label: '1 year', value: '1y' },
-		{ label: '3 year', value: '3y' },
+		{ label: '1 year', value: '1y' },		{ label: '3 year', value: '3y' },
 		{ label: 'MAX', value: 'max' }
-	];
-	const kpis = [
-		{
-			group: 'Valuation',
-			items: [
-				{ label: 'Previous Close', value: 'info.previousClose', format: formatCurrency },
-				{ label: 'Market Cap', value: 'info.marketCap', format: formatLargeNumber },
-				{
-					label: 'Trailing P/E',
-					value: 'info.trailingPE',
-					format: (val: number) => roundPrecision(val, 2)
-				},
-				{
-					label: 'Forward P/E',
-					value: 'info.forwardPE',
-					format: (val: number) => roundPrecision(val, 2)
-				},
-				{
-					label: 'P/E ratio',
-					value: 'main.ratioPE',
-					format: (val: number) => roundPrecision(val, 2)
-				}
-			]
-		},
-		{
-			group: 'Performance',
-			items: [
-				{ label: "Today's Range", value: 'info.regularMarketDayRange' },
-				{ label: '52-Week Range', value: 'info.fiftyTwoWeekRange' },
-				{ label: 'ROE', value: 'info.returnOnEquity', format: formatPercent },
-				{ label: 'EBITDA', value: 'info.ebitda', format: formatLargeNumber }
-			]
-		},
-		{
-			group: 'Dividends',
-			items: [
-				{ label: 'Payout Ratio', value: 'info.payoutRatio', format: formatPercent },
-				{
-					label: 'Dividend Rate',
-					value: 'info.dividendRate',
-					format: (val: number) => roundPrecision(val, 2)
-				},
-				{ label: 'Dividend Yield', value: 'info.dividendYield', format: formatPercent },
-				{ label: 'Free CF Yield', value: 'main.freeCashflowYield', format: formatPercent }
-			]
-		},
-		{
-			group: 'Growth',
-			items: [
-				{ label: 'Revenue Growth', value: 'info.revenueGrowth', format: formatPercent },
-				{ label: 'Earnings Growth', value: 'info.earningsGrowth', format: formatPercent },
-				{ label: 'Free Cash Flow', value: 'info.freeCashflow', format: formatLargeNumber },
-				{ label: 'Profit Margins', value: 'info.profitMargins', format: formatPercent }
-			]
-		}
 	];
 	const changeRange = async (newValue: string) => {
 		// Don't fetch if it's the same period
@@ -106,7 +111,7 @@
 				params: {
 					query: {
 						period: newValue,
-						ticker_name: data.ticker
+						ticker_name: $page.params.ticker
 					}
 				}
 			});
@@ -128,9 +133,6 @@
 		}
 		return obj;
 	};
-
-	const summary = data.summary as components['schemas']['KPIResponse'] | undefined;
-	const historical_kpis = data.historical_kpis as components['schemas']['HistoricalKPIs'] | null;
 
 	// Fullscreen modal state
 	let fullscreenChart: {
@@ -160,7 +162,7 @@
 	const openMainChartFullscreen = () => {
 		fullscreenChart = {
 			show: true,
-			title: `${data.ticker} - Price Chart (${currentHistory.query.period})`,
+			title: `${$page.params.ticker} - Price Chart (${currentHistory.query.period})`,
 			dataset: { price: currentHistory.candles, ...currentHistory.smas },
 			dates: currentHistory.dates,
 			color: ratioColor(currentHistory.delta)
@@ -176,20 +178,22 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{data.ticker}</h1>
-	<p
-		class="text-brand animate-fade-in mt-2 text-lg sm:text-xl"
-		style={`color: ${ratioColor(currentHistory.delta)}`}
-	>
-		{formatPercent(currentHistory.delta!)}
-	</p>
-	<p class="text-sm text-gray-400">Price / ∇</p>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{$page.params.ticker}</h1>
+	{#if currentHistory}
+		<p
+			class="text-brand animate-fade-in mt-2 text-lg sm:text-xl"
+			style={`color: ${ratioColor(currentHistory.delta)}`}
+		>
+			{formatPercent(currentHistory.delta!)}
+		</p>
+		<p class="text-sm text-gray-400">Price / ∇</p>
+	{/if}
 
 	<div
 		class="relative my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
 	>
 		<!-- Fullscreen button for main chart -->
-		{#if !isLoadingHistory}
+		{#if !isLoadingHistory && currentHistory}
 			<button
 				class="absolute top-2 right-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
 				onclick={openMainChartFullscreen}
@@ -214,13 +218,17 @@
 				></div>
 				<span class="text-gray-400">Loading chart data...</span>
 			</div>
-		{:else}
+		{:else if currentHistory}
 			<HistoryChart
 				title={`Price: ${currentHistory.query.period}`}
 				dataset={{ price: currentHistory.candles, ...currentHistory.smas }}
 				dates={currentHistory.dates}
 				color={ratioColor(currentHistory.delta)}
 			/>
+		{:else}
+			<div class="flex h-full w-full items-center justify-center text-gray-400">
+				No history data available.
+			</div>
 		{/if}
 	</div>
 

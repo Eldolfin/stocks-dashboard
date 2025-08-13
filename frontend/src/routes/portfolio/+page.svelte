@@ -1,11 +1,10 @@
 <script lang="ts">
+	export const ssr = false;
 	import { client } from '../../lib/typed-fetch-client';
 	import type { components } from '../../generated/api.js';
 	import { onMount } from 'svelte'; // Import onMount
 	import { goto } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
-
-	let { data } = $props();
 
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
@@ -46,9 +45,10 @@
 	}
 
 	// Fetch reports on component mount
-	onMount(() => {
+	onMount(async () => {
 		// Check if user is logged in, show message and redirect to login if not
-		if (!data.isLoggedIn) {
+		const { data: userData } = await client.GET('/api/user');
+		if (!userData) {
 			showLoginMessage = true;
 			// Redirect after 3 seconds to allow user to read the message
 			setTimeout(() => {
@@ -84,7 +84,7 @@
 
 	// Function to handle re-analysis of a selected report
 	async function reAnalyzeReport(reportName: string) {
-		goto(`/portfolio/analysis/${reportName}`);
+		goto(`/portfolio/analysis?sheet_name=${reportName}`);
 	}
 </script>
 

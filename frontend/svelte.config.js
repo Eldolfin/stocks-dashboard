@@ -1,3 +1,4 @@
+import "jsr:@std/dotenv/load";
 import adapterNode from '@sveltejs/adapter-node';
 import adapterStatic from '@sveltejs/adapter-static';
 
@@ -16,7 +17,7 @@ const config = {
 		adapter: Deno.env.get("SVELTE_ADAPTER") === 'static'
 			?
 			adapterStatic({
-				out: 'build-static', precompress: true,
+				out: 'build-static', precompress: true, fallback: 'index.html'
 			})
 			:
 			adapterNode({
