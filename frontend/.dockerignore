@@ -1,5 +1,13 @@
+AGENTS.md
+build
+Dockerfile.dev
+Dockerfile.prod
 .dockerignore
-.prettierignore
-.svelte-kit
+eslint.config.js
+.gitignore
+justfile
 node_modules
-Dockerfile
+.prettierignore
+.prettierrc
+README.md
+.svelte-kit

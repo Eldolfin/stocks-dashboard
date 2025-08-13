@@ -13,7 +13,7 @@ available at [wsb.eldolfin.top](https://wsb.eldolfin.top/)
 
 ### Development
 
-dependencies: just, docker, docker-compose, npm
+dependencies: just, docker, docker-compose, deno
 
 ### Pre-commit Hooks
 
