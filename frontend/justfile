@@ -13,5 +13,10 @@ install:
 lint:
 	deno task check
 
+# Regenerate api types from the running backend openapi spec
 generate-api-types:
 	deno task generate-api-types
+
+# Build static website to build-static/
+build-static:
+	SVELTE_ADAPTER=static deno task build

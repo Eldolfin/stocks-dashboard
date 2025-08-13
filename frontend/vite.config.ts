@@ -12,5 +12,4 @@ export default defineConfig({
 		target: 'esnext',
 		assetsInlineLimit: 0,
 	},
-	base: '', // forces relative paths
 });
