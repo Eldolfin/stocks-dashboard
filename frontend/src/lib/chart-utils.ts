@@ -1,4 +1,4 @@
-import colorLib, { Color, type RGBA } from '@kurkle/color';
+import colorLib, { type Color, type RGBA } from '@kurkle/color';
 
 import 'chartjs-adapter-luxon';
 

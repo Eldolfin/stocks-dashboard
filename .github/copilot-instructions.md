@@ -11,7 +11,7 @@ When adding a new feature, create new tests to validate that it works, either ba
 ### Required Tools
 - **just** - Task runner (install  `curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin/`)
 - **Docker & docker-compose** - For full development environment
-- **npm** - For frontend development (usually pre-installed)
+- **deno** - For frontend development
 - **uv** - Python package manager for backend (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
 
 ### Environment Setup
@@ -44,8 +44,8 @@ When Docker fails due to network restrictions, develop components separately:
 #### Frontend Development
 ```bash
 cd frontend
-npm install          # Takes ~45 seconds. NEVER CANCEL. Set timeout to 5+ minutes
-npm run dev          # Starts dev server at http://localhost:3000/
+deno install          # Takes ~45 seconds. NEVER CANCEL. Set timeout to 5+ minutes
+deno task dev          # Starts dev server at http://localhost:3000/
 ```
 
 #### Backend Development
@@ -66,9 +66,9 @@ just lint            # Runs both backend and frontend linting. Takes ~30 seconds
 #### Frontend Only
 ```bash
 cd frontend
-npm run lint         # Takes ~10 seconds. Checks ESLint + Prettier
-npm run check        # Takes ~15 seconds. Type checking with svelte-check
-npm run test:ts      # Takes ~5 seconds. TypeScript compilation check
+deno task lint         # Takes ~10 seconds. Checks ESLint + Prettier
+deno task check        # Takes ~15 seconds. Type checking with svelte-check
+deno task test:ts      # Takes ~5 seconds. TypeScript compilation check
 ```
 
 #### Backend Only
@@ -91,7 +91,7 @@ just watch-test      # Continuous testing. NEVER CANCEL
 #### E2E Tests (Playwright)
 ```bash
 cd tests
-npm install          # Takes ~5 seconds. NEVER CANCEL
+deno install          # Takes ~5 seconds. NEVER CANCEL
 just tests ci        # Full E2E test suite. Takes 2-10 minutes. NEVER CANCEL. Set timeout to 15+ minutes
 npx playwright test --ui  # Interactive test runner
 ```
@@ -102,7 +102,7 @@ npx playwright test --ui  # Interactive test runner
 #### Frontend Build
 ```bash
 cd frontend
-npm run build        # Takes ~20 seconds. NEVER CANCEL. Set timeout to 2+ minutes
+deno task build        # Takes ~20 seconds. NEVER CANCEL. Set timeout to 2+ minutes
 ```
 
 #### Production Docker Build
@@ -140,10 +140,10 @@ just restart-prod    # Takes 2-5 minutes. NEVER CANCEL. Set timeout to 10+ minut
 |---------|--------------|-------------------|
 | `just dev-docker` (first) | 3-15 minutes | 20+ minutes |
 | `just dev-docker` (subsequent) | 30 seconds | 5+ minutes |
-| `npm install` (frontend) | 45 seconds | 5+ minutes |
-| `npm run build` | 20 seconds | 2+ minutes |
-| `npm run lint` | 10 seconds | 30+ seconds |
-| `npm run check` | 15 seconds | 30+ seconds |
+| `deno install` (frontend) | 45 seconds | 5+ minutes |
+| `deno task build` | 20 seconds | 2+ minutes |
+| `deno task lint` | 10 seconds | 30+ seconds |
+| `deno task check` | 15 seconds | 30+ seconds |
 | `just backend test` | 30 seconds - 2 minutes | 5+ minutes |
 | `just tests ci` | 2-10 minutes | 15+ minutes |
 | `just restart-prod` | 2-5 minutes | 10+ minutes |
@@ -152,7 +152,7 @@ just restart-prod    # Takes 2-5 minutes. NEVER CANCEL. Set timeout to 10+ minut
 
 ### Key Directories
 - `backend/` - Flask API (Python 3.13, uv package manager)
-- `frontend/` - Svelte app (TypeScript, npm)
+- `frontend/` - Svelte app (TypeScript, deno)
 - `tests/` - E2E tests (Playwright)
 - `dev/` - Docker compose configurations
 - `.github/workflows/` - CI/CD pipelines
@@ -188,7 +188,7 @@ If `just dev-docker` fails with SSL/network errors:
 ### Frontend Issues
 - Check browser console for errors
 - Verify API endpoints are reachable
-- Use `npm run dev` for hot reload during development
+- Use `deno task dev` for hot reload during development
 
 ### Test Failures
 - Run single test: `cd tests && npx playwright test tests/specific-test.spec.ts`
@@ -201,7 +201,7 @@ If `just dev-docker` fails with SSL/network errors:
 
 ```bash
 just lint            # Must pass - runs ruff, mypy, ESLint, prettier
-npm run format       # Auto-fix formatting issues
+deno task format     # Auto-fix formatting issues
 just backend test    # Backend tests must pass
 ```
 

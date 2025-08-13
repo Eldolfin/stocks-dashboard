@@ -1,9 +1,8 @@
-FROM node:lts-alpine AS builder
+FROM denoland/deno:alpine
 WORKDIR /app
 RUN apk add --no-cache curl
-
 EXPOSE 3000
 
-CMD [ "sh", "-c", "npm install && npm run dev -- --host" ]
+CMD [ "sh", "-c", "deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11 && deno task dev" ]
 
 HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
