@@ -1,22 +1,33 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import FullscreenChartModal from '$lib/components/FullscreenChartModal.svelte';
-	import { page } from '$app/stores';
-	import { formatPercent, ratioColor } from '$lib/format-utils';
-	import type { components } from '../../../generated/api.js';
+	import {
+		formatCurrency,
+		formatLargeNumber,
+		formatPercent,
+		ratioColor,
+		roundPrecision
+	} from '$lib/format-utils';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { client } from '$lib/typed-fetch-client';
 	import { error } from '@sveltejs/kit';
+	import { page } from '$app/stores';
+	import type { components } from '../../generated/api.d.ts';
+	import { replaceState } from '$app/navigation';
+	type HistoryData = components['schemas']['TickerResponse'];
+	type KPIHistoryData = components['schemas']['HistoricalKPIs'];
+	type KPIData = components['schemas']['KPIResponse'];
 
 	// State for current chart data and loading
-	let currentHistory = $state(null);
+	let currentHistory = $state<null | HistoryData>(null);
+	let summary = $state<null | KPIData>(null);
+	let historical_kpis = $state<null | KPIHistoryData>(null);
 	let currentPeriod = $state($page.url.searchParams.get('period') || 'ytd');
 	let isLoadingHistory = $state(false);
-	let summary = $state(null);
-	let historical_kpis = $state(null);
+	const ticker = () => $page.url.searchParams.get('ticker')!;
+	const title = () => `${ticker()} - Price Chart (${currentPeriod})`;
 
 	const fetchData = async () => {
-		const ticker = $page.params.ticker;
 		const period = $page.url.searchParams.get('period') || 'ytd';
 
 		isLoadingHistory = true;
@@ -24,31 +35,31 @@
 			const kpis_res = await client.GET('/api/kpis/', {
 				params: {
 					query: {
-						ticker_name: ticker
+						ticker_name: ticker()
 					}
 				}
 			});
-			summary = kpis_res.data;
+			summary = kpis_res.data!;
 
 			const history_res = await client.GET('/api/ticker/', {
 				params: {
 					query: {
 						period,
-						ticker_name: ticker
+						ticker_name: ticker()
 					}
 				}
 			});
 			if (!history_res.response.ok) {
 				throw error(history_res.response.status, history_res.response.statusText);
 			}
-			currentHistory = history_res.data;
+			currentHistory = history_res.data!;
 
 			let historical_kpis_res;
 			try {
 				historical_kpis_res = await client.GET('/api/historical-kpis/', {
 					params: {
 						query: {
-							ticker_name: ticker
+							ticker_name: ticker()
 						}
 					}
 				});
@@ -65,7 +76,7 @@
 			} catch (e) {
 				historical_kpis_res = null; // Handle network errors or other exceptions
 			}
-			historical_kpis = historical_kpis_res ? historical_kpis_res.data : null;
+			historical_kpis = historical_kpis_res ? historical_kpis_res.data! : null;
 		} catch (error) {
 			console.error('Failed to fetch data:', error);
 		} finally {
@@ -87,6 +98,61 @@
 		{ label: '3 year', value: '3y' },
 		{ label: 'MAX', value: 'max' }
 	];
+	const kpis = [
+		{
+			group: 'Valuation',
+			items: [
+				{ label: 'Previous Close', value: 'info.previousClose', format: formatCurrency },
+				{ label: 'Market Cap', value: 'info.marketCap', format: formatLargeNumber },
+				{
+					label: 'Trailing P/E',
+					value: 'info.trailingPE',
+					format: (val: number) => roundPrecision(val, 2)
+				},
+				{
+					label: 'Forward P/E',
+					value: 'info.forwardPE',
+					format: (val: number) => roundPrecision(val, 2)
+				},
+				{
+					label: 'P/E ratio',
+					value: 'main.ratioPE',
+					format: (val: number) => roundPrecision(val, 2)
+				}
+			]
+		},
+		{
+			group: 'Performance',
+			items: [
+				{ label: "Today's Range", value: 'info.regularMarketDayRange' },
+				{ label: '52-Week Range', value: 'info.fiftyTwoWeekRange' },
+				{ label: 'ROE', value: 'info.returnOnEquity', format: formatPercent },
+				{ label: 'EBITDA', value: 'info.ebitda', format: formatLargeNumber }
+			]
+		},
+		{
+			group: 'Dividends',
+			items: [
+				{ label: 'Payout Ratio', value: 'info.payoutRatio', format: formatPercent },
+				{
+					label: 'Dividend Rate',
+					value: 'info.dividendRate',
+					format: (val: number) => roundPrecision(val, 2)
+				},
+				{ label: 'Dividend Yield', value: 'info.dividendYield', format: formatPercent },
+				{ label: 'Free CF Yield', value: 'main.freeCashflowYield', format: formatPercent }
+			]
+		},
+		{
+			group: 'Growth',
+			items: [
+				{ label: 'Revenue Growth', value: 'info.revenueGrowth', format: formatPercent },
+				{ label: 'Earnings Growth', value: 'info.earningsGrowth', format: formatPercent },
+				{ label: 'Free Cash Flow', value: 'info.freeCashflow', format: formatLargeNumber },
+				{ label: 'Profit Margins', value: 'info.profitMargins', format: formatPercent }
+			]
+		}
+	];
 	const changeRange = async (newValue: string) => {
 		// Don't fetch if it's the same period
 		if (currentPeriod === newValue) {
@@ -98,7 +164,7 @@
 		query.set('period', newValue);
 
 		// Update URL first
-		window.history.replaceState(history.state, '', `?${query}`);
+		replaceState(`?${query}`, {});
 
 		// Fetch new data
 		isLoadingHistory = true;
@@ -107,7 +173,7 @@
 				params: {
 					query: {
 						period: newValue,
-						ticker_name: $page.params.ticker
+						ticker_name: ticker()
 					}
 				}
 			});
@@ -154,11 +220,10 @@
 			color: '#8884d8'
 		};
 	};
-
 	const openMainChartFullscreen = () => {
 		fullscreenChart = {
 			show: true,
-			title: `${$page.params.ticker} - Price Chart (${currentHistory.query.period})`,
+			title: title(),
 			dataset: { price: currentHistory.candles, ...currentHistory.smas },
 			dates: currentHistory.dates,
 			color: ratioColor(currentHistory.delta)
@@ -172,9 +237,13 @@
 		};
 	};
 </script>
+<svelte:head>
+    <title>{title()}</title>
+</svelte:head>
+
 
 <div class="flex flex-col items-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{$page.params.ticker}</h1>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{title()}</h1>
 	{#if currentHistory}
 		<p
 			class="text-brand animate-fade-in mt-2 text-lg sm:text-xl"
@@ -191,7 +260,7 @@
 		<!-- Fullscreen button for main chart -->
 		{#if !isLoadingHistory && currentHistory}
 			<button
-				class="absolute top-2 right-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
+				class="absolute right-2 top-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
 				onclick={openMainChartFullscreen}
 				aria-label="View price chart in fullscreen"
 			>
@@ -219,7 +288,6 @@
 				title={`Price: ${currentHistory.query.period}`}
 				dataset={{ price: currentHistory.candles, ...currentHistory.smas }}
 				dates={currentHistory.dates}
-				color={ratioColor(currentHistory.delta)}
 			/>
 		{:else}
 			<div class="flex h-full w-full items-center justify-center text-gray-400">
@@ -238,7 +306,7 @@
 		{/each}
 	</div>
 
-	{#if summary !== undefined}
+	{#if summary !== null}
 		<div class="grid w-full max-w-screen-lg grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			{#each kpis as group (group.group)}
 				<div
@@ -274,7 +342,7 @@
 					<!-- Fullscreen button -->
 					{#if kpiData && kpiData.dates && kpiData.values}
 						<button
-							class="absolute top-2 right-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
+							class="absolute right-2 top-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
 							onclick={() => openFullscreen(kpiName, kpiData)}
 							aria-label="View {kpiName} in fullscreen"
 						>

@@ -39,9 +39,6 @@
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
-		console.log('filteredDataset recalculating, selectedTickers size:', selectedTickers.size);
-		console.log('selectedTickersArray:', selectedTickersArray);
-
 		if (!showTickerSelector) {
 			return dataset;
 		}
@@ -58,12 +55,10 @@
 		// Use the derived array to ensure proper reactivity tracking
 		for (const ticker of selectedTickersArray) {
 			if (dataset[ticker]) {
-				console.log('Adding ticker to chart:', ticker);
 				result[ticker] = dataset[ticker];
 			}
 		}
 
-		console.log('filteredDataset result keys:', Object.keys(result));
 		return result;
 	});
 
