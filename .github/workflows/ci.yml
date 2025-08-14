@@ -14,7 +14,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: "0.8.10"
+        version: "0.8.11"
     - name: Setup environement
       run: cp .env.example .env
     - name: Run tests
