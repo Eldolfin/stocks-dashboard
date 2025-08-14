@@ -9,7 +9,6 @@
 		title: string;
 		dataset: { [key: string]: number[] };
 		dates: string[];
-		color: string;
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
 		showLegend?: boolean;
@@ -19,7 +18,6 @@
 		title,
 		dataset,
 		dates,
-		color,
 		showTickerSelector = false,
 		defaultShown,
 		showLegend = true,
@@ -29,7 +27,7 @@
 	let chartInstance: Chart | undefined | null;
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = $state(new SvelteSet<string>());
+	let selectedTickers = new SvelteSet<string>();
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
 	let availableTickers: string[] = $derived(
 		showTickerSelector
@@ -41,9 +39,6 @@
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
-		console.log('filteredDataset recalculating, selectedTickers size:', selectedTickers.size);
-		console.log('selectedTickersArray:', selectedTickersArray);
-
 		if (!showTickerSelector) {
 			return dataset;
 		}
@@ -60,12 +55,10 @@
 		// Use the derived array to ensure proper reactivity tracking
 		for (const ticker of selectedTickersArray) {
 			if (dataset[ticker]) {
-				console.log('Adding ticker to chart:', ticker);
 				result[ticker] = dataset[ticker];
 			}
 		}
 
-		console.log('filteredDataset result keys:', Object.keys(result));
 		return result;
 	});
 

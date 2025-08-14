@@ -1,10 +1,43 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import FullscreenChartModal from '$lib/components/FullscreenChartModal.svelte';
-	import { page } from '$app/state';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { client } from '$lib/typed-fetch-client';
+	import { error } from '@sveltejs/kit';
+	import { page } from '$app/stores';
+	import type { components } from '../../generated/api';
 
-	let { data } = $props();
+	type CompareData = components["schemas"]["CompareGrowthResponse"];
+
+	let historyData = $state<null | CompareData>(null);
+	let period = $state($page.url.searchParams.get('period') || 'ytd');
+
+	const fetchData = async () => {
+		const tickersParam = $page.url.searchParams.get('tickers')!;
+		if (!tickersParam) return;
+		const tickerArray = tickersParam.split(',').map((t) => t.trim());
+
+		try {
+			const history_res = await client.GET('/api/compare_growth/', {
+				params: {
+					query: {
+						ticker_names: tickerArray,
+						period
+					}
+				}
+			});
+			if (!history_res.response.ok) {
+				throw error(history_res.response.status, history_res.response.statusText);
+			}
+			historyData = history_res.data!;
+		} catch (e) {
+			console.error('Failed to fetch data:', e);
+		}
+	};
+
+	$effect(() => {
+		fetchData();
+	});
 
 	const ranges = [
 		{ label: '1 Day', value: '1d' },
@@ -17,12 +50,12 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const changeRange = (newValue: string) => {
-		let query = new SvelteURLSearchParams(page.url.searchParams.toString());
+		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
 		query.set('period', newValue);
 		window.history.replaceState(history.state, '', `?${query}`);
+		period = newValue;
+		fetchData(); // Re-fetch data when range changes
 	};
-
-	const historyData = data.history_data;
 
 	// Fullscreen modal state
 	let fullscreenChart: {
@@ -42,12 +75,13 @@
 	const openMainChartFullscreen = () => {
 		fullscreenChart = {
 			show: true,
-			title: `Growth Comparison: ${data.tickers
+			title: `Growth Comparison: ${$page.url.searchParams
+				.get('tickers')!
 				.split(',')
 				.map((t: string) => t.trim())
 				.join(' vs ')}`,
-			dataset: historyData.candles,
-			dates: historyData.dates,
+			dataset: historyData!.candles,
+			dates: historyData!.dates,
 			color: 'var(--color-gray)'
 		};
 	};
@@ -61,7 +95,9 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{data.tickers}</h1>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">
+		{$page.url.searchParams.get('tickers')}
+	</h1>
 	<div
 		class="relative my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
 	>
@@ -82,12 +118,17 @@
 			</svg>
 		</button>
 
-		<HistoryChart
-			title="Growth compare"
-			dataset={historyData.candles}
-			dates={historyData.dates}
-			color="gray"
-		/>
+		{#if historyData}
+			<HistoryChart
+				title="Growth compare"
+				dataset={historyData.candles}
+				dates={historyData.dates}
+			/>
+		{:else}
+			<div class="flex h-full w-full items-center justify-center text-gray-400">
+				Loading chart data...
+			</div>
+		{/if}
 	</div>
 	<div class="mb-8 flex flex-wrap justify-center gap-2">
 		{#each ranges as range (range.label)}

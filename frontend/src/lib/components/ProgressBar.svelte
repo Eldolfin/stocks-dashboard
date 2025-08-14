@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { components } from '../../generated/api';
-	import ProgressBarInner from './ProgressBarInner.svelte'
+	import ProgressBarInner from './ProgressBarInner.svelte';
 
 	type TaskProgressResponse = components['schemas']['TaskProgressResponse'];
 	interface Props {
@@ -11,10 +11,6 @@
 	}
 
 	let { title, progress, isComplete, error = null }: Props = $props();
-
-	let progressPercentage = $derived(
-		progress ? (progress.step_number / progress.step_count) * 100 : 0
-	);
 </script>
 
 {#if !isComplete}
@@ -36,7 +32,7 @@
 			</div>
 		{:else if progress}
 			<div class="space-y-3">
-				<ProgressBarInner progress={progress}/>
+				<ProgressBarInner {progress} />
 			</div>
 		{:else}
 			<div class="space-y-3">

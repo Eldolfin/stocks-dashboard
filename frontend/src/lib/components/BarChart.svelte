@@ -6,11 +6,11 @@
 
 	type Dataset = Map<string, number[]>;
 	interface Props {
-	title: string;
+		title: string;
 		dataset: Dataset;
 		dates: string[];
 	}
-	const { dataset, dates,title }: Props = $props();
+	const { dataset, dates, title }: Props = $props();
 	let chartInstance: Chart | undefined = $state();
 
 	function chart(node: HTMLCanvasElement, dataset: Dataset) {
@@ -38,10 +38,10 @@
 						}
 					},
 					plugins: {
-					title: {
-						display: true,
-						text: title
-					},
+						title: {
+							display: true,
+							text: title
+						},
 						zoom: {
 							pan: {
 								enabled: true,

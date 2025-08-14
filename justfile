@@ -36,3 +36,7 @@ _dc-prod *args:
     docker compose                \
         -f docker-compose.yml     \
         {{args}}
+
+build-android:
+    cargo tauri android build
+

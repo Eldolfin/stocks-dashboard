@@ -1,8 +1,6 @@
 FROM denoland/deno:alpine AS builder
 RUN apk add --no-cache curl
 WORKDIR /app
-EXPOSE 3000
-ENV NODE_ENV=production
 
 COPY package.json deno.lock .
 RUN deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11
@@ -11,5 +9,10 @@ RUN deno task prepare
 COPY . .
 RUN deno task build
 
-CMD [ "deno", "--allow-env", "--allow-read", "--allow-net", "build/index.js" ]
-HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
+FROM caddy:2.10-alpine as runner
+EXPOSE 3000
+WORKDIR /srv
+COPY --from=builder /app/build /srv
+
+CMD ["caddy", "file-server", "--listen", "0.0.0.0:3000"]
+HEALTHCHECK CMD wget -O /dev/null http://localhost:3000

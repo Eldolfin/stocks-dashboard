@@ -1,4 +1,5 @@
 <script lang="ts">
+	export const ssr = false;
 	import { client } from '$lib/typed-fetch-client';
 	import { goto } from '$app/navigation';
 	import { Button, Label, Input } from 'flowbite-svelte';
