@@ -1,18 +1,21 @@
 <script lang="ts">
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import FullscreenChartModal from '$lib/components/FullscreenChartModal.svelte';
-	import { page } from '$app/state';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { client } from '$lib/typed-fetch-client';
 	import { error } from '@sveltejs/kit';
+	import { page } from '$app/stores';
+	import type { components } from '../../generated/api';
 
-	let historyData = $state(null);
+	type CompareData = components["schemas"]["CompareGrowthResponse"];
+
+	let historyData = $state<null | CompareData>(null);
+	let period = $state($page.url.searchParams.get('period') || 'ytd');
 
 	const fetchData = async () => {
-		const tickersParam = $page.url.searchParams.get('tickers');
+		const tickersParam = $page.url.searchParams.get('tickers')!;
 		if (!tickersParam) return;
 		const tickerArray = tickersParam.split(',').map((t) => t.trim());
-		const period = $page.url.searchParams.get('period') || 'ytd';
 
 		try {
 			const history_res = await client.GET('/api/compare_growth/', {
@@ -47,9 +50,10 @@
 		{ label: 'MAX', value: 'max' }
 	];
 	const changeRange = (newValue: string) => {
-		let query = new SvelteURLSearchParams(page.url.searchParams.toString());
+		let query = new SvelteURLSearchParams($page.url.searchParams.toString());
 		query.set('period', newValue);
 		window.history.replaceState(history.state, '', `?${query}`);
+		period = newValue;
 		fetchData(); // Re-fetch data when range changes
 	};
 
@@ -72,12 +76,12 @@
 		fullscreenChart = {
 			show: true,
 			title: `Growth Comparison: ${$page.url.searchParams
-				.get('tickers')
+				.get('tickers')!
 				.split(',')
 				.map((t: string) => t.trim())
 				.join(' vs ')}`,
-			dataset: historyData.candles,
-			dates: historyData.dates,
+			dataset: historyData!.candles,
+			dates: historyData!.dates,
 			color: 'var(--color-gray)'
 		};
 	};
@@ -119,7 +123,6 @@
 				title="Growth compare"
 				dataset={historyData.candles}
 				dates={historyData.dates}
-				color="gray"
 			/>
 		{:else}
 			<div class="flex h-full w-full items-center justify-center text-gray-400">
