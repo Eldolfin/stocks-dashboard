@@ -2,14 +2,7 @@
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import FullscreenChartModal from '$lib/components/FullscreenChartModal.svelte';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-	import {
-		formatPercent,
-		ratioColor,
-		formatCurrency,
-		formatLargeNumber,
-		roundPrecision
-	} from '$lib/format-utils';
+	import { formatPercent, ratioColor } from '$lib/format-utils';
 	import type { components } from '../../../generated/api.js';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { client } from '$lib/typed-fetch-client';
@@ -53,26 +46,28 @@
 			let historical_kpis_res;
 			try {
 				historical_kpis_res = await client.GET('/api/historical-kpis/', {
-				params: {
-					query: {
-						ticker_name: ticker
+					params: {
+						query: {
+							ticker_name: ticker
+						}
+					}
+				});
+				if (!historical_kpis_res.response.ok) {
+					if (historical_kpis_res.response.status === 404) {
+						historical_kpis_res = null; // No historical data found
+					} else {
+						throw error(
+							historical_kpis_res.response.status,
+							historical_kpis_res.response.statusText
+						);
 					}
 				}
-			});
-			if (!historical_kpis_res.response.ok) {
-				if (historical_kpis_res.response.status === 404) {
-					historical_kpis_res = null; // No historical data found
-				} else {
-					throw error(historical_kpis_res.response.status, historical_kpis_res.response.statusText);
-				}
+			} catch (e) {
+				historical_kpis_res = null; // Handle network errors or other exceptions
 			}
-		} catch (e) {
-			historical_kpis_res = null; // Handle network errors or other exceptions
-		}
-		historical_kpis = historical_kpis_res ? historical_kpis_res.data : null;
-
-		} catch (e) {
-			console.error('Failed to fetch data:', e);
+			historical_kpis = historical_kpis_res ? historical_kpis_res.data : null;
+		} catch (error) {
+			console.error('Failed to fetch data:', error);
 		} finally {
 			isLoadingHistory = false;
 		}
@@ -88,7 +83,8 @@
 		{ label: '1 month', value: '1mo' },
 		{ label: '3 month', value: '3mo' },
 		{ label: 'YTD', value: 'ytd' },
-		{ label: '1 year', value: '1y' },		{ label: '3 year', value: '3y' },
+		{ label: '1 year', value: '1y' },
+		{ label: '3 year', value: '3y' },
 		{ label: 'MAX', value: 'max' }
 	];
 	const changeRange = async (newValue: string) => {

@@ -71,7 +71,8 @@
 	const openMainChartFullscreen = () => {
 		fullscreenChart = {
 			show: true,
-			title: `Growth Comparison: ${$page.url.searchParams.get('tickers')
+			title: `Growth Comparison: ${$page.url.searchParams
+				.get('tickers')
 				.split(',')
 				.map((t: string) => t.trim())
 				.join(' vs ')}`,
@@ -90,7 +91,9 @@
 </script>
 
 <div class="flex flex-col items-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{$page.url.searchParams.get('tickers')}</h1>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">
+		{$page.url.searchParams.get('tickers')}
+	</h1>
 	<div
 		class="relative my-8 flex h-56 w-full max-w-screen-lg items-center justify-center rounded-2xl bg-gradient-to-r from-[#0d182b] to-[#102139] text-gray-500 shadow-xl sm:h-64"
 	>

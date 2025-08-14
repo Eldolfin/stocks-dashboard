@@ -10,6 +10,6 @@ export default defineConfig({
 	},
 	build: {
 		target: 'esnext',
-		assetsInlineLimit: 0,
-	},
+		assetsInlineLimit: 0
+	}
 });

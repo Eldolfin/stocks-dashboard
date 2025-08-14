@@ -40,11 +40,7 @@
 
 <div class="flex min-h-screen">
 	<!-- Enhanced Sidebar -->
-	<EnhancedSidebar
-		isLoggedIn={isLoggedIn}
-		userProfilePicture={userProfilePicture}
-		{handleLogout}
-	/>
+	<EnhancedSidebar {isLoggedIn} {userProfilePicture} {handleLogout} />
 
 	<!-- Main Content -->
 	<main class="flex-1 bg-gradient-to-br from-[#0a0f1c] to-[#1c2b4a] px-4 py-6 sm:px-6">

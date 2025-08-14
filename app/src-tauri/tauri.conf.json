@@ -7,7 +7,7 @@
     "frontendDist": "../../frontend/build",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "just deno task dev",
-    "beforeBuildCommand": "echo ok"
+    "beforeBuildCommand": "just build-static-ext"
   },
   "app": {
     "windows": [

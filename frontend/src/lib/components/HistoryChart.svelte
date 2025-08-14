@@ -9,7 +9,6 @@
 		title: string;
 		dataset: { [key: string]: number[] };
 		dates: string[];
-		color: string;
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
 		showLegend?: boolean;
@@ -19,7 +18,6 @@
 		title,
 		dataset,
 		dates,
-		color,
 		showTickerSelector = false,
 		defaultShown,
 		showLegend = true,
@@ -29,7 +27,7 @@
 	let chartInstance: Chart | undefined | null;
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = $state(new SvelteSet<string>());
+	let selectedTickers = new SvelteSet<string>();
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
 	let availableTickers: string[] = $derived(
 		showTickerSelector
