@@ -169,7 +169,7 @@ This project is a financial dashboard that displays stock information. It has a 
 
 ## Development Workflow
 
-*   When developing the frontend, run `npm run check` in the `frontend` folder and fix all the errors listed.
+*   When developing the frontend, run `deno run check` in the `frontend` folder and fix all the errors listed.
 *   When developing the backend, run `uv run ruff check backend/` and `uv run ruff format backend/` to lint and format the code. Fix all the errors listed before committing.
 *   To run the end-to-end tests, use the command `just tests run`. This will restart the frontend and backend with a clean database, and then run the Playwright tests.
 *   After any feature addition or bug fix, you should write new end-to-end tests to validate the changes and ensure that everything works as expected.
