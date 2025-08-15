@@ -14,28 +14,36 @@ def column_date_to_timestamp(column: pd.Series) -> pd.Series:
     return pd.to_datetime(column, format="%d/%m/%Y %H:%M:%S")
 
 
-def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[str | None, float, bool]:
+def _map_etoro_ticker_to_yahoo(details: str, is_crypto: bool = False) -> tuple[str | None, float]:
     """Map eToro ticker details to Yahoo Finance ticker symbol.
-    
+
     Returns:
-        tuple: (yahoo_ticker, scale_factor, is_crypto) or (None, 1, False) if unsupported
+        tuple: (yahoo_ticker, scale_factor) or (None, 1) if unsupported
     """
     [ticker, market] = details.split("/")
     ticker = ticker.removesuffix(".US").removesuffix(".EXT")
     scale = 1
-    is_crypto = still_open.loc[still_open["Details"] == details, "Asset type"].iloc[0] == "Crypto"
-    
+
     if is_crypto:
-        return f"{ticker}-{market}", scale, True
-    elif ticker == "BRK.B":
-        return "BRK-B", scale, False
-    elif ticker == "NSDQ100":
-        return "^NDX", scale, False
-    elif ticker == "SPX500":
-        return "^SPX", scale, False
-    elif market != "USD":
+        return f"{ticker}-{market}", scale
+    if ticker == "BRK.B":
+        return (
+            "BRK-B",
+            scale,
+        )
+    if ticker == "NSDQ100":
+        return (
+            "^NDX",
+            scale,
+        )
+    if ticker == "SPX500":
+        return (
+            "^SPX",
+            scale,
+        )
+    if market != "USD":
         if market == "GBX":
-            scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"]
+            scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"] / 100
             match ticker:
                 case "BT.l":
                     ticker = "BT-A.L"
@@ -123,7 +131,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                 case "ISP":
                     ticker = "ISP.MI"
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "HKD":
             scale = yfc.Ticker("HKDUSD=X").fast_info["lastPrice"]
             ticker = ticker[-7:]  # remove eToro's prefix
@@ -135,7 +146,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                 case "EVO.ST":
                     ticker = "EVO.ST"
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "CHF":
             scale = yfc.Ticker("CHFUSD=X").fast_info["lastPrice"]
             match ticker:
@@ -147,7 +161,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                     ticker = "CHFUSD=X"
                     scale = 1
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "AUD":
             scale = yfc.Ticker("AUDUSD=X").fast_info["lastPrice"]
             match ticker:
@@ -156,7 +173,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                 case "PLS.ASX":
                     ticker = "PLS.AX"
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "NOK":
             scale = yfc.Ticker("NOKUSD=X").fast_info["lastPrice"]
             match ticker:
@@ -167,7 +187,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                 case "WAWI.OL":
                     ticker = "WAWI.OL"
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "DKK":
             scale = yfc.Ticker("DKKUSD=X").fast_info["lastPrice"]
             match ticker:
@@ -176,7 +199,10 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
                 case "DANSKE":
                     ticker = "DANSKE.CO"
                 case _:
-                    return None, scale, False
+                    return (
+                        None,
+                        scale,
+                    )
         elif market == "JPY":
             scale = yfc.Ticker("JPYUSD=X").fast_info["lastPrice"]
             # No JPY tickers in your list except CAD/USD placeholders
@@ -185,9 +211,15 @@ def _map_etoro_ticker_to_yahoo(details: str, still_open: pd.DataFrame) -> tuple[
             if ticker == "USD":
                 ticker = "SGDUSD=X"
         else:
-            return None, scale, False
-    
-    return ticker, scale, is_crypto
+            return (
+                None,
+                scale,
+            )
+
+    return (
+        ticker,
+        scale,
+    )
 
 
 def extract_closed_position(
@@ -234,7 +266,7 @@ def extract_closed_position(
     return {column: gains[column].tolist() for column in gains.columns}
 
 
-def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
+def extract_portfolio_evolution(
     etoro_statement_file: Path, progress_callback: Callable[[TaskProgress], None]
 ) -> models.EtoroEvolutionInner:
     """Extract portfolio evolution with optional progress reporting."""
@@ -344,17 +376,19 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
     ticker_metadata = {}
     yahoo_symbols = []
     crypto_symbols = []
-    
+
     for _details in tickers_to_fetch:
         first_open_date = still_open[still_open["Details"] == _details].index.min()
-        yahoo_ticker, scale, is_crypto = _map_etoro_ticker_to_yahoo(_details, still_open)
-        
+        is_crypto = still_open.loc[still_open["Details"] == _details, "Asset type"].iloc[0] == "Crypto"
+
+        yahoo_ticker, scale = _map_etoro_ticker_to_yahoo(_details, is_crypto=is_crypto)
+
         if yahoo_ticker is not None:
             ticker_metadata[_details] = {
-                'yahoo_symbol': yahoo_ticker,
-                'scale': scale,
-                'is_crypto': is_crypto,
-                'first_open_date': first_open_date
+                "yahoo_symbol": yahoo_ticker,
+                "scale": scale,
+                "is_crypto": is_crypto,
+                "first_open_date": first_open_date,
             }
             if is_crypto:
                 crypto_symbols.append(yahoo_ticker)
@@ -363,51 +397,53 @@ def extract_portfolio_evolution(  # noqa: C901, PLR0912, PLR0915
 
     # Find the earliest start date across all tickers
     if ticker_metadata:
-        earliest_date = min(meta['first_open_date'] for meta in ticker_metadata.values())
-        start_date = earliest_date.strftime("%Y-%m-%d")
-        end_date = pd.Timestamp.now().strftime("%Y-%m-%d")
-        
+        earliest_date = min(meta["first_open_date"] for meta in ticker_metadata.values())
+        years_to_fetch = pd.Timestamp.now().year - earliest_date.year + 1
+        period = f"{years_to_fetch}y"
+
         # Bulk fetch all non-crypto tickers at once using yf.Tickers()
         bulk_histories = {}
         if yahoo_symbols:
             try:
                 # Use bulk fetch for non-crypto symbols with yfinance_cache
-                bulk_data = yf.Tickers(yahoo_symbols).history(start=start_date, end=end_date)
-                if not bulk_data.empty and 'Close' in bulk_data.columns.get_level_values(1):
-                    for symbol in yahoo_symbols:
-                        try:
-                            symbol_data = bulk_data.xs(symbol, level=1, axis=1)
-                            if 'Close' in symbol_data.columns and not symbol_data.empty:
-                                bulk_histories[symbol] = symbol_data[['Close']]
-                        except KeyError:
-                            # Symbol not found in bulk data
-                            continue
+                bulk_data = yf.Tickers(yahoo_symbols).history(period=period)
+                for symbol in yahoo_symbols:
+                    try:
+                        symbol = symbol.upper()
+                        symbol_data = bulk_data.xs(symbol, level=1, axis=1)
+                        bulk_histories[symbol] = symbol_data[["Close"]]
+                    except KeyError:
+                        # Symbol not found in bulk data
+                        print(f"Could not find {symbol} in bulk_data. Skipping.")
+                        continue
             except Exception as e:
                 print(f"Bulk fetch failed, falling back to individual fetches: {e}")
-        
+
         # Fetch crypto symbols individually (they need different handling)
         for symbol in crypto_symbols:
             try:
                 ticker_data = yf.Ticker(symbol)
-                history = ticker_data.history(start=start_date, end=end_date)
+                history = ticker_data.history(period=period)
                 if not history.empty:
-                    bulk_histories[symbol] = history[['Close']]
+                    bulk_histories[symbol] = history[["Close"]]
             except Exception as e:
                 print(f"Could not fetch crypto data for {symbol}: {e}")
-        
+
         # Process the bulk data to create yahoo_data with original eToro details as keys
         yahoo_data = {}
         for _details, metadata in ticker_metadata.items():
-            yahoo_symbol = metadata['yahoo_symbol']
-            scale = metadata['scale']
-            first_open_date = metadata['first_open_date']
-            
+            yahoo_symbol = metadata["yahoo_symbol"].upper()
+            scale = metadata["scale"]
+            first_open_date = metadata["first_open_date"]
+
             if yahoo_symbol in bulk_histories:
                 history = bulk_histories[yahoo_symbol].copy()
                 # Filter to only include data from the ticker's first open date
                 # Ensure both dates are timezone-naive for proper comparison
                 history_index_naive = pd.to_datetime(history.index).tz_localize(None)
-                first_open_date_naive = pd.to_datetime(first_open_date).tz_localize(None) if first_open_date.tz else first_open_date
+                first_open_date_naive = (
+                    pd.to_datetime(first_open_date).tz_localize(None) if first_open_date.tz else first_open_date
+                )
                 history = history[history_index_naive >= first_open_date_naive]
                 if not history.empty:
                     # Apply scaling
