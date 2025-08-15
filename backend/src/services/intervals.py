@@ -1,5 +1,3 @@
-# ruff: noqa: C901,PLR0911,PLR0912
-
 import datetime as dt
 
 TIMEZONE = dt.UTC
