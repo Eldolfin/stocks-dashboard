@@ -9,13 +9,14 @@ dependencies = [
     "flask-openapi3[swagger,redoc,rapidoc]",
     "pydantic==2.11.7",
     "flask_cors",
-    "openpyxl",
     "flask-caching>=2.3.1",
     "flask-login>=0.6.3",
     "pandas>=2.3.1",
     "google-genai>=1.28.0",
     "matplotlib>=3.10.5",
     "yfinance-cache>=0.7.13",
+    "numpy>=2.3.1",
+    "openpyxl>=3.1.5",
 ]
 
 [dependency-groups]
@@ -32,6 +33,7 @@ dev = [
     "pytest-md-report>=0.7.0",
     "bpython>=0.25",
     "waitress>=3.0.2",
+    "marimo>=0.14.17",
 ]
 
 [tool.pylsp-mypy]
