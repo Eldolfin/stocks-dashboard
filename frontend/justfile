@@ -1,5 +1,5 @@
-export VITE_API_BASE_EXTERNAL:= "http://localhost:5000"
-export VITE_API_BASE_INTERNAL:= "http://localhost:5000"
+export VITE_API_BASE_EXTERNAL := "http://localhost:5000"
+export VITE_API_BASE_INTERNAL := "http://localhost:5000"
 
 help:
     just --list

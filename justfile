@@ -1,4 +1,6 @@
 set dotenv-load := true
+export MY_UID := `id -u`
+export MY_GID := `id -g`
 
 mod tests
 mod backend
@@ -40,3 +42,13 @@ _dc-prod *args:
 build-android:
     cargo tauri android build
 
+
+
+# Removes all built files
+[confirm("Are you sure you want to delete everything?")]
+clean:
+    rm -rf                  \
+    ./frontend/node_modules \
+    ./frontend/.svelte-kit  \
+    ./backend/.venv         \
+    ./data-collector/target
