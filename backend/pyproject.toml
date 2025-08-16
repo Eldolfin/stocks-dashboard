@@ -34,6 +34,7 @@ dev = [
     "bpython>=0.25",
     "waitress>=3.0.2",
     "marimo>=0.14.17",
+    "ipython>=9.4.0",
 ]
 
 [tool.pylsp-mypy]
