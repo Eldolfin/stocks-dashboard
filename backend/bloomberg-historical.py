@@ -18,7 +18,6 @@ def _():
 @app.cell
 def _(mo):
     mo.md(r"""## Clean data (split into one csv file per ticker)""")
-    return
 
 
 @app.cell
@@ -109,13 +108,11 @@ def _(excels, mo, pd):
 @app.cell
 def _(tsla):
     tsla.iloc[-50:]
-    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## Retrieve a ticker historical KPIs""")
-    return
 
 
 @app.cell
@@ -149,7 +146,6 @@ def _(BaseModel, pd):
     # load_historical_kpis("DUOL")
     # load_historical_kpis("GOOG")
     load_historical_kpis("BAS")
-    return
 
 
 if __name__ == "__main__":

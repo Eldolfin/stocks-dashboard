@@ -323,6 +323,13 @@ class CompareGrowthResponse(BaseModel):
     dates: list[str]
 
 
+#########################
+#  STATIC FILES (PATH)  #
+#########################
+class StaticFilePath(BaseModel):
+    filename: str
+
+
 ##################
 #  TICKER QUERY  #
 ##################
@@ -510,3 +517,13 @@ def task_progress_to_response(progress: task_manager.TaskProgress | None) -> Tas
         step_name=progress.step_name,
         sub_task=task_progress_to_response(progress.sub_task),
     )
+
+
+class CompareToIndexQuery(BaseModel):
+    filename: str
+    index_ticker: str
+
+
+class CompareToIndexResponse(BaseModel):
+    dates: list[str]
+    index_values: list[float]

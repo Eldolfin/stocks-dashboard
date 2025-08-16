@@ -7,9 +7,9 @@ app = marimo.App(width="full")
 @app.cell
 def _():
     import pandas as pd
-    import yfinance as yf
-    from src.models import SearchQuery
+
     from src import models
+    from src.models import SearchQuery
 
     return SearchQuery, models, pd
 
@@ -52,7 +52,6 @@ def _(STATIC_CRYPTO, STATIC_INDEX, SearchQuery, models):
         for (_, row) in index_filtered.iterrows()
     ]
     quotes_cryptos + quotes_indexes
-    return
 
 
 if __name__ == "__main__":
