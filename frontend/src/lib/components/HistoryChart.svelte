@@ -24,7 +24,7 @@
 		zoomable = true
 	}: Props = $props();
 	let chartElt;
-	let chartInstance: Chart | undefined | null;
+	let chartInstance: Chart | undefined | null = $state(null);
 
 	// Ticker selection state - only used when showTickerSelector is true
 	let selectedTickers = $state(new SvelteSet<string>());
@@ -63,7 +63,7 @@
 		return result;
 	});
 
-	const createChart = () => {
+	const getDataset = () => {
 		const mainColumns = ['Total', 'price'];
 		const entries = filteredDataset()
 			.entries()
@@ -95,9 +95,13 @@
 				};
 			})
 		};
+		return data;
+	};
+
+	const createChart = () => {
 		const config = {
 			type: 'line',
-			data: data,
+			data: getDataset(),
 			options: {
 				responsive: true,
 				interaction: {
@@ -176,28 +180,10 @@
 	});
 
 	$effect(() => {
-		// if (chartInstance) {
-		// 	chartInstance.data.labels = dates;
-		// 	chartInstance.data.datasets = Object.entries(filteredDataset()).map(
-		// 		([label, data], index) => {
-		// 			console.log('Creating dataset for:', label, 'with', data.length, 'data points');
-		// 			const isMainLine = label === 'price';
-		// 			const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
-		// 			return {
-		// 				label,
-		// 				data: [...data],
-		// 				borderColor: lineColor,
-		// 				backgroundColor: transparentize(lineColor, 0.5),
-		// 				yAxisID: 'y'
-		// 			};
-		// 		}
-		// 	);
-		// 	console.log('Updating chart with', chartInstance.data.datasets.length, 'datasets');
-		// 	chartInstance.update();
-		// }
-		// FIXME: this is suboptimal + annoying to the user
-		// but for now I'm not re-assigning colors on dataset change so this is needed
-		createChart();
+		if (chartInstance) {
+			chartInstance.data = getDataset();
+			chartInstance.update('none');
+		}
 	});
 
 	onDestroy(() => {
