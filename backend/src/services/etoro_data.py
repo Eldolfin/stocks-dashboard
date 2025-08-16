@@ -41,6 +41,12 @@ def _map_etoro_ticker_to_yahoo(details: str, is_crypto: bool = False) -> tuple[s
             "^SPX",
             scale,
         )
+    # MHFI (McGraw Hill Financial) changed its ticker to SPGI (S&P Global Inc.) after a corporate rebranding.
+    if ticker == "MHFI":
+        return (
+            "SPGI",
+            scale,
+        )
     if market != "USD":
         if market == "GBX":
             scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"] / 100
