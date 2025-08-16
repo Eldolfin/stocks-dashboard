@@ -25,13 +25,13 @@ compare_bp = APIBlueprint(
         404: NotFoundResponse,
     },
 )
-def compare_to_index(form: CompareToIndexQuery):
+def compare_to_index(query: CompareToIndexQuery):
     """
     Compare eToro portfolio performance to a selected index.
     """
     try:
-        filename = form.filename
-        index_ticker = form.index_ticker
+        filename = query.filename
+        index_ticker = query.index_ticker
         if not filename or not index_ticker:
             return BadRequestResponse(error="Missing filename or index_ticker").dict(), 400
 

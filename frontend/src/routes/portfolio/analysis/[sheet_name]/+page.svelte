@@ -186,7 +186,7 @@
 				}
 			});
 			if (!res.data) {
-				indexError =  'Failed to fetch index comparison';
+				indexError = 'Failed to fetch index comparison';
 			} else {
 				indexComparison = res.data;
 			}

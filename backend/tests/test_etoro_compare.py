@@ -44,7 +44,7 @@ def test_compare_to_index_works_end_to_end():
 
     # Call compare_to_index
     payload = {"filename": filename, "index_ticker": "^GSPC"}
-    cmp = session.post(f"{BASE_URL}/etoro/compare_to_index", data=payload)
+    cmp = session.post(f"{BASE_URL}/etoro/compare_to_index", params=payload)
     assert cmp.status_code == 200, f"Compare failed: {cmp.text}"
     data = cmp.json()
     assert "dates" in data and "index_values" in data
@@ -55,6 +55,6 @@ def test_compare_to_index_works_end_to_end():
 def test_compare_to_index_not_found():
     session = _register_and_login_session()
     payload = {"filename": "non-existent-file.xlsx", "index_ticker": "^GSPC"}
-    cmp = session.post(f"{BASE_URL}/etoro/compare_to_index", data=payload)
+    cmp = session.post(f"{BASE_URL}/etoro/compare_to_index", params=payload)
     assert cmp.status_code == 404, f"Expected 404 but got {cmp.status_code}"
     assert "not found" in cmp.json().get("message", "").lower()

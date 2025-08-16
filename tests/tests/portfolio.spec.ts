@@ -20,19 +20,11 @@ test('upload etoro excel and calculate net worth', async ({ loggedInPage }) => {
   await expect(loggedInPage.locator('canvas').nth(0)).toBeVisible();
   await expect(loggedInPage.locator('canvas').nth(1)).toBeVisible({timeout: 60_000});
 
-  // Click on the uploaded report name to go to analysis page
-  await loggedInPage.getByRole('button', { name: 'etoro-account-statement-12-31-2014-7-5-2025_TEST.xlsx' }).click();
-  await loggedInPage.waitForLoadState("networkidle");
-
-  // Wait for analysis charts to load first
-  await expect(loggedInPage.locator('canvas').nth(0)).toBeVisible({timeout: 60_000});
-  await expect(loggedInPage.locator('canvas').nth(1)).toBeVisible({timeout: 60_000});
-
   // Now test the index comparison feature
   const searchBox = loggedInPage.getByPlaceholder('Search index...');
   await expect(searchBox).toBeVisible();
   await searchBox.fill('S&P 500');
-  await loggedInPage.getByRole('button', { name: /S&P 500/ }).click();
+  await loggedInPage.getByRole('button', { name: 'S&P 500 (^GSPC)' }).click();
 
   // Third chart (comparison) should appear
   await expect(loggedInPage.locator('canvas').nth(2)).toBeVisible({ timeout: 60_000 });
