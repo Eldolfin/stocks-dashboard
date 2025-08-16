@@ -1,6 +1,6 @@
-FROM ghcr.io/astral-sh/uv:python3.13-alpine
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 WORKDIR /app
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl build-essential
 ENV FLASK_APP=src
 ENV PYTHONPATH=/app
 

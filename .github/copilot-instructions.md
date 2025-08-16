@@ -9,7 +9,7 @@ When adding a new feature, create new tests to validate that it works, either ba
 ## Critical Setup Requirements
 
 ### Required Tools
-- **just** - Task runner (install  `curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin/`)
+- **just** - Task runner (install  `curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin/`)
 - **Docker & docker-compose** - For full development environment
 - **deno** - For frontend development
 - **uv** - Python package manager for backend (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)

@@ -20,6 +20,26 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/etoro/compare_to_index': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Compare eToro portfolio to index
+		 * @description Compare eToro portfolio performance to a selected index.
+		 */
+		post: operations['compare_compare_to_index_compare_to_index_post'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/etoro/reports': {
 		parameters: {
 			query?: never;
@@ -212,6 +232,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/static/{filename}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['stocks_get_static_csv_static__filename__get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/task_result/{task_id}': {
 		parameters: {
 			query?: never;
@@ -375,6 +411,13 @@ export interface components {
 			/** Dates */
 			dates: string[];
 			query: components['schemas']['CompareGrowthQuery'];
+		};
+		/** CompareToIndexResponse */
+		CompareToIndexResponse: {
+			/** Dates */
+			dates: string[];
+			/** Index Values */
+			index_values: number[];
 		};
 		/** EtoroForm */
 		EtoroForm: {
@@ -1554,6 +1597,56 @@ export interface operations {
 			};
 		};
 	};
+	compare_compare_to_index_compare_to_index_post: {
+		parameters: {
+			query: {
+				filename: string;
+				index_ticker: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['CompareToIndexResponse'];
+				};
+			};
+			/** @description Bad Request */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['BadRequestResponse'];
+				};
+			};
+			/** @description Not Found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['NotFoundResponse'];
+				};
+			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
 	stocks_list_etoro_reports_etoro_reports_get: {
 		parameters: {
 			query?: never;
@@ -1919,6 +2012,28 @@ export interface operations {
 					'application/json': components['schemas']['SearchResponse'];
 				};
 			};
+			/** @description Unprocessable Content */
+			422: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/json': components['schemas']['ValidationErrorModel'][];
+				};
+			};
+		};
+	};
+	stocks_get_static_csv_static__filename__get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				filename: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
 			/** @description Unprocessable Content */
 			422: {
 				headers: {
