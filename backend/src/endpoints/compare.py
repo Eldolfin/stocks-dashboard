@@ -1,3 +1,4 @@
+# ruff: noqa: ANN201
 from pathlib import Path
 
 from flask import current_app
@@ -24,7 +25,7 @@ compare_bp = APIBlueprint(
         404: NotFoundResponse,
     },
 )
-def compare_to_index(query: CompareToIndexQuery) -> CompareToIndexResponse:
+def compare_to_index(query: CompareToIndexQuery):
     """
     Compare eToro portfolio performance to a selected index.
     """
