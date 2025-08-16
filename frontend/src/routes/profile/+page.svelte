@@ -1,5 +1,4 @@
 <script lang="ts">
-	export const ssr = false;
 	// This is a placeholder for the user profile page
 </script>
 

@@ -1,5 +1,4 @@
 <script lang="ts">
-	export const ssr = false;
 	import { client } from '$lib/typed-fetch-client';
 	import { formatPercent } from '$lib/format-utils';
 	import type { components } from '../generated/api';

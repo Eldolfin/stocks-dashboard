@@ -3,7 +3,7 @@
 	import { transparentize } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
 	import TickerSelector from './TickerSelector.svelte';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		title: string;
@@ -27,8 +27,11 @@
 	let chartInstance: Chart | undefined | null = $state(null);
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = $state(new SvelteSet<string>());
+	// svelte-ignore non_reactive_update
+	let selectedTickers = new SvelteSet<string>();
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
+	const result = new SvelteMap<string, number[]>();
+
 	let availableTickers: string[] = $derived(
 		showTickerSelector
 			? dataset
@@ -43,8 +46,6 @@
 		if (!showTickerSelector) {
 			return dataset;
 		}
-
-		const result: Map<string, number[]> = new Map();
 
 		if (defaultShown) {
 			for (const ticker of defaultShown) {

@@ -56,26 +56,19 @@
 			currentHistory = history_res.data!;
 
 			let historical_kpis_res;
-			try {
-				historical_kpis_res = await client.GET('/api/historical-kpis/', {
-					params: {
-						query: {
-							ticker_name: ticker()
-						}
-					}
-				});
-				if (!historical_kpis_res.response.ok) {
-					if (historical_kpis_res.response.status === 404) {
-						historical_kpis_res = null; // No historical data found
-					} else {
-						throw error(
-							historical_kpis_res.response.status,
-							historical_kpis_res.response.statusText
-						);
+			historical_kpis_res = await client.GET('/api/historical-kpis/', {
+				params: {
+					query: {
+						ticker_name: ticker()
 					}
 				}
-			} catch (e) {
-				historical_kpis_res = null; // Handle network errors or other exceptions
+			});
+			if (!historical_kpis_res.response.ok) {
+				if (historical_kpis_res.response.status === 404) {
+					historical_kpis_res = null; // No historical data found
+				} else {
+					throw error(historical_kpis_res.response.status, historical_kpis_res.response.statusText);
+				}
 			}
 			historical_kpis = historical_kpis_res ? historical_kpis_res.data! : null;
 		} catch (error) {
