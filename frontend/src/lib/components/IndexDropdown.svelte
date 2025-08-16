@@ -29,7 +29,7 @@
 	<ul
 		class="max-h-48 overflow-auto rounded border border-gray-300 bg-white shadow dark:border-gray-600 dark:bg-gray-800"
 	>
-		{#each $filtered as opt}
+		{#each $filtered as opt (opt.value)}
 			<button
 				type="button"
 				class="w-full cursor-pointer p-2 text-left text-gray-900 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-700 {selected ===

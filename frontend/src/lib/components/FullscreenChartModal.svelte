@@ -5,13 +5,12 @@
 	interface Props {
 		show: boolean;
 		title: string;
-		dataset: { [key: string]: number[] };
+		dataset: Map<string, number[]>;
 		dates: string[];
-		color: string;
 		onClose: () => void;
 	}
 
-	const { show, title, dataset, dates, color, onClose }: Props = $props();
+	const { show, title, dataset, dates, onClose }: Props = $props();
 
 	// Handle escape key to close modal
 	const handleKeydown = (e: KeyboardEvent) => {
@@ -68,7 +67,7 @@
 
 			<!-- Chart container -->
 			<div class="h-[calc(100vh-8rem)] w-full">
-				<HistoryChart {title} {dataset} {dates} {color} />
+				<HistoryChart {title} {dataset} {dates} />
 			</div>
 		</div>
 	</div>

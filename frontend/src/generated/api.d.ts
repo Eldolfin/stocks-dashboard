@@ -412,12 +412,20 @@ export interface components {
 			dates: string[];
 			query: components['schemas']['CompareGrowthQuery'];
 		};
+		/** CompareToIndexQuery */
+		CompareToIndexQuery: {
+			/** Filename */
+			filename: string;
+			/** Index Ticker */
+			index_ticker: string;
+		};
 		/** CompareToIndexResponse */
 		CompareToIndexResponse: {
 			/** Dates */
 			dates: string[];
 			/** Index Values */
 			index_values: number[];
+			query: components['schemas']['CompareToIndexQuery'];
 		};
 		/** EtoroForm */
 		EtoroForm: {

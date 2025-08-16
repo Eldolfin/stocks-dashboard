@@ -14,6 +14,7 @@
 	import { page } from '$app/stores';
 	import type { components } from '../../generated/api.d.ts';
 	import { replaceState } from '$app/navigation';
+	import { objToMap } from '$lib/chart-utils.js';
 	type HistoryData = components['schemas']['TickerResponse'];
 	type KPIHistoryData = components['schemas']['HistoricalKPIs'];
 	type KPIData = components['schemas']['KPIResponse'];
@@ -224,9 +225,9 @@
 		fullscreenChart = {
 			show: true,
 			title: title(),
-			dataset: { price: currentHistory.candles, ...currentHistory.smas },
-			dates: currentHistory.dates,
-			color: ratioColor(currentHistory.delta)
+			dataset: { price: currentHistory!.candles, ...currentHistory!.smas },
+			dates: currentHistory!.dates,
+			color: ratioColor(currentHistory!.delta)
 		};
 	};
 
@@ -237,10 +238,10 @@
 		};
 	};
 </script>
-<svelte:head>
-    <title>{title()}</title>
-</svelte:head>
 
+<svelte:head>
+	<title>{title()}</title>
+</svelte:head>
 
 <div class="flex flex-col items-center">
 	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">{title()}</h1>
@@ -260,7 +261,7 @@
 		<!-- Fullscreen button for main chart -->
 		{#if !isLoadingHistory && currentHistory}
 			<button
-				class="absolute right-2 top-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
+				class="absolute top-2 right-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
 				onclick={openMainChartFullscreen}
 				aria-label="View price chart in fullscreen"
 			>
@@ -286,7 +287,7 @@
 		{:else if currentHistory}
 			<HistoryChart
 				title={`Price: ${currentHistory.query.period}`}
-				dataset={{ price: currentHistory.candles, ...currentHistory.smas }}
+				dataset={objToMap({ price: currentHistory.candles, ...currentHistory.smas })}
 				dates={currentHistory.dates}
 			/>
 		{:else}
@@ -342,7 +343,7 @@
 					<!-- Fullscreen button -->
 					{#if kpiData && kpiData.dates && kpiData.values}
 						<button
-							class="absolute right-2 top-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
+							class="absolute top-2 right-2 z-10 rounded-lg bg-gray-800 p-2 text-white transition hover:bg-gray-700"
 							onclick={() => openFullscreen(kpiName, kpiData)}
 							aria-label="View {kpiName} in fullscreen"
 						>
@@ -363,9 +364,8 @@
 						<div class="h-48">
 							<HistoryChart
 								title=""
-								dataset={{ [kpiName]: kpiData.values }}
+								dataset={objToMap({ kpiName: kpiData.values })}
 								dates={kpiData.dates}
-								color="#8884d8"
 								showLegend={false}
 								zoomable={false}
 							/>
@@ -387,8 +387,7 @@
 <FullscreenChartModal
 	show={fullscreenChart.show}
 	title={fullscreenChart.title}
-	dataset={fullscreenChart.dataset}
+	dataset={objToMap(fullscreenChart.dataset)}
 	dates={fullscreenChart.dates}
-	color={fullscreenChart.color}
 	onClose={closeFullscreen}
 />

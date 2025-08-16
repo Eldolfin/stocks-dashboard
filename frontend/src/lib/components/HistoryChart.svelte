@@ -7,7 +7,7 @@
 
 	interface Props {
 		title: string;
-		dataset: { [key: string]: number[] };
+		dataset: Map<string, number[]>;
 		dates: string[];
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
@@ -27,13 +27,14 @@
 	let chartInstance: Chart | undefined | null;
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = new SvelteSet<string>();
+	let selectedTickers = $state(new SvelteSet<string>());
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
 	let availableTickers: string[] = $derived(
 		showTickerSelector
-			? Object.keys(dataset).filter(
-					(ticker) => [undefined, -1].indexOf(defaultShown?.indexOf(ticker)) !== -1
-				)
+			? dataset
+					.keys()
+					.filter((ticker) => [undefined, -1].indexOf(defaultShown?.indexOf(ticker)) !== -1)
+					.toArray()
 			: []
 	);
 
@@ -43,19 +44,19 @@
 			return dataset;
 		}
 
-		const result: { [key: string]: number[] } = {};
+		const result: Map<string, number[]> = new Map();
 
 		if (defaultShown) {
 			for (const ticker of defaultShown) {
-				result[ticker] = dataset[ticker];
+				result.set(ticker, dataset.get(ticker)!);
 			}
 		}
 
 		// Add selected individual tickers
 		// Use the derived array to ensure proper reactivity tracking
 		for (const ticker of selectedTickersArray) {
-			if (dataset[ticker]) {
-				result[ticker] = dataset[ticker];
+			if (dataset.has(ticker)) {
+				result.set(ticker, dataset.get(ticker)!);
 			}
 		}
 
@@ -64,11 +65,14 @@
 
 	const createChart = () => {
 		const mainColumns = ['Total', 'price'];
-		const entries = Object.entries(filteredDataset()).sort(([labelA], [labelB]) => {
-			const isMainA = mainColumns.includes(labelA);
-			const isMainB = mainColumns.includes(labelB);
-			return isMainA === isMainB ? 0 : isMainA ? -1 : 1;
-		});
+		const entries = filteredDataset()
+			.entries()
+			.toArray()
+			.sort(([labelA], [labelB]) => {
+				const isMainA = mainColumns.includes(labelA);
+				const isMainB = mainColumns.includes(labelB);
+				return isMainA === isMainB ? 0 : isMainA ? -1 : 1;
+			});
 		const totalLines = entries.length;
 		// Move mainData ("Total" or "price") to the front
 		const data = {

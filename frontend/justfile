@@ -10,8 +10,14 @@ deno +args:
 install:
 	deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11
 
-lint:
+_lint-js:
 	deno task lint
+
+_lint-svelte:
+	deno task check
+
+[parallel]
+lint: _lint-js _lint-svelte
 
 # Regenerate api types from the running backend openapi spec
 generate-api-types:

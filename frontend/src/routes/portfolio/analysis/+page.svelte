@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { client } from '../../../lib/typed-fetch-client';
-	import type { components } from '../../../../generated/api.js';
 	import BarChart from '$lib/components/BarChart.svelte';
 	import HistoryChart from '$lib/components/HistoryChart.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { page } from '$app/state';
 	import FullscreenWrapper from '$lib/components/FullscreenWrapper.svelte';
 	import IndexDropdown from '$lib/components/IndexDropdown.svelte';
+	import type { components } from '../../../generated/api';
+	import { objToMap } from '$lib/chart-utils';
 
 	interface EtoroData {
 		close_date: string[];
@@ -23,6 +24,7 @@
 
 	type Precision = components['schemas']['PrecisionEnum'];
 	type TaskProgressResponse = components['schemas']['TaskProgressResponse'];
+	type IndexComparisonResponse = components['schemas']['CompareToIndexResponse'];
 
 	const precision_values: Array<[string, Precision]> = [
 		['Year', 'Y'],
@@ -47,7 +49,7 @@
 
 	// Index comparison state
 	let selectedIndex: string | null = $state(null);
-	let indexComparison: { dates: string[]; index_values: number[] } | null = $state(null);
+	let indexComparison: IndexComparisonResponse | null = $state(null);
 	let indexLoading = $state(false);
 	let indexError: string | null = $state(null);
 
@@ -180,7 +182,7 @@
 			const res = await client.POST('/api/etoro/compare_to_index', {
 				params: {
 					query: {
-						filename: page.params.sheet_name!,
+						filename: page.url.searchParams.get('sheet_name')!,
 						index_ticker: selectedIndex
 					}
 				}
@@ -280,11 +282,10 @@
 						title="Total profits evolution overtime"
 						chartComponent={HistoryChart}
 						chartProps={{
-							color: 'green',
 							title: '',
 							showTickerSelector: true,
 							defaultShown: ['Total', 'Closed Positions', 'Deposits', 'P&L'],
-							dataset: evolution_data.evolution.parts,
+							dataset: objToMap(evolution_data.evolution.parts),
 							dates: evolution_data.evolution.dates
 						}}
 					/>
@@ -309,16 +310,15 @@
 			{:else if indexComparison && evolution_data}
 				<div class="mt-4">
 					<FullscreenWrapper
-						title="Portfolio vs Index"
+						title={`Portfolio vs ${indexComparison.query.index_ticker}`}
 						chartComponent={HistoryChart}
 						chartProps={{
-							color: 'blue',
 							title: '',
 							showTickerSelector: false,
-							dataset: {
+							dataset: objToMap({
 								'Portfolio Total': evolution_data.evolution.parts['Total'],
-								'Simulated Index': indexComparison.index_values
-							},
+								[indexComparison.query.index_ticker]: indexComparison.index_values
+							}),
 							dates: evolution_data.evolution.dates
 						}}
 					/>

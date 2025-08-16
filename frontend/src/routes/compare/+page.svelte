@@ -6,8 +6,9 @@
 	import { error } from '@sveltejs/kit';
 	import { page } from '$app/stores';
 	import type { components } from '../../generated/api';
+	import { objToMap } from '$lib/chart-utils';
 
-	type CompareData = components["schemas"]["CompareGrowthResponse"];
+	type CompareData = components['schemas']['CompareGrowthResponse'];
 
 	let historyData = $state<null | CompareData>(null);
 	let period = $state($page.url.searchParams.get('period') || 'ytd');
@@ -121,7 +122,7 @@
 		{#if historyData}
 			<HistoryChart
 				title="Growth compare"
-				dataset={historyData.candles}
+				dataset={objToMap(historyData.candles)}
 				dates={historyData.dates}
 			/>
 		{:else}
@@ -144,8 +145,7 @@
 <FullscreenChartModal
 	show={fullscreenChart.show}
 	title={fullscreenChart.title}
-	dataset={fullscreenChart.dataset}
+	dataset={objToMap(fullscreenChart.dataset)}
 	dates={fullscreenChart.dates}
-	color={fullscreenChart.color}
 	onClose={closeFullscreen}
 />

@@ -10,7 +10,7 @@
 
 	type HistoryChartProps = {
 		title: string;
-		dataset: { [key: string]: number[] };
+		dataset: Map<string, number[]>;
 		dates: string[];
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
@@ -37,7 +37,7 @@
 
 <div
 	class={fullscreen
-		? 'fixed left-0 top-0 z-50 flex h-screen w-screen flex-col bg-gray-900 bg-opacity-90 p-8'
+		? 'bg-opacity-90 fixed top-0 left-0 z-50 flex h-screen w-screen flex-col bg-gray-900 p-8'
 		: 'relative h-full w-full rounded-lg bg-gray-800 p-4'}
 >
 	<div class="flex items-center justify-between">
