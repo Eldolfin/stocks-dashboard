@@ -41,6 +41,11 @@ def _map_etoro_ticker_to_yahoo(details: str, is_crypto: bool = False) -> tuple[s
             "^SPX",
             scale,
         )
+    if ticker == "MHFI":
+        return (
+            "SPGI",
+            scale,
+        )
     if market != "USD":
         if market == "GBX":
             scale = yfc.Ticker("GBPUSD=X").fast_info["lastPrice"] / 100

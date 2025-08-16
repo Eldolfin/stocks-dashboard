@@ -25,7 +25,7 @@ def _():
 
 @app.cell
 def _():
-    _map_etoro_ticker_to_yahoo("BA.L/GBX", False)
+    _map_etoro_ticker_to_yahoo("MHFI/USD", False)
     return
 
 
@@ -42,7 +42,7 @@ def _(extract_portfolio_evolution):
 
 @app.cell
 def _(evolution):
-    evolution
+    evolution["SNOW/USD"]
     return
 
 
