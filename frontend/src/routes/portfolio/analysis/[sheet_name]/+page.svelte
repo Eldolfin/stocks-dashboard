@@ -6,6 +6,7 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { page } from '$app/state';
 	import FullscreenWrapper from '$lib/components/FullscreenWrapper.svelte';
+	import IndexDropdown from '$lib/components/IndexDropdown.svelte';
 
 	interface EtoroData {
 		close_date: string[];
@@ -43,6 +44,12 @@
 	let evolutionComplete = $state(false);
 	let tradesError: string | null = $state(null);
 	let evolutionError: string | null = $state(null);
+
+	// Index comparison state
+	let selectedIndex: string | null = $state(null);
+	let indexComparison: { dates: string[]; index_values: number[] } | null = $state(null);
+	let indexLoading = $state(false);
+	let indexError: string | null = $state(null);
 
 	// Function to poll task status until completion
 	async function pollTaskStatus(
@@ -164,6 +171,32 @@
 		}
 	}
 
+	async function handleIndexSelect(opt: { value: string }) {
+		selectedIndex = opt.value;
+		indexLoading = true;
+		indexError = null;
+		indexComparison = null;
+		try {
+			const res = await client.POST('/api/etoro/compare_to_index', {
+				params: {
+					query: {
+						filename: page.params.sheet_name!,
+						index_ticker: selectedIndex
+					}
+				}
+			});
+			if (!res.data) {
+				indexError = 'Failed to fetch index comparison';
+			} else {
+				indexComparison = res.data;
+			}
+		} catch (e) {
+			indexError = String(e);
+		} finally {
+			indexLoading = false;
+		}
+	}
+
 	$effect(() => {
 		const sheetName = page.params.sheet_name;
 		const currentPrecision = precision_values[precision_index][1];
@@ -252,6 +285,40 @@
 							showTickerSelector: true,
 							defaultShown: ['Total', 'Closed Positions', 'Deposits', 'P&L'],
 							dataset: evolution_data.evolution.parts,
+							dates: evolution_data.evolution.dates
+						}}
+					/>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	<!-- Index Comparison Section -->
+	<div
+		class="mt-8 rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
+	>
+		<h2 class="text-lg font-semibold text-gray-800 dark:text-white">Compare with Index</h2>
+
+		<div class="mt-4">
+			<IndexDropdown selected={selectedIndex} onSelect={handleIndexSelect} />
+
+			{#if indexLoading}
+				<div class="mt-2 text-gray-500">Loading index data...</div>
+			{:else if indexError}
+				<div class="mt-2 text-red-500">{indexError}</div>
+			{:else if indexComparison && evolution_data}
+				<div class="mt-4">
+					<FullscreenWrapper
+						title="Portfolio vs Index"
+						chartComponent={HistoryChart}
+						chartProps={{
+							color: 'blue',
+							title: '',
+							showTickerSelector: false,
+							dataset: {
+								'Portfolio Total': evolution_data.evolution.parts['Total'],
+								'Simulated Index': indexComparison.index_values
+							},
 							dates: evolution_data.evolution.dates
 						}}
 					/>

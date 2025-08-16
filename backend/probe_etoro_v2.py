@@ -8,10 +8,10 @@ app = marimo.App(width="full")
 def _():
     from pathlib import Path
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
     import yfinance as yf
-    import matplotlib.pyplot as plt
 
     # from src import models
     from src.services.etoro_data import (
@@ -24,6 +24,7 @@ def _():
 
 
 @app.cell
+
 def _():
     _map_etoro_ticker_to_yahoo("MHFI/USD", False)
     return
@@ -67,7 +68,6 @@ def _(evolution, plt):
     plt.title("Portfolio evolution breakdown", fontsize=14)
     plt.legend(fontsize=10)
     plt.gca()
-    return
 
 
 if __name__ == "__main__":

@@ -1,5 +1,8 @@
 # ruff: noqa: ANN201
 
+from pathlib import Path
+
+from flask import send_from_directory
 from flask_caching import Cache
 from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
@@ -136,3 +139,9 @@ def get_task_result(path: models.TaskIdPath):
 
     response = models.TaskResultResponse(result=result_data)
     return response.model_dump(), 200
+
+
+@stocks_bp.get("/static/<filename>", tags=[stocks_tag])
+def get_static_csv(path: models.StaticFilePath):
+    base = Path.cwd() / "data" / "search"
+    return send_from_directory(str(base), path.filename)
