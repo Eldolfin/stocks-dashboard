@@ -51,4 +51,5 @@ clean:
     ./frontend/node_modules \
     ./frontend/.svelte-kit  \
     ./backend/.venv         \
-    ./data-collector/target
+    ./data-collector/target \
+    ./app/target
