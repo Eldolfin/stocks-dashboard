@@ -36,6 +36,9 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
         history = pd.DataFrame(
             stocks_repository.get_ticker_history_from_start(query.ticker_name, start, query.interval)
         )
+        # Fallback: if no data, try 'max' period
+        if history.empty:
+            history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", query.interval))
     if history.empty:
         return None
 
@@ -53,61 +56,61 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
 
-    # Calculate SMA for the requested period, not always "max"
-    # We need enough historical data for the largest SMA window (500 days)
-    smas_sizes = [30, 100, 500]
+    smas_sizes = [30, 100]
     max_sma_window = max(smas_sizes)
 
-    if query.period == "max":
-        # For max period, use the same data as the main query to ensure alignment
-        smas_history = history.copy()
-    else:
-        # For specific periods, get additional historical data to ensure accurate SMA calculation
-        # We extend the start date by the maximum SMA window to get sufficient lookback data
-        extended_duration = duration + dt.timedelta(days=max_sma_window)
-        extended_start = now() - extended_duration
-        extended_start_str = extended_start.strftime("%Y-%m-%d")
+    # Calculate how much daily data is needed to ensure all SMA values are valid
+    main_dates = pd.to_datetime(history["Date"])
+    n_main = len(main_dates)
+    # We need at least n_main + max_sma_window - 1 daily closes, starting from earliest main date - (max_sma_window-1)
+    first_main_date = main_dates.iloc[0]
+    extended_start = first_main_date - dt.timedelta(days=max_sma_window + n_main)
+    extended_start_str = extended_start.strftime("%Y-%m-%d")
 
-        try:
-            # Get extended historical data for SMA calculation with daily interval for consistency
-            smas_history = pd.DataFrame(
-                stocks_repository.get_ticker_history_from_start(query.ticker_name, extended_start_str, "1d")
-            )
-        except Exception:
-            # If we can't get extended data, fall back to max period as backup
-            try:
-                smas_history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", "1d"))
-            except Exception:
-                smas_history = pd.DataFrame()
+    try:
+        daily_history = pd.DataFrame(
+            stocks_repository.get_ticker_history_from_start(query.ticker_name, extended_start_str, "1d")
+        )
+    except Exception:
+        daily_history = pd.DataFrame()
 
-    if not smas_history.empty and "Close" in smas_history.columns:
-        # Calculate SMA over the extended period
-        sma_values = {}
+    if not daily_history.empty and "Close" in daily_history.columns:
+        # Prepare daily closes with timezone-naive dates
+        if "Datetime" in daily_history:
+            daily_history["Date"] = daily_history["Datetime"].dt.normalize()
+        else:
+            daily_history["Date"] = pd.to_datetime(daily_history["Date"])
+        if hasattr(daily_history["Date"], "dt") and hasattr(daily_history["Date"].dt, "tz_localize"):
+            daily_history["Date"] = daily_history["Date"].dt.tz_localize(None)
+        daily_history = daily_history.sort_values("Date")
+        daily_history = daily_history.set_index("Date")
+
+        # Compute rolling SMAs on daily closes
+        sma_df = pd.DataFrame({size: daily_history["Close"].rolling(window=size).mean() for size in smas_sizes})
+        if hasattr(sma_df.index, "tz") and sma_df.index.tz is not None:
+            sma_df.index = sma_df.index.tz_localize(None)
+
+        # Only keep main_dates for which a full SMA window is available (i.e., drop first max_sma_window-1)
+        valid_mask = main_dates >= (extended_start + dt.timedelta(days=max_sma_window - 1))
+        filtered_dates = main_dates[valid_mask]
+        filtered_indices = [i for i, v in enumerate(valid_mask) if v]
+
+        smas = {}
         for size in smas_sizes:
-            sma_series = smas_history["Close"].rolling(window=size).mean().fillna(0)
+            # For each filtered main date, get the SMA value for that date
+            aligned = sma_df[size].reindex(filtered_dates, method="ffill")
+            smas[size] = [float(x) for x in aligned.tolist()]
 
-            # Align SMA values with the requested period by taking the appropriate slice
-            # For both max and specific periods, we want SMA values that correspond to our price data
-            if len(sma_series) >= len(candles):
-                sma_values[size] = sma_series.tolist()[-len(candles):]
-            else:
-                # If we don't have enough SMA data, pad with zeros at the beginning
-                sma_list = sma_series.tolist()
-                padding_size = len(candles) - len(sma_list)
-                sma_values[size] = ([0.0] * padding_size) + sma_list
-
-        smas = sma_values
+        # Also filter candles and dates to only those with valid SMA
+        candles = [candles[i] for i in filtered_indices]
+        dates = [dates[i] for i in filtered_indices]
     else:
         # If no SMA history is available, provide empty/zero values
-        smas = {size: [0.0] * len(candles) for size in smas_sizes}
+        smas = {size: [] for size in smas_sizes}
+        candles = []
+        dates = []
 
-    return models.TickerResponse(
-        dates=dates,
-        candles=candles,
-        query=query,
-        delta=delta,
-        smas=smas,
-    )
+    return models.TickerResponse(query=query, history=history, smas=smas, candles=candles, dates=dates, delta=delta)
 
 
 def get_compare_growth(query: models.CompareGrowthQuery) -> models.CompareGrowthResponse:
