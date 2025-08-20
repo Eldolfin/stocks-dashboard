@@ -40,7 +40,7 @@ def mock_ticker_history(ticker_name: str, period: str, interval: str) -> pd.Data
     price_data = [base_price + i * 0.1 + (i % 10) * 0.5 for i in range(len(dates))]
     
     return pd.DataFrame({
-        'Date': dates,
+        'Date': dates.tz_localize('UTC'),  # Make timezone-aware to match production behavior
         'Open': [p * 0.99 for p in price_data],
         'Close': price_data,
         'High': [p * 1.02 for p in price_data],
@@ -58,7 +58,7 @@ def mock_ticker_history_from_start(ticker_name: str, start: str, interval: str) 
     price_data = [base_price + i * 0.1 + (i % 10) * 0.5 for i in range(len(dates))]
     
     return pd.DataFrame({
-        'Date': dates,
+        'Date': dates.tz_localize('UTC'),  # Make timezone-aware to match production behavior
         'Open': [p * 0.99 for p in price_data],
         'Close': price_data,
         'High': [p * 1.02 for p in price_data],
