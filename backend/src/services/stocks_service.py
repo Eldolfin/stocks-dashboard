@@ -59,47 +59,47 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     max_sma_window = max(smas_sizes)
     
     if query.period == "max":
-        # For max period, use the same data as the main query
+        # For max period, use the same data as the main query to ensure alignment
         smas_history = history.copy()
     else:
         # For specific periods, get additional historical data to ensure accurate SMA calculation
-        # Extend the start date by the maximum SMA window to get sufficient lookback data
+        # We extend the start date by the maximum SMA window to get sufficient lookback data
         extended_duration = duration + dt.timedelta(days=max_sma_window)
         extended_start = now() - extended_duration
         extended_start_str = extended_start.strftime("%Y-%m-%d")
         
         try:
-            # Get extended historical data for SMA calculation
+            # Get extended historical data for SMA calculation with daily interval for consistency
             smas_history = pd.DataFrame(
                 stocks_repository.get_ticker_history_from_start(query.ticker_name, extended_start_str, "1d")
             )
         except Exception:
-            # If we can't get extended data, fall back to max period
-            smas_history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", "1d"))
+            # If we can't get extended data, fall back to max period as backup
+            try:
+                smas_history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", "1d"))
+            except Exception:
+                smas_history = pd.DataFrame()
     
-    if not smas_history.empty:
+    if not smas_history.empty and "Close" in smas_history.columns:
         # Calculate SMA over the extended period
         sma_values = {}
         for size in smas_sizes:
             sma_series = smas_history["Close"].rolling(window=size).mean().fillna(0)
             
-            if query.period == "max":
-                # For max period, use all calculated SMA values that correspond to the price data
+            # Align SMA values with the requested period by taking the appropriate slice
+            # For both max and specific periods, we want SMA values that correspond to our price data
+            if len(sma_series) >= len(candles):
                 sma_values[size] = sma_series.tolist()[-len(candles):]
             else:
-                # For specific periods, align SMA values with the requested time range
-                # Find the SMA values that correspond to the requested period dates
-                if len(sma_series) >= len(candles):
-                    sma_values[size] = sma_series.tolist()[-len(candles):]
-                else:
-                    # If we don't have enough data, pad with zeros
-                    sma_list = sma_series.tolist()
-                    sma_values[size] = ([0] * (len(candles) - len(sma_list))) + sma_list
+                # If we don't have enough SMA data, pad with zeros at the beginning
+                sma_list = sma_series.tolist()
+                padding_size = len(candles) - len(sma_list)
+                sma_values[size] = ([0.0] * padding_size) + sma_list
         
         smas = sma_values
     else:
         # If no SMA history is available, provide empty/zero values
-        smas = {size: [0] * len(candles) for size in smas_sizes}
+        smas = {size: [0.0] * len(candles) for size in smas_sizes}
 
     return models.TickerResponse(
         dates=dates,
