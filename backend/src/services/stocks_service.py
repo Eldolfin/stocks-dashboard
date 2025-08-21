@@ -20,9 +20,13 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     n_points = 20
     history: pd.DataFrame
     if query.period == "max":
-        dat = stocks_repository.get_ticker_history(query.ticker_name, "max", "3mo")
+        dat = stocks_repository.get_ticker_history(
+            query.ticker_name, "max", "3mo"
+        )
         history = pd.DataFrame(dat)
-        duration = now().replace(tzinfo=None) - history.iloc[0]["Date"].replace(tzinfo=None)
+        duration = now().replace(tzinfo=None) - history.iloc[0]["Date"].replace(
+            tzinfo=None
+        )
     else:
         duration = interval_to_duration(query.period)
     if query.interval is None or query.interval == "auto":
@@ -31,11 +35,24 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     start = now() - duration
     start = start.strftime("%Y-%m-%d")
     if query.period == "max":
-        history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", query.interval))
+        history = pd.DataFrame(
+            stocks_repository.get_ticker_history(
+                query.ticker_name, "max", query.interval
+            )
+        )
     else:
         history = pd.DataFrame(
-            stocks_repository.get_ticker_history_from_start(query.ticker_name, start, query.interval)
+            stocks_repository.get_ticker_history_from_start(
+                query.ticker_name, start, query.interval
+            )
         )
+        # Fallback: if no data, try 'max' period
+        if history.empty:
+            history = pd.DataFrame(
+                stocks_repository.get_ticker_history(
+                    query.ticker_name, "max", query.interval
+                )
+            )
     if history.empty:
         return None
 
@@ -53,77 +70,103 @@ def get_ticker(query: models.TickerQuery) -> models.TickerResponse | None:
     candles = history["Close"].tolist()
     delta = (last_row["Close"] - first_row["Open"]) / first_row["Open"]
 
-    # Calculate SMA for the requested period, not always "max"
-    # We need enough historical data for the largest SMA window (500 days)
-    smas_sizes = [30, 100, 500]
+    smas_sizes = [30, 100]
     max_sma_window = max(smas_sizes)
 
-    if query.period == "max":
-        # For max period, use the same data as the main query to ensure alignment
-        smas_history = history.copy()
-    else:
-        # For specific periods, get additional historical data to ensure accurate SMA calculation
-        # We extend the start date by the maximum SMA window to get sufficient lookback data
-        extended_duration = duration + dt.timedelta(days=max_sma_window)
-        extended_start = now() - extended_duration
-        extended_start_str = extended_start.strftime("%Y-%m-%d")
+    # Calculate how much daily data is needed to ensure all SMA values are valid
+    main_dates = pd.to_datetime(history["Date"])
+    n_main = len(main_dates)
+    # We need at least n_main + max_sma_window - 1 daily closes, starting from earliest main date - (max_sma_window-1)
+    first_main_date = main_dates.iloc[0]
+    extended_start = first_main_date - dt.timedelta(
+        days=max_sma_window + n_main
+    )
+    extended_start_str = extended_start.strftime("%Y-%m-%d")
 
-        try:
-            # Get extended historical data for SMA calculation with daily interval for consistency
-            smas_history = pd.DataFrame(
-                stocks_repository.get_ticker_history_from_start(query.ticker_name, extended_start_str, "1d")
+    try:
+        daily_history = pd.DataFrame(
+            stocks_repository.get_ticker_history_from_start(
+                query.ticker_name, extended_start_str, "1d"
             )
-        except Exception:
-            # If we can't get extended data, fall back to max period as backup
-            try:
-                smas_history = pd.DataFrame(stocks_repository.get_ticker_history(query.ticker_name, "max", "1d"))
-            except Exception:
-                smas_history = pd.DataFrame()
+        )
+    except Exception:
+        daily_history = pd.DataFrame()
 
-    if not smas_history.empty and "Close" in smas_history.columns:
-        # Calculate SMA over the extended period
-        sma_values = {}
+    if not daily_history.empty and "Close" in daily_history.columns:
+        # Prepare daily closes with timezone-naive dates
+        if "Datetime" in daily_history:
+            daily_history["Date"] = daily_history["Datetime"].dt.normalize()
+        else:
+            daily_history["Date"] = pd.to_datetime(daily_history["Date"])
+        if hasattr(daily_history["Date"], "dt") and hasattr(
+            daily_history["Date"].dt, "tz_localize"
+        ):
+            daily_history["Date"] = daily_history["Date"].dt.tz_localize(None)
+        daily_history = daily_history.sort_values("Date")
+        daily_history = daily_history.set_index("Date")
+
+        # Compute rolling SMAs on daily closes
+        sma_df = pd.DataFrame(
+            {
+                size: daily_history["Close"].rolling(window=size).mean()
+                for size in smas_sizes
+            }
+        )
+
+        # Only keep main_dates for which a full SMA window is available (i.e., drop first max_sma_window-1)
+        valid_mask = main_dates >= (
+            extended_start + dt.timedelta(days=max_sma_window - 1)
+        )
+        filtered_dates = main_dates[valid_mask]
+        filtered_indices = [i for i, v in enumerate(valid_mask) if v]
+
+        smas = {}
         for size in smas_sizes:
-            sma_series = smas_history["Close"].rolling(window=size).mean().fillna(0)
+            # For each filtered main date, get the SMA value for that date
+            aligned = sma_df[size].reindex(filtered_dates, method="ffill")
+            smas[size] = [float(x) for x in aligned.tolist()]
 
-            # Align SMA values with the requested period by taking the appropriate slice
-            # For both max and specific periods, we want SMA values that correspond to our price data
-            if len(sma_series) >= len(candles):
-                sma_values[size] = sma_series.tolist()[-len(candles):]
-            else:
-                # If we don't have enough SMA data, pad with zeros at the beginning
-                sma_list = sma_series.tolist()
-                padding_size = len(candles) - len(sma_list)
-                sma_values[size] = ([0.0] * padding_size) + sma_list
-
-        smas = sma_values
+        # Also filter candles and dates to only those with valid SMA
+        candles = [candles[i] for i in filtered_indices]
+        dates = [dates[i] for i in filtered_indices]
     else:
         # If no SMA history is available, provide empty/zero values
-        smas = {size: [0.0] * len(candles) for size in smas_sizes}
+        smas = {size: [] for size in smas_sizes}
+        candles = []
+        dates = []
 
     return models.TickerResponse(
-        dates=dates,
-        candles=candles,
         query=query,
-        delta=delta,
         smas=smas,
+        candles=candles,
+        dates=dates,
+        delta=delta,
     )
 
 
-def get_compare_growth(query: models.CompareGrowthQuery) -> models.CompareGrowthResponse:
+def get_compare_growth(
+    query: models.CompareGrowthQuery,
+) -> models.CompareGrowthResponse:
     if len(query.ticker_names) == 1:
         query.ticker_names = query.ticker_names[0].split(",")
 
-    hist = stocks_repository.get_tickers_history(query.ticker_names, query.period)
+    hist = stocks_repository.get_tickers_history(
+        query.ticker_names, query.period
+    )
 
     close_df = hist.xs("Close", level="Price", axis=1)
     base_prices = close_df.iloc[0]
     ratios_df = close_df.divide(base_prices)
 
-    candles = {ticker: ratios_df.loc[:, ticker].tolist() for ticker in query.ticker_names}
+    candles = {
+        ticker: ratios_df.loc[:, ticker].tolist()
+        for ticker in query.ticker_names
+    }
     dates = [index.strftime("%Y-%m-%d") for index in ratios_df.index]
 
-    return models.CompareGrowthResponse(query=query, candles=candles, dates=dates)
+    return models.CompareGrowthResponse(
+        query=query, candles=candles, dates=dates
+    )
 
 
 def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
@@ -148,7 +191,9 @@ def get_kpis(query: models.KPIQuery) -> models.KPIResponse | None:
     else:
         main = None
 
-    analyst_price_targets = stocks_repository.get_ticker_analyst_price_targets(query.ticker_name)
+    analyst_price_targets = stocks_repository.get_ticker_analyst_price_targets(
+        query.ticker_name
+    )
 
     return models.KPIResponse(
         query=query,
@@ -164,18 +209,38 @@ def get_historical_kpis(query: models.KPIQuery) -> models.HistoricalKPIs | None:
 
 def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
     raw_quotes: list[models.RawQuote] = list(
-        map(models.RawQuote.model_validate, stocks_repository.search(query.query)),
+        map(
+            models.RawQuote.model_validate,
+            stocks_repository.search(query.query),
+        ),
     )
     quotes_names = [quote.symbol for quote in raw_quotes]
     tickers = stocks_repository.get_tickers(quotes_names)
-    infos: list[models.Info] = [models.Info.model_validate(t.info) for t in tickers.values()]
-    deltas = [(((i.currentPrice - i.open) / i.currentPrice) if i.currentPrice and i.open else None) for i in infos]
+    infos: list[models.Info] = [
+        models.Info.model_validate(t.info) for t in tickers.values()
+    ]
+    deltas = [
+        (
+            ((i.currentPrice - i.open) / i.currentPrice)
+            if i.currentPrice and i.open
+            else None
+        )
+        for i in infos
+    ]
 
     cryptos_filtered = STATIC_CRYPTO[
-        STATIC_CRYPTO.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+        STATIC_CRYPTO.apply(
+            lambda row: row.astype(str).str.contains(
+                query.query, case=False, na=False
+            )
+        ).any(axis=1)
     ]
     index_filtered = STATIC_INDEX[
-        STATIC_INDEX.apply(lambda row: row.astype(str).str.contains(query.query, case=False, na=False)).any(axis=1)
+        STATIC_INDEX.apply(
+            lambda row: row.astype(str).str.contains(
+                query.query, case=False, na=False
+            )
+        ).any(axis=1)
     ]
 
     quotes_classic = [
@@ -183,18 +248,24 @@ def search_ticker(query: models.SearchQuery) -> models.SearchResponse:
             symbol=raw.symbol,
             long_name=raw.longname or raw.shortname or "MISSING!!",
             icon_url=(
-                None if info.website is None else f"https://financialmodelingprep.com/image-stock/{info.symbol}.png"
+                None
+                if info.website is None
+                else f"https://financialmodelingprep.com/image-stock/{info.symbol}.png"
             ),
             today_change=today_change,
         )
-        for (raw, info, today_change) in zip(raw_quotes, infos, deltas, strict=True)
+        for (raw, info, today_change) in zip(
+            raw_quotes, infos, deltas, strict=True
+        )
         if info.currentPrice is not None
     ]
     quotes_cryptos = [
         models.Quote(
             symbol=row["Ticker"],
             long_name=row["Name"],
-            icon_url=(f"https://financialmodelingprep.com/image-stock/{row['Ticker'].removesuffix('-USD')}.png"),
+            icon_url=(
+                f"https://financialmodelingprep.com/image-stock/{row['Ticker'].removesuffix('-USD')}.png"
+            ),
             today_change=None,
         )
         for (_, row) in cryptos_filtered.iterrows()
@@ -227,11 +298,17 @@ def list_etoro_reports(user_email: str) -> models.EtoroReportsResponse:
     if not Path.exists(user_etoro_folder):
         return models.EtoroReportsResponse(reports=[])
 
-    reports = [f.name for f in user_etoro_folder.iterdir() if (Path(user_etoro_folder) / f).exists()]
+    reports = [
+        f.name
+        for f in user_etoro_folder.iterdir()
+        if (Path(user_etoro_folder) / f).exists()
+    ]
     return models.EtoroReportsResponse(reports=reports)
 
 
-def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_email: str) -> str:
+def analyze_etoro_excel_by_name_async(
+    query: models.EtoroTradeCountQuery, user_email: str
+) -> str:
     """Start async analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -243,16 +320,26 @@ def analyze_etoro_excel_by_name_async(query: models.EtoroTradeCountQuery, user_e
     task_id = task_manager.create_task()
 
     def _run_analysis(task_id: str) -> dict[str, list[str]]:
-        def progress_callback(step_name: str, step_number: int, step_count: int) -> None:
-            task_manager.update_progress(task_id, TaskProgress(step_name, step_number, step_count))
+        def progress_callback(
+            step_name: str, step_number: int, step_count: int
+        ) -> None:
+            task_manager.update_progress(
+                task_id, TaskProgress(step_name, step_number, step_count)
+            )
 
-        return extract_closed_position(file_path, time_unit=query.precision, progress_callback=progress_callback)
+        return extract_closed_position(
+            file_path,
+            time_unit=query.precision,
+            progress_callback=progress_callback,
+        )
 
     task_manager.run_task(task_id, _run_analysis)
     return task_id
 
 
-def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, user_email: str) -> str:
+def analyze_etoro_evolution_by_name_async(
+    query: models.EtoroEvolutionQuery, user_email: str
+) -> str:
     """Start async evolution analysis and return task ID."""
     user_etoro_folder = Path(current_app.config["UPLOAD_FOLDER"]) / user_email
     file_path = Path(user_etoro_folder) / query.filename
@@ -267,7 +354,9 @@ def analyze_etoro_evolution_by_name_async(query: models.EtoroEvolutionQuery, use
         def progress_callback(new_progress: TaskProgress) -> None:
             task_manager.update_progress(task_id, new_progress)
 
-        evolution = extract_portfolio_evolution(file_path, progress_callback=progress_callback)
+        evolution = extract_portfolio_evolution(
+            file_path, progress_callback=progress_callback
+        )
         return models.EtoroEvolutionResponse(evolution=evolution)
 
     task_manager.run_task(task_id, _run_analysis)
