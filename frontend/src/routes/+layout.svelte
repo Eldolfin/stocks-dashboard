@@ -29,7 +29,7 @@
 			await client.POST('/api/logout');
 			isLoggedIn = false;
 			userProfilePicture = null;
-			invalidate('data:user_auth');
+			invalidate('/api/user');
 		} catch (error) {
 			console.error('Logout failed:', error);
 		}

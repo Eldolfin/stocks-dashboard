@@ -74,7 +74,7 @@
 
 <!-- Header -->
 <div class="text-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">WallStreet Bets 💸</h1>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">Finsight</h1>
 </div>
 
 <form class="my-8">

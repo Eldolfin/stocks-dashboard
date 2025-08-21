@@ -21,7 +21,7 @@
 				// FIXME: ??
 				errorMessage = 'Login failed';
 			} else if (response.data) {
-				goto('/', { invalidate: ['data:user_auth'] });
+				goto('/', { invalidate: ['/api/user'] });
 			}
 		} catch (error) {
 			errorMessage = 'An unexpected error occurred.';
