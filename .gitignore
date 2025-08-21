@@ -19,3 +19,4 @@ backend/historical-data/cleaned/*.csv#
 backend/historical-data/.~*#
 app/src-tauri/gen/android/keystore.properties
 .direnv
+app/gen/android/buildSrc/.kotlin/errors

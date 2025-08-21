@@ -46,7 +46,7 @@
 		on:submit|preventDefault={handleRegister}
 		class="w-full max-w-md space-y-6 rounded-lg p-8 shadow-md"
 	>
-		<h2 class="text-center text-2xl font-bold text-gray-900 text-white">Register</h2>
+		<h2 class="text-center text-2xl font-bold  text-white">Register</h2>
 
 		{#if errorMessage}
 			<p class="text-center text-red-500">{errorMessage}</p>
@@ -56,14 +56,14 @@
 		{/if}
 
 		<div>
-			<Label for="email" class="mb-2 block text-sm font-medium text-gray-900 text-white"
+			<Label for="email" class="mb-2 block text-sm font-medium  text-white"
 				>Your email</Label
 			>
 			<Input type="email" id="email" bind:value={email} required class="h-12 w-full px-4 py-2" />
 		</div>
 
 		<div>
-			<Label for="password" class="mb-2 block text-sm font-medium text-gray-900 text-white"
+			<Label for="password" class="mb-2 block text-sm font-medium  text-white"
 				>Your password</Label
 			>
 			<Input
@@ -76,7 +76,7 @@
 		</div>
 
 		<div>
-			<Label for="profile_picture" class="mb-2 block text-sm font-medium text-gray-900 text-white"
+			<Label for="profile_picture" class="mb-2 block text-sm font-medium  text-white"
 				>Profile Picture (Optional)</Label
 			>
 			<Fileupload
@@ -89,7 +89,7 @@
 
 		<Button type="submit" class="w-full">Register</Button>
 
-		<p class="text-center text-sm text-gray-400 text-gray-500">
+		<p class="text-center text-sm  ">
 			Already have an account? <a
 				href="/login"
 				class="text-primary-600 text-primary-500 font-medium hover:underline">Login here</a
