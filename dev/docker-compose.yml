@@ -12,6 +12,10 @@ services:
       - ./backend-db:/database
     environment:
       BACKEND_AUTH_SECRET_KEY: ${BACKEND_AUTH_SECRET_KEY}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET}
+      AUTHENTIK_METADATA_URL: ${AUTHENTIK_METADATA_URL}
+      AUTHENTIK_LOGOUT_URL: ${AUTHENTIK_LOGOUT_URL}
     healthcheck:
       interval: 30s
       timeout: 5s
