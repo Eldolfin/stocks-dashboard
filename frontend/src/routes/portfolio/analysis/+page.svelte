@@ -233,7 +233,7 @@
 
 			{#if trades_data}
 				<div
-					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
+					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md border-gray-600 bg-gray-800"
 				>
 					<FullscreenWrapper
 						title="Closed trades returns"
@@ -258,7 +258,7 @@
 							max={precision_values.length - 1}
 							step="1"
 							bind:value={precision_index}
-							class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 dark:bg-gray-700"
+							class="h-2 w-64 cursor-pointer appearance-none rounded-lg bg-gray-700 bg-gray-700"
 						/>
 					</div>
 				</div>
@@ -276,7 +276,7 @@
 
 			{#if evolution_data}
 				<div
-					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
+					class="rounded-lg border border-gray-300 bg-white p-6 shadow-md border-gray-600 bg-gray-800"
 				>
 					<FullscreenWrapper
 						title="Total profits evolution overtime"
@@ -296,9 +296,9 @@
 
 	<!-- Index Comparison Section -->
 	<div
-		class="mt-8 rounded-lg border border-gray-300 bg-white p-6 shadow-md dark:border-gray-600 dark:bg-gray-800"
+		class="mt-8 rounded-lg border border-gray-300 bg-white p-6 shadow-md border-gray-600 bg-gray-800"
 	>
-		<h2 class="text-lg font-semibold text-gray-800 dark:text-white">Compare with Index</h2>
+		<h2 class="text-lg font-semibold text-gray-800 text-white">Compare with Index</h2>
 
 		<div class="mt-4">
 			<IndexDropdown selected={selectedIndex} onSelect={handleIndexSelect} />
