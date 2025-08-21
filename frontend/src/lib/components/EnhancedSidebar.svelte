@@ -11,9 +11,14 @@
 		CodeOutline
 	} from 'flowbite-svelte-icons';
 	import { isSidebarCollapsed } from '../stores/sidebarStore';
+	import type { User } from '$lib/contexts/user.svelte';
 
+	type Props = {
+		user: User;
+		handleLogout: () => void;
+	};
 	// Props for authentication state
-	let { isLoggedIn, userProfilePicture, handleLogout } = $props();
+	let { user, handleLogout }: Props = $props();
 
 	// Toggle sidebar state
 	function toggleSidebar() {
@@ -95,16 +100,16 @@
 
 		<!-- User Profile section -->
 		<div class="mt-8 border-t border-gray-700 pt-8">
-			{#if isLoggedIn}
+			{#if user.loggedIn}
 				<!-- User Profile Picture -->
 				<a
 					href="/profile"
 					class="flex items-center rounded-lg p-3 text-gray-300 transition-colors duration-200 hover:bg-gray-700 hover:text-white"
 					class:justify-center={$isSidebarCollapsed}
 				>
-					{#if userProfilePicture}
+					{#if user.profilePicture}
 						<img
-							src={userProfilePicture}
+							src={user.profilePicture}
 							alt="User Profile"
 							class="h-6 w-6 flex-shrink-0 rounded-full"
 						/>
@@ -130,7 +135,7 @@
 			{/if}
 
 			<!-- Login/Logout/Register links -->
-			{#if isLoggedIn}
+			{#if user.loggedIn}
 				<!-- Logout link -->
 				<button
 					onclick={handleLogout}

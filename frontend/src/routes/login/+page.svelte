@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getUserContext } from '$lib/contexts/user.svelte';
 	import { client } from '$lib/typed-fetch-client';
-	import { goto } from '$app/navigation';
 	import { Button, Label, Input } from 'flowbite-svelte';
 
 	let email = '';
 	let password = '';
 	let errorMessage = '';
+	let userContext = getUserContext();
 
 	async function handleLogin() {
 		errorMessage = '';
@@ -21,7 +22,8 @@
 				// FIXME: ??
 				errorMessage = 'Login failed';
 			} else if (response.data) {
-				goto('/', { invalidate: ['/api/user'] });
+				userContext.loggedIn = true;
+				goto('/');
 			}
 		} catch (error) {
 			errorMessage = 'An unexpected error occurred.';

@@ -51,6 +51,7 @@
                   # toolchain2
                   # androidenv.androidPkgs.ndk-bundle
                   fastlane
+                  playwright-test
                 ];
               runScript = "fish";
             }).env;
