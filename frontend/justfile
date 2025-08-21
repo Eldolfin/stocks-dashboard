@@ -19,6 +19,9 @@ _lint-svelte:
 [parallel]
 lint: _lint-js _lint-svelte
 
+fmt:
+	deno task format
+
 # Regenerate api types from the running backend openapi spec
 generate-api-types:
 	deno task generate-api-types

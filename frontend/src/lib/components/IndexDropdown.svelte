@@ -24,15 +24,15 @@
 		type="text"
 		placeholder="Search index..."
 		bind:value={$search}
-		class="mb-2 w-full rounded border border-gray-300 bg-white p-2 text-gray-900 border-gray-600 bg-gray-700 text-white placeholder-gray-400"
+		class="mb-2 w-full rounded border border-gray-300 border-gray-600 bg-gray-700 bg-white p-2 text-gray-900 text-white placeholder-gray-400"
 	/>
 	<ul
-		class="max-h-48 overflow-auto rounded border border-gray-300 bg-white shadow border-gray-600 bg-gray-800"
+		class="max-h-48 overflow-auto rounded border border-gray-300 border-gray-600 bg-gray-800 bg-white shadow"
 	>
 		{#each $filtered as opt (opt.value)}
 			<button
 				type="button"
-				class="w-full cursor-pointer p-2 text-left text-gray-900 hover:bg-gray-200 text-white hover:bg-gray-700 {selected ===
+				class="w-full cursor-pointer p-2 text-left text-gray-900 text-white hover:bg-gray-200 hover:bg-gray-700 {selected ===
 				opt.value
 					? 'bg-blue-100 bg-blue-900'
 					: ''}"

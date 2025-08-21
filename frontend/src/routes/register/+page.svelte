@@ -76,9 +76,7 @@
 		</div>
 
 		<div>
-			<Label
-				for="profile_picture"
-				class="mb-2 block text-sm font-medium text-gray-900 text-white"
+			<Label for="profile_picture" class="mb-2 block text-sm font-medium text-gray-900 text-white"
 				>Profile Picture (Optional)</Label
 			>
 			<Fileupload
@@ -91,7 +89,7 @@
 
 		<Button type="submit" class="w-full">Register</Button>
 
-		<p class="text-center text-sm text-gray-500 text-gray-400">
+		<p class="text-center text-sm text-gray-400 text-gray-500">
 			Already have an account? <a
 				href="/login"
 				class="text-primary-600 text-primary-500 font-medium hover:underline">Login here</a

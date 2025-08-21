@@ -89,9 +89,7 @@
 
 <div class="p-8">
 	{#if showLoginMessage}
-		<div
-			class="mb-6 rounded-lg border-l-4 p-4 border-blue-400 bg-blue-900 text-blue-200"
-		>
+		<div class="mb-6 rounded-lg border-l-4 border-blue-400 bg-blue-900 p-4 text-blue-200">
 			<div class="flex items-center">
 				<svg
 					class="mr-2 h-5 w-5"

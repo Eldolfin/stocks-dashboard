@@ -66,7 +66,7 @@
 
 		<Button type="submit" class="w-full">Login</Button>
 
-		<p class="text-center text-sm text-gray-500 text-gray-400">
+		<p class="text-center text-sm text-gray-400 text-gray-500">
 			Don't have an account? <a
 				href="/register"
 				class="text-primary-600 text-primary-500 font-medium hover:underline">Register here</a

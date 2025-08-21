@@ -14,7 +14,7 @@
 	);
 </script>
 
-<div class="flex justify-between text-sm text-gray-600 text-gray-300">
+<div class="flex justify-between text-sm text-gray-300 text-gray-600">
 	<span>{progress.step_name}</span>
 	<span>{progress.step_number} / {progress.step_count}</span>
 </div>

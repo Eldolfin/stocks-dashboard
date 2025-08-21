@@ -14,17 +14,15 @@
 </script>
 
 {#if !isComplete}
-	<div
-		class="rounded-lg border border-gray-300 bg-white p-6 shadow-md border-gray-600 bg-gray-800"
-	>
+	<div class="rounded-lg border border-gray-300 border-gray-600 bg-gray-800 bg-white p-6 shadow-md">
 		<h3 class="mb-4 text-lg font-semibold text-gray-900 text-white">{title}</h3>
 
 		{#if error}
-			<div class="rounded-md bg-red-50 p-4 bg-red-900/20">
+			<div class="rounded-md bg-red-50 bg-red-900/20 p-4">
 				<div class="flex">
 					<div class="ml-3">
-						<h3 class="text-sm font-medium text-red-800 text-red-200">Error</h3>
-						<div class="mt-2 text-sm text-red-700 text-red-300">
+						<h3 class="text-sm font-medium text-red-200 text-red-800">Error</h3>
+						<div class="mt-2 text-sm text-red-300 text-red-700">
 							<p>{error}</p>
 						</div>
 					</div>
@@ -36,7 +34,7 @@
 			</div>
 		{:else}
 			<div class="space-y-3">
-				<div class="text-sm text-gray-600 text-gray-300">
+				<div class="text-sm text-gray-300 text-gray-600">
 					<span>Starting analysis...</span>
 				</div>
 				<div class="h-2.5 w-full rounded-full bg-gray-200 bg-gray-700">
