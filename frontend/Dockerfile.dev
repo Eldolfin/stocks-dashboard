@@ -1,4 +1,4 @@
-FROM denoland/deno:2.4.4 AS builder
+FROM denoland/deno:2.4.5 AS builder
 RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 EXPOSE 3000
