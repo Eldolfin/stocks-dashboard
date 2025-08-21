@@ -2,6 +2,7 @@
 	import { getUserContext } from '$lib/contexts/user.svelte';
 	import { client } from '$lib/typed-fetch-client';
 	import { Button, Label, Input } from 'flowbite-svelte';
+	import { goto } from '$app/navigation';
 
 	let email = '';
 	let password = '';
