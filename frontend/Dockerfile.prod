@@ -14,6 +14,6 @@ FROM caddy:2.10-alpine as runner
 EXPOSE 3000
 WORKDIR /srv
 COPY --from=builder /app/build /srv
-
-CMD ["caddy", "file-server", "--listen", "0.0.0.0:3000"]
+COPY Caddyfile /etc/caddy/Caddyfile
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 HEALTHCHECK CMD wget -O /dev/null http://localhost:3000
