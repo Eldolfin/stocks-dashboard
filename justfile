@@ -45,8 +45,6 @@ build-android: frontend::install
 dev-android: frontend::install
     cargo tauri android dev
 
-
-
 # Removes all built files
 [confirm("Are you sure you want to delete everything?")]
 clean:
