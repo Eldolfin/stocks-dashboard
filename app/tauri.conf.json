@@ -6,13 +6,13 @@
   "build": {
     "frontendDist": "../frontend/build",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "just deno task dev",
-    "beforeBuildCommand": "just build-static-ext"
+    "beforeDevCommand": "just frontend::deno task dev",
+    "beforeBuildCommand": "just frontend::build-static-ext"
   },
   "app": {
     "windows": [
       {
-        "title": "Wallstreet Bets portable",
+        "title": "Finsight",
         "width": 800,
         "height": 600,
         "resizable": true,

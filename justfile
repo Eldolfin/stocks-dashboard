@@ -40,7 +40,7 @@ _dc-prod *args:
         {{args}}
 
 build-android: frontend::install
-    cargo tauri android build
+    cd app && cargo tauri android build
 
 dev-android: frontend::install
     cargo tauri android dev
