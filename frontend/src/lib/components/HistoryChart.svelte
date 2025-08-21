@@ -3,13 +3,12 @@
 	import { transparentize } from '$lib/chart-utils';
 	import { onDestroy, onMount } from 'svelte';
 	import TickerSelector from './TickerSelector.svelte';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		title: string;
-		dataset: { [key: string]: number[] };
+		dataset: Map<string, number[]>;
 		dates: string[];
-		color: string;
 		showTickerSelector?: boolean;
 		defaultShown?: string[];
 		showLegend?: boolean;
@@ -19,63 +18,62 @@
 		title,
 		dataset,
 		dates,
-		color,
 		showTickerSelector = false,
 		defaultShown,
 		showLegend = true,
 		zoomable = true
 	}: Props = $props();
 	let chartElt;
-	let chartInstance: Chart | undefined | null;
+	let chartInstance: Chart | undefined | null = $state(null);
 
 	// Ticker selection state - only used when showTickerSelector is true
-	let selectedTickers = $state(new SvelteSet<string>());
+	// svelte-ignore non_reactive_update
+	let selectedTickers = new SvelteSet<string>();
 	let selectedTickersArray = $derived(Array.from(selectedTickers));
+	const result = new SvelteMap<string, number[]>();
+
 	let availableTickers: string[] = $derived(
 		showTickerSelector
-			? Object.keys(dataset).filter(
-					(ticker) => [undefined, -1].indexOf(defaultShown?.indexOf(ticker)) !== -1
-				)
+			? dataset
+					.keys()
+					.filter((ticker) => [undefined, -1].indexOf(defaultShown?.indexOf(ticker)) !== -1)
+					.toArray()
 			: []
 	);
 
 	// Computed dataset based on selected tickers
 	let filteredDataset = $derived(() => {
-		console.log('filteredDataset recalculating, selectedTickers size:', selectedTickers.size);
-		console.log('selectedTickersArray:', selectedTickersArray);
-
 		if (!showTickerSelector) {
 			return dataset;
 		}
 
-		const result: { [key: string]: number[] } = {};
-
 		if (defaultShown) {
 			for (const ticker of defaultShown) {
-				result[ticker] = dataset[ticker];
+				result.set(ticker, dataset.get(ticker)!);
 			}
 		}
 
 		// Add selected individual tickers
 		// Use the derived array to ensure proper reactivity tracking
 		for (const ticker of selectedTickersArray) {
-			if (dataset[ticker]) {
-				console.log('Adding ticker to chart:', ticker);
-				result[ticker] = dataset[ticker];
+			if (dataset.has(ticker)) {
+				result.set(ticker, dataset.get(ticker)!);
 			}
 		}
 
-		console.log('filteredDataset result keys:', Object.keys(result));
 		return result;
 	});
 
-	const createChart = () => {
+	const getDataset = () => {
 		const mainColumns = ['Total', 'price'];
-		const entries = Object.entries(filteredDataset()).sort(([labelA], [labelB]) => {
-			const isMainA = mainColumns.includes(labelA);
-			const isMainB = mainColumns.includes(labelB);
-			return isMainA === isMainB ? 0 : isMainA ? -1 : 1;
-		});
+		const entries = filteredDataset()
+			.entries()
+			.toArray()
+			.sort(([labelA], [labelB]) => {
+				const isMainA = mainColumns.includes(labelA);
+				const isMainB = mainColumns.includes(labelB);
+				return isMainA === isMainB ? 0 : isMainA ? -1 : 1;
+			});
 		const totalLines = entries.length;
 		// Move mainData ("Total" or "price") to the front
 		const data = {
@@ -98,9 +96,13 @@
 				};
 			})
 		};
+		return data;
+	};
+
+	const createChart = () => {
 		const config = {
 			type: 'line',
-			data: data,
+			data: getDataset(),
 			options: {
 				responsive: true,
 				animation: false,
@@ -180,28 +182,10 @@
 	});
 
 	$effect(() => {
-		// if (chartInstance) {
-		// 	chartInstance.data.labels = dates;
-		// 	chartInstance.data.datasets = Object.entries(filteredDataset()).map(
-		// 		([label, data], index) => {
-		// 			console.log('Creating dataset for:', label, 'with', data.length, 'data points');
-		// 			const isMainLine = label === 'price';
-		// 			const lineColor = isMainLine ? color : SMA_COLORS[index % SMA_COLORS.length];
-		// 			return {
-		// 				label,
-		// 				data: [...data],
-		// 				borderColor: lineColor,
-		// 				backgroundColor: transparentize(lineColor, 0.5),
-		// 				yAxisID: 'y'
-		// 			};
-		// 		}
-		// 	);
-		// 	console.log('Updating chart with', chartInstance.data.datasets.length, 'datasets');
-		// 	chartInstance.update();
-		// }
-		// FIXME: this is suboptimal + annoying to the user
-		// but for now I'm not re-assigning colors on dataset change so this is needed
-		createChart();
+		if (chartInstance) {
+			chartInstance.data = getDataset();
+			chartInstance.update('none');
+		}
 	});
 
 	onDestroy(() => {

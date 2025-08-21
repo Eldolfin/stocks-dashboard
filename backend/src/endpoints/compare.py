@@ -45,7 +45,7 @@ def compare_to_index(query: CompareToIndexQuery):
         index_prices = CompareToIndexService.get_index_prices(index_ticker, dates)
         index_values = CompareToIndexService.simulate_index_investment(dates, deposits, index_prices)
 
-        return CompareToIndexResponse(dates=dates, index_values=index_values).dict()
+        return CompareToIndexResponse(dates=dates, index_values=index_values, query=query).dict()
 
     except Exception as e:
         return BadRequestResponse(error=f"Processing error: {e!s}").dict(), 400

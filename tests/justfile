@@ -24,7 +24,7 @@ run:
 
 # Same as `test` but with the --ui argument passed to playwright for debugging
 run-ui:
-    npx playwright test --ui
+    playwright test --ui || npx playwright test --ui
 
 # Generate expected screenshots
 update-snapshots:

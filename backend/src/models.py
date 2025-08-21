@@ -525,5 +525,6 @@ class CompareToIndexQuery(BaseModel):
 
 
 class CompareToIndexResponse(BaseModel):
+    query: CompareToIndexQuery
     dates: list[str]
     index_values: list[float]

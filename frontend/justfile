@@ -1,5 +1,5 @@
-export VITE_API_BASE_EXTERNAL:= "http://localhost:5000"
-export VITE_API_BASE_INTERNAL:= "http://localhost:5000"
+export VITE_API_BASE_EXTERNAL := "http://localhost:5000"
+export VITE_API_BASE_INTERNAL := "http://localhost:5000"
 
 help:
     just --list
@@ -10,8 +10,29 @@ deno +args:
 install:
 	deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11
 
-lint:
+_lint-js:
+	deno task lint
+
+_lint-svelte:
 	deno task check
 
+[parallel]
+lint: _lint-js _lint-svelte
+
+fmt:
+	deno task format
+
+# Regenerate api types from the running backend openapi spec
 generate-api-types:
 	deno task generate-api-types
+
+# Build static website to build-static/
+build-static:
+	SVELTE_ADAPTER=static deno task build
+
+# Build static website for external use (such as apps)
+build-static-ext:
+	#!/bin/sh
+	export VITE_API_BASE_EXTERNAL="https://wsb.eldolfin.top"
+	export VITE_API_BASE_INTERNAL="https://wsb.eldolfin.top"
+	SVELTE_ADAPTER=static deno task build

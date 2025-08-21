@@ -1,8 +1,6 @@
 FROM denoland/deno:2.4.4 AS builder
 RUN apt-get update && apt-get install -y curl
 WORKDIR /app
-EXPOSE 3000
-ENV NODE_ENV=production
 
 
 COPY package.json deno.lock .
@@ -12,5 +10,10 @@ RUN deno task prepare
 COPY . .
 RUN deno task build
 
-CMD [ "deno", "--allow-env", "--allow-read", "--allow-net", "build/index.js" ]
-HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
+FROM caddy:2.10-alpine as runner
+EXPOSE 3000
+WORKDIR /srv
+COPY --from=builder /app/build /srv
+COPY Caddyfile /etc/caddy/Caddyfile
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+HEALTHCHECK CMD wget -O /dev/null http://localhost:3000

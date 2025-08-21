@@ -22,6 +22,7 @@ CORS(
         "http://localhost:5173",
         "http://localhost:8085",
         "https://wsb.eldolfin.top",
+        "http://tauri.localhost",
     ],
     supports_credentials=True,
 )

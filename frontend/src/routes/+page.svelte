@@ -74,7 +74,7 @@
 
 <!-- Header -->
 <div class="text-center">
-	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">WallStreet Bets 💸</h1>
+	<h1 class="animate-fade-in text-4xl font-bold sm:text-5xl">Finsight</h1>
 </div>
 
 <form class="my-8">
@@ -96,7 +96,7 @@
 				class="flex h-full flex-col justify-between rounded-2xl bg-gradient-to-tr from-[#121f3d] to-[#1f2f50] p-5 shadow-lg transition hover:scale-[1.02]"
 			>
 				<div>
-					<a href="/details/{quote.symbol}" class="flex flex-col items-center text-center">
+					<a href="/details?ticker={quote.symbol}" class="flex flex-col items-center text-center">
 						{#if quote.icon_url}
 							<img src={quote.icon_url} alt="" class="mb-2 h-12 w-12 rounded-full" />
 						{/if}
@@ -134,7 +134,7 @@
 		<ul class="space-y-1 text-sm text-gray-300">
 			{#each selectedTickerObjects as quote (quote.symbol)}
 				<li class="flex items-center justify-between">
-					<a href="/details/{quote.symbol}" class="flex items-center">
+					<a href="/details?ticker={quote.symbol}" class="flex items-center">
 						{#if quote.icon_url}
 							<img
 								src={quote.icon_url}
@@ -160,7 +160,7 @@
 		</ul>
 		<div class="mt-4 flex justify-end">
 			<a
-				href="/compare/{comparedTickersUrl()}"
+				href="/compare?tickers={comparedTickersUrl()}"
 				class="bg-brand rounded-full px-4 py-2 font-semibold text-black shadow transition hover:scale-105 {comparedTickers.size <
 				2
 					? 'cursor-not-allowed opacity-50'

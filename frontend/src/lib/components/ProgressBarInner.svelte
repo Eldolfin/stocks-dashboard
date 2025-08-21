@@ -14,11 +14,11 @@
 	);
 </script>
 
-<div class="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+<div class="flex justify-between text-sm text-gray-300 text-gray-600">
 	<span>{progress.step_name}</span>
 	<span>{progress.step_number} / {progress.step_count}</span>
 </div>
-<div class="h-2.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+<div class="h-2.5 w-full rounded-full bg-gray-200 bg-gray-700">
 	<div
 		class="h-2.5 rounded-full bg-blue-600 transition-all duration-300 ease-out"
 		style="width: {progressPercentage}%"

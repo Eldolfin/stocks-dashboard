@@ -5,8 +5,6 @@
 	import { goto } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 
-	let { data } = $props();
-
 	type Precision = components['schemas']['PrecisionEnum'];
 	type EtoroForm = components['schemas']['EtoroForm'];
 
@@ -46,9 +44,10 @@
 	}
 
 	// Fetch reports on component mount
-	onMount(() => {
+	onMount(async () => {
 		// Check if user is logged in, show message and redirect to login if not
-		if (!data.isLoggedIn) {
+		const { data: userData } = await client.GET('/api/user');
+		if (!userData) {
 			showLoginMessage = true;
 			// Redirect after 3 seconds to allow user to read the message
 			setTimeout(() => {
@@ -84,15 +83,13 @@
 
 	// Function to handle re-analysis of a selected report
 	async function reAnalyzeReport(reportName: string) {
-		goto(`/portfolio/analysis/${reportName}`);
+		goto(`/portfolio/analysis?sheet_name=${reportName}`);
 	}
 </script>
 
 <div class="p-8">
 	{#if showLoginMessage}
-		<div
-			class="mb-6 rounded-lg border-l-4 border-blue-500 bg-blue-100 p-4 text-blue-700 dark:border-blue-400 dark:bg-blue-900 dark:text-blue-200"
-		>
+		<div class="mb-6 rounded-lg border-l-4 border-blue-400 bg-blue-900 p-4 text-blue-200">
 			<div class="flex items-center">
 				<svg
 					class="mr-2 h-5 w-5"

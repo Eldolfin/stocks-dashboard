@@ -1,9 +1,34 @@
 <script lang="ts">
+	import BarChart from './BarChart.svelte';
+	import HistoryChart from './HistoryChart.svelte';
+
+	type BarChartProps = {
+		title: string;
+		dataset: Map<string, number[]>;
+		dates: string[];
+	};
+
+	type HistoryChartProps = {
+		title: string;
+		dataset: Map<string, number[]>;
+		dates: string[];
+		showTickerSelector?: boolean;
+		defaultShown?: string[];
+		showLegend?: boolean;
+		zoomable?: boolean;
+	};
+
+	type ChartProps = BarChartProps | HistoryChartProps;
+
 	let {
 		title,
 		chartComponent,
 		chartProps
-	}: { title: string; chartComponent: any; chartProps: any } = $props();
+	}: {
+		title: string;
+		chartComponent: typeof BarChart | typeof HistoryChart;
+		chartProps: ChartProps;
+	} = $props();
 	let fullscreen = $state(false);
 
 	const toggleFullscreen = () => (fullscreen = !fullscreen);
