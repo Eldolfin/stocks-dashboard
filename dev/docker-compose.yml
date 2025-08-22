@@ -16,6 +16,10 @@ services:
       AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET}
       AUTHENTIK_METADATA_URL: ${AUTHENTIK_METADATA_URL}
       AUTHENTIK_LOGOUT_URL: ${AUTHENTIK_LOGOUT_URL}
+    networks:
+      apps:
+        aliases:
+          - backend
     healthcheck:
       interval: 30s
       timeout: 5s
@@ -29,6 +33,10 @@ services:
       context: ../frontend
       dockerfile: Dockerfile.prod
     container_name: frontend
+    networks:
+      apps:
+        aliases:
+          - frontend
     healthcheck:
       interval: 30s
       timeout: 5s
@@ -43,8 +51,13 @@ services:
         condition: service_healthy
       backend:
         condition: service_healthy
+    networks:
+      - apps
     ports:
       - 8085:80
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     restart: unless-stopped
+
+networks:
+  apps:

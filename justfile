@@ -13,9 +13,8 @@ docker-down:
     just _dc-dev down
 
 dev-docker:
-    just _dc-dev up -d --build --wait
-    echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/'
-    just _dc-dev logs -f
+    echo 'Starting at {{BOLD}}{{GREEN}}http://localhost:8085/'
+    just _dc-dev up --watch --build
 
 lint:
     just backend lint
