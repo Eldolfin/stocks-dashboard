@@ -298,13 +298,13 @@
 	<div
 		class="mt-8 rounded-lg border border-gray-300 border-gray-600 bg-gray-800 bg-white p-6 shadow-md"
 	>
-		<h2 class="text-lg font-semibold  text-white">Compare with Index</h2>
+		<h2 class="text-lg font-semibold text-white">Compare with Index</h2>
 
 		<div class="mt-4">
 			<IndexDropdown selected={selectedIndex} onSelect={handleIndexSelect} />
 
 			{#if indexLoading}
-				<div class="mt-2 ">Loading index data...</div>
+				<div class="mt-2">Loading index data...</div>
 			{:else if indexError}
 				<div class="mt-2 text-red-500">{indexError}</div>
 			{:else if indexComparison && evolution_data}
