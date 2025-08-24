@@ -1,13 +1,13 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "wsb-dashboard",
-  "version": "0.1.0",
+  "productName": "Finsight",
+  "version": "0.1.1",
   "identifier": "top.eldolfin.wsb-app",
   "build": {
     "frontendDist": "../frontend/build",
-    "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "just frontend::deno task dev",
-    "beforeBuildCommand": "just frontend::build-static-ext"
+    "devUrl": "http://localhost:8085",
+    "beforeDevCommand": "cd .. && just --set VITE_API_BASE_EXTERNAL / dev-docker",
+    "beforeBuildCommand": "just build-static-ext"
   },
   "app": {
     "windows": [

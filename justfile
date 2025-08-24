@@ -9,11 +9,12 @@ mod frontend
 help:
     just --list
 
-dev-docker:
+docker-down:
     just _dc-dev down
-    just _dc-dev up -d --build --wait
-    echo 'You can now open the website at {{BOLD}}{{GREEN}}http://localhost:8085/'
-    just _dc-dev logs -f
+
+dev-docker:
+    echo 'Starting at {{BOLD}}{{GREEN}}http://localhost:8085/'
+    just _dc-dev up --watch --build
 
 lint:
     just backend lint
@@ -40,7 +41,7 @@ _dc-prod *args:
         {{args}}
 
 build-android: frontend::install
-    cd app && cargo tauri android build
+    cargo tauri android build
 
 dev-android: frontend::install
     cargo tauri android dev

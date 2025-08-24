@@ -4,7 +4,6 @@ from pathlib import Path
 
 from flask import send_from_directory
 from flask_caching import Cache
-from flask_login import current_user, login_required
 from flask_openapi3 import APIBlueprint, Tag
 
 from src import models
@@ -57,7 +56,6 @@ def search_ticker(query: models.SearchQuery):
 
 
 @stocks_bp.post("/etoro/upload_report", tags=[stocks_tag])
-@login_required
 def upload_etoro_report(form: models.EtoroForm) -> tuple[dict, int]:
     if isinstance(form.file, str) or form.file.filename is None:
         return {"error": "Invalid file"}, 400
@@ -66,7 +64,6 @@ def upload_etoro_report(form: models.EtoroForm) -> tuple[dict, int]:
 
 
 @stocks_bp.get("/etoro/reports", tags=[stocks_tag], responses={200: models.EtoroReportsResponse})
-@login_required
 def list_etoro_reports():
     result = stocks_service.list_etoro_reports(current_user.email)
     return result.dict(), 200
@@ -78,7 +75,6 @@ def list_etoro_reports():
     responses={200: models.TaskStartResponse, 404: models.NotFoundResponse},
 )
 @cache.memoize()  # FIXME: is this a good idea?
-@login_required
 def analyze_etoro_excel_by_name(query: models.EtoroTradeCountQuery):
     try:
         task_id = stocks_service.analyze_etoro_excel_by_name_async(query, current_user.email)
@@ -93,7 +89,6 @@ def analyze_etoro_excel_by_name(query: models.EtoroTradeCountQuery):
     responses={200: models.TaskStartResponse, 404: models.NotFoundResponse},
 )
 @cache.memoize()  # FIXME: is this a good idea?
-@login_required
 def analyze_etoro_evolution_by_name(query: models.EtoroEvolutionQuery):
     try:
         task_id = stocks_service.analyze_etoro_evolution_by_name_async(query, current_user.email)
@@ -107,7 +102,6 @@ def analyze_etoro_evolution_by_name(query: models.EtoroEvolutionQuery):
     tags=[stocks_tag],
     responses={200: models.TaskStatusResponse, 404: models.NotFoundResponse},
 )
-@login_required
 def get_task_status(path: models.TaskIdPath):
     task = task_manager.get_task(path.task_id)
     if task is None:
@@ -126,7 +120,6 @@ def get_task_status(path: models.TaskIdPath):
     tags=[stocks_tag],
     responses={200: models.TaskResultResponse, 400: models.BadRequestResponse, 404: models.NotFoundResponse},
 )
-@login_required
 def get_task_result(path: models.TaskIdPath):
     task = task_manager.get_task(path.task_id)
     if task is None:

@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+	'/api/callback': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['auth_auth_callback_callback_get'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/compare_growth/': {
 		parameters: {
 			query?: never;
@@ -143,9 +159,9 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get?: never;
+		get: operations['auth_login_login_get'];
 		put?: never;
-		post: operations['auth_login_login_post'];
+		post?: never;
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -194,22 +210,6 @@ export interface paths {
 		get: operations['auth_get_profile_picture_profile_pictures__user_email___filename__get'];
 		put?: never;
 		post?: never;
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/register': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get?: never;
-		put?: never;
-		post: operations['auth_register_register_post'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1362,13 +1362,6 @@ export interface components {
 			main: components['schemas']['MainKPIs'] | null;
 			query: components['schemas']['KPIQuery'];
 		};
-		/** LoginBody */
-		LoginBody: {
-			/** Email */
-			email: string;
-			/** Password */
-			password: string;
-		};
 		/** MainKPIs */
 		MainKPIs: {
 			/**
@@ -1400,14 +1393,6 @@ export interface components {
 		 * @enum {string}
 		 */
 		PrecisionEnum: 'B' | 'D' | 'W' | 'M' | 'Q' | 'Y' | 'h' | 'min' | 's' | 'ms' | 'us' | 'ns';
-		/** ProfilePictureForm */
-		ProfilePictureForm: {
-			/**
-			 * Profile Picture
-			 * Format: binary
-			 */
-			profile_picture: string;
-		};
 		/** ProfilePictureResponse */
 		ProfilePictureResponse: {
 			/** Message */
@@ -1431,18 +1416,6 @@ export interface components {
 			 * @default null
 			 */
 			today_change: number | null;
-		};
-		/** RegisterForm */
-		RegisterForm: {
-			/** Email */
-			email: string;
-			/** Password */
-			password: string;
-			/**
-			 * Profile Picture
-			 * @default null
-			 */
-			profile_picture: string | null;
 		};
 		/** SearchQuery */
 		SearchQuery: {
@@ -1525,16 +1498,6 @@ export interface components {
 				[key: string]: number[];
 			};
 		};
-		/** UserResponse */
-		UserResponse: {
-			/** Email */
-			email: string;
-			/**
-			 * Profile Picture
-			 * @default null
-			 */
-			profile_picture: string | null;
-		};
 		/** ValidationErrorModel */
 		ValidationErrorModel: {
 			/**
@@ -1573,6 +1536,16 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+	auth_auth_callback_callback_get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: never;
+	};
 	stocks_get_compare_growth_compare_growth__get: {
 		parameters: {
 			query: {
@@ -1860,29 +1833,15 @@ export interface operations {
 			};
 		};
 	};
-	auth_login_login_post: {
+	auth_login_login_get: {
 		parameters: {
 			query?: never;
 			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'application/json': components['schemas']['LoginBody'];
-			};
-		};
-		responses: {
-			/** @description Unprocessable Content */
-			422: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'application/json': components['schemas']['ValidationErrorModel'][];
-				};
-			};
-		};
+		requestBody?: never;
+		responses: never;
 	};
 	auth_logout_logout_post: {
 		parameters: {
@@ -1909,11 +1868,7 @@ export interface operations {
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'multipart/form-data': components['schemas']['ProfilePictureForm'];
-			};
-		};
+		requestBody?: never;
 		responses: {
 			/** @description OK */
 			200: {
@@ -1933,15 +1888,6 @@ export interface operations {
 					'application/json': components['schemas']['NotFoundResponse'];
 				};
 			};
-			/** @description Unprocessable Content */
-			422: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'application/json': components['schemas']['ValidationErrorModel'][];
-				};
-			};
 			/** @description Internal Server Error */
 			500: {
 				headers: {
@@ -1957,48 +1903,11 @@ export interface operations {
 		parameters: {
 			query?: never;
 			header?: never;
-			path: {
-				user_email: string;
-				filename: string;
-			};
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description Unprocessable Content */
-			422: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'application/json': components['schemas']['ValidationErrorModel'][];
-				};
-			};
-		};
-	};
-	auth_register_register_post: {
-		parameters: {
-			query?: never;
-			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		requestBody: {
-			content: {
-				'multipart/form-data': components['schemas']['RegisterForm'];
-			};
-		};
-		responses: {
-			/** @description Unprocessable Content */
-			422: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'application/json': components['schemas']['ValidationErrorModel'][];
-				};
-			};
-		};
+		requestBody?: never;
+		responses: never;
 	};
 	stocks_search_ticker_search__get: {
 		parameters: {
@@ -2192,16 +2101,6 @@ export interface operations {
 			cookie?: never;
 		};
 		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'application/json': components['schemas']['UserResponse'];
-				};
-			};
-		};
+		responses: never;
 	};
 }

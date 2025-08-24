@@ -12,5 +12,14 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - 3000:3000
-    volumes:
-      - ../frontend/src:/app/src:ro
+    # volumes:
+    #   - ../frontend/src:/app/src:ro
+    develop:
+      watch:
+        - action: sync
+          path: ../frontend/src/
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ../frontend/package.json
