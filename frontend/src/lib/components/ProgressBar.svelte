@@ -15,7 +15,7 @@
 
 {#if !isComplete}
 	<div class="rounded-lg border border-gray-300 border-gray-600 bg-gray-800 bg-white p-6 shadow-md">
-		<h3 class="mb-4 text-lg font-semibold text-gray-900 text-white">{title}</h3>
+		<h3 class="mb-4 text-lg font-semibold text-white">{title}</h3>
 
 		{#if error}
 			<div class="rounded-md bg-red-50 bg-red-900/20 p-4">
@@ -34,7 +34,7 @@
 			</div>
 		{:else}
 			<div class="space-y-3">
-				<div class="text-sm text-gray-300 text-gray-600">
+				<div class="text-sm">
 					<span>Starting analysis...</span>
 				</div>
 				<div class="h-2.5 w-full rounded-full bg-gray-200 bg-gray-700">

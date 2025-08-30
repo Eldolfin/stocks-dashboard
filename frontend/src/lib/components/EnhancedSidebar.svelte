@@ -150,7 +150,6 @@
 			{:else}
 				<!-- Login link -->
 				<a
-					href="/login"
 					class="flex items-center rounded-lg p-3 text-gray-300 transition-colors duration-200 hover:bg-gray-700 hover:text-white"
 					class:justify-center={$isSidebarCollapsed}
 				>
