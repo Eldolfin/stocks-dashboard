@@ -2,27 +2,15 @@ from __future__ import annotations
 
 from enum import Enum
 
-from flask_login import UserMixin
 from flask_openapi3 import FileStorage
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.services import task_manager
 
 
-class User(UserMixin):
-    def __init__(self, id: int, email: str, profile_picture: str | None = None) -> None:
-        self.id = id
-        self.email = email
-        self.profile_picture = profile_picture
-
-    def get_id(self) -> str:
-        return str(self.id)
-
-    def __repr__(self) -> str:
-        return f"<User {self.email}>"
-
-    def to_dict(self) -> dict:
-        return {"id": self.id, "email": self.email, "profile_picture": self.profile_picture}
+class User(BaseModel):
+    email: str
+    profile_picture: str | None = None
 
 
 ###############

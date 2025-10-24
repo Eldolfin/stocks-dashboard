@@ -2,7 +2,6 @@
 from pathlib import Path
 
 from flask import current_app
-from flask_login import current_user
 from flask_openapi3 import APIBlueprint, Tag
 
 from src.models import BadRequestResponse, CompareToIndexQuery, CompareToIndexResponse, NotFoundResponse

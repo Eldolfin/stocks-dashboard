@@ -2,8 +2,12 @@ FROM denoland/deno:2.4.5 AS builder
 RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 EXPOSE 3000
-COPY . .
+COPY package.json deno.lock .
+RUN deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11
+COPY svelte.config.js .
+RUN deno task prepare
+COPY vite.config.ts .
+COPY src src
+CMD [ "deno", "task", "dev" ]
 
-CMD [ "sh", "-c", "deno install --allow-scripts=npm:@tailwindcss/oxide@4.1.11 && deno task dev" ]
-
-HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000
+HEALTHCHECK CMD curl -f -o /dev/null http://localhost:3000/profile

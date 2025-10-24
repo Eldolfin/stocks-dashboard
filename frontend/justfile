@@ -1,5 +1,4 @@
-export VITE_API_BASE_EXTERNAL := "http://localhost:5000"
-export VITE_API_BASE_INTERNAL := "http://localhost:5000"
+export VITE_API_BASE_EXTERNAL := "/"
 
 help:
     just --list
@@ -28,11 +27,10 @@ generate-api-types:
 
 # Build static website to build-static/
 build-static:
-	SVELTE_ADAPTER=static deno task build
+	deno task build
 
 # Build static website for external use (such as apps)
 build-static-ext:
 	#!/bin/sh
 	export VITE_API_BASE_EXTERNAL="https://wsb.eldolfin.top"
-	export VITE_API_BASE_INTERNAL="https://wsb.eldolfin.top"
-	SVELTE_ADAPTER=static deno task build
+	deno task build
